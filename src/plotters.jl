@@ -1,73 +1,74 @@
 abstract type AbstractPlotter end
 abstract type LivePlotter <: AbstractPlotter end
+abstract type RSPlotter <: LivePlotter end
 
-struct RSPlotter <: LivePlotter
+# struct RSPlotter <: LivePlotter
 
-    state::AbstractState
-    stepper::AbstractStepper
-    plot_every::Int
-    fig::Figure
-    axs::Vector{Axis}
-    obs::Vector{Observable}
-    label::Label
+#     state::AbstractState
+#     stepper::AbstractStepper
+#     plot_every::Int
+#     fig::Figure
+#     axs::Vector{Axis}
+#     obs::Vector{Observable}
+#     label::Label
 
-    function RSPlotter(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, plot_every::Int)
-        fig = Figure()
-        ax1  = Axis(fig[1,1], title="Slip", aspect=DataAspect())
-        ax2  = Axis(fig[1,3], title="Log10(τ)", aspect=DataAspect())
-        ax3  = Axis(fig[2,1], title="Log10(V)", aspect=DataAspect())
-        ax4  = Axis(fig[2,3], title="Log10(θ)", aspect=DataAspect())
-
-
-        state = experiment.state
-        stepper = algorithm.stepper
-        x = experiment.domain.grid.X
-        y = experiment.domain.grid.Y
-
-        dx = state.dx
-        tau = state.tau
-        V = state.V
-        theta = state.theta
-
-        # This is very dumb. To display correctly the data we need to do the adjoint
-        # If we do Observable(dx') then it defines an observable that looks at the adjoint
-        # However if we then do log10.() then the output will be of type Matrix so we observe only dx as an adjoint
-        # This however does not trigger the type warning for some reason..
-        # Moreover when we update the observable it does not care if it is a matrix or adjoint it just considers them as martrices thus if
-        # we don't do the following the plotting will not work
-
-        obs1 = Observable(dx)
-        obs1[] = dx'
-        obs2 = Observable(tau)
-        obs2[] = log10.(tau')
-        obs3 = Observable(V)
-        obs3[] = log10.(V')
-        obs4 = Observable(theta)
-        obs4[] = log10.(theta')
-        L = Label(fig[0,:], "Simulation time: 0.0sec\n Step: 0", fontsize=15)
-
-        axs = [ax1,ax2,ax3,ax4]
-        obs = [obs1,obs2,obs3,obs4]
-
-        hm1 = heatmap!(ax1, x, y, obs1, rasterize=10)
-        hm2 = heatmap!(ax2, x, y, obs2, rasterize=10)
-        hm3 = heatmap!(ax3, x, y, obs3, rasterize=10)
-        hm4 = heatmap!(ax4, x, y, obs4, rasterize=10)
+#     function RSPlotter(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, plot_every::Int)
+#         fig = Figure()
+#         ax1  = Axis(fig[1,1], title="Slip", aspect=DataAspect())
+#         ax2  = Axis(fig[1,3], title="Log10(τ)", aspect=DataAspect())
+#         ax3  = Axis(fig[2,1], title="Log10(V)", aspect=DataAspect())
+#         ax4  = Axis(fig[2,3], title="Log10(θ)", aspect=DataAspect())
 
 
-        Colorbar(fig[1,2], hm1)
-        Colorbar(fig[1,4], hm2)
-        Colorbar(fig[2,2], hm3)
-        Colorbar(fig[2,4], hm4)
+#         state = experiment.state
+#         stepper = algorithm.stepper
+#         x = experiment.domain.grid.X
+#         y = experiment.domain.grid.Y
 
-        display(fig)
+#         dx = state.dx
+#         tau = state.tau
+#         V = state.V
+#         theta = state.theta
+
+#         # This is very dumb. To display correctly the data we need to do the adjoint
+#         # If we do Observable(dx') then it defines an observable that looks at the adjoint
+#         # However if we then do log10.() then the output will be of type Matrix so we observe only dx as an adjoint
+#         # This however does not trigger the type warning for some reason..
+#         # Moreover when we update the observable it does not care if it is a matrix or adjoint it just considers them as martrices thus if
+#         # we don't do the following the plotting will not work
+
+#         obs1 = Observable(dx)
+#         obs1[] = dx'
+#         obs2 = Observable(tau)
+#         obs2[] = log10.(tau')
+#         obs3 = Observable(V)
+#         obs3[] = log10.(V')
+#         obs4 = Observable(theta)
+#         obs4[] = log10.(theta')
+#         L = Label(fig[0,:], "Simulation time: 0.0sec\n Step: 0", fontsize=15)
+
+#         axs = [ax1,ax2,ax3,ax4]
+#         obs = [obs1,obs2,obs3,obs4]
+
+#         hm1 = heatmap!(ax1, x, y, obs1, rasterize=10)
+#         hm2 = heatmap!(ax2, x, y, obs2, rasterize=10)
+#         hm3 = heatmap!(ax3, x, y, obs3, rasterize=10)
+#         hm4 = heatmap!(ax4, x, y, obs4, rasterize=10)
 
 
-        new(state, stepper, plot_every, fig, axs, obs, L)
-    end
+#         Colorbar(fig[1,2], hm1)
+#         Colorbar(fig[1,4], hm2)
+#         Colorbar(fig[2,2], hm3)
+#         Colorbar(fig[2,4], hm4)
+
+#         display(fig)
 
 
-end
+#         new(state, stepper, plot_every, fig, axs, obs, L)
+#     end
+
+
+# end
 
 
 function UpdatePlot(rsPlotter)
