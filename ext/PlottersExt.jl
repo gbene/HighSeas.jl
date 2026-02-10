@@ -1,4 +1,4 @@
-module PlotterExt
+module PlottersExt
     import HighSeas
     using Makie
 

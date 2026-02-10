@@ -1,8 +1,8 @@
 module HighSeas
 
 # using BenchmarkTools
-using CairoMakie
-using GLMakie
+# using CairoMakie
+# using GLMakie
 using AbstractFFTs
 using LinearAlgebra
 using FFTW
@@ -51,7 +51,7 @@ export AdaptiveStepper
 export CustomNewtonSolver
 export SimpleDetector, CatalogDetector
 export PointSampler, SectionSampler, ContourSampler, SamplerSaver
-export RSPlotter
+# export RSPlotter
 export StepSaver, CatalogSaver, SnaptshotSaver
 export TimeSolver, StepSolver
 
