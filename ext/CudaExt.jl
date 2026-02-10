@@ -1,0 +1,34 @@
+module CudaExt
+
+    using CUDA
+    using HighSeas
+    using StyledStrings
+
+    function HighSeas.set_GPUbackend(mem::String="device")
+
+        if mem == "device"
+            backend = HighSeas.CUDABackend("GPU", "CUDA", CUDA.DeviceMemory)
+
+        elseif mem == "unified"
+            backend = HighSeas.CUDABackend("GPU", "CUDA", CUDA.UnifiedMemory)
+
+        else
+            error(styled"Memory {bold:$mem} type not recognized")
+        end
+        println(styled"CUDA with {bold:$(backend.memory)} will now be used")
+
+
+
+        global_settings["backend"] = backend
+        return nothing
+    end
+
+
+    function HighSeas.memcopy(A::AbstractArray{T, N}) where {T, N}
+        mem = HighSeas.get_backend().memory
+
+        A_cu = CUDA.CuArray{T, N, mem}(A)
+        return A_cu
+    end
+
+end

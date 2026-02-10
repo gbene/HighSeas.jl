@@ -1,0 +1,189 @@
+memcopy(A::AbstractGPUArray{T,N}) where {T, N} = Array{T, N}(A)
+
+
+
+
+function ReadSheet(path_file::String, start_line=3)
+      input_dict = Dict{String, Any}()
+      open(path_file) do f
+            lines = readlines(f)
+            for line in lines[start_line:end]
+                  key, value = split(line,':')
+                  # display(key)
+                  push!(input_dict,key=>parse(Float64, value))
+            end
+      end
+      input_dict
+end
+
+function CalcMinDt(fract, cs, cellsize)
+
+    frac     = 1/2^(fract-1)
+
+    if frac <= 1.0
+        mindt = frac/cs*2*cellsize;
+    else
+        mindt = 1/cs*2*cellsize;
+    end
+    return mindt
+end
+
+function CalcMinDt(input_dict::Dict)
+
+      fract    = input_dict["fract"]
+      cs       = input_dict["cs"]
+      gridside = input_dict["cellsizex"]
+      frac     = 1/2^(fract-1)
+
+      if frac <= 1.0
+            mindt = frac/cs*2*gridside;
+      else
+            mindt = 1/cs*2*gridside;
+      end
+
+      return mindt
+end
+
+function CheckLengthScales(material::AbstractMaterial, domain::AbstractDomain, σ::Float64)
+
+
+      G = material.G
+      ν = material.nu
+      a = material.a
+      b = material.b
+      gridside = domain.grid.cell_sizex
+      Dc = material.Dc
+      L = domain.patch.l
+      H = domain.patch.w
+
+      Lb = G/(1-ν)*Dc/(b*σ)
+
+      Linf = π/4*Lb*(b/(b-a))^2
+
+      length_dim = min(H, L)
+      ratio = length_dim/Linf
+
+      if gridside*3 > Lb
+            error("Cohesive zone may be poorly resolved")
+      elseif gridside*10 > Linf
+            error("Linf is poorly resolved")
+      elseif ratio < 1
+            error("Linf is poorly resolved. H/Linf: $ratio")
+      else
+            return (Lb=Lb, Linf=Linf, ratio=ratio)
+      end
+end
+
+
+function RandomState(Nrows, Ncols)
+
+    dx = rand(Ncols, Nrows)
+    V  = rand(Ncols, Nrows)
+    theta = rand(Ncols, Nrows)
+    tau = rand(Ncols, Nrows)
+
+    state = State(dx, V, theta, tau)
+    return state
+end
+
+
+"""
+Internal function used to set the backend used to perform the calculations.
+Use the publicly available set_CPUbackend and set_GPUbackend to properly set the desired backend.
+"""
+function set_backend(backend::AbstractBackend)
+    platform = backend.platform
+
+    if platform in supported_platforms
+        println(styled"{bold:$platform} will now be used")
+        global_settings["backend"] = backend
+    else
+        error(styled"Platform {bold:$platform} is not supported")
+    end
+    return nothing
+end
+
+"""
+
+get_backend()
+
+Return the current backend used to perform the calculations.
+
+# Example
+
+```julia
+get_backend()
+
+>>> "CPUBackend"
+```
+"""
+function get_backend()
+    return global_settings["backend"]
+end
+
+
+"""
+Get the list of supported platforms that can be used for running the simulations
+
+# Example
+
+```julia
+get_available_platforms()
+
+>>> ["CPU", "CUDA", ...]
+```
+"""
+get_available_platforms() = display(supported_platforms)
+
+"""
+Get the list of supported GPU platforms that can be used for running the simulations
+
+# Example
+
+```julia
+get_available_GPUplatforms()
+
+>>> ["CUDA", ...]
+```
+"""
+get_available_GPUplatforms() = display(supported_GPU_platforms)
+
+
+"""
+set_CPUbackend()
+
+Set the backend to CPU
+
+# Example
+
+```julia
+set_CPUbackend()
+
+>>> CPU will now be used
+```
+"""
+set_CPUbackend() = set_backend(CPUBackend())
+
+"""
+set_GPUbackend()
+
+Set the backend to the available GPU. This is decided by the installed packages, i.e. if CUDA.jl is
+installed (and imported) then CUDA will be used. Only import one JuliaGPU package per script.
+**If no JuliaGPU package is loaded, this method will return a LoadError.**
+
+See the available GPU platforms by running get_available_GPUplatforms().
+
+# Example
+
+```julia
+set_GPUbackend()
+
+>>> CUDA with CUDA.DeviceMemory will now be used
+```
+
+# Notes
+
+Some GPU backends support UnifiedMemory (e.g. CUDA and ROCm). The default will always be DeviceMemory but
+users can choose UnifiedMemory by running ```set_GPUbackend("unified")```
+"""
+function set_GPUbackend end

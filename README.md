@@ -1,6 +1,5 @@
-![icon](icons/icon.png)
+![icon](resources/art/icon.png)
 
-# HighSeas.jl
 
 Ahoy, matey! Welcome to HighSeas, a Julia package focused on accelerating Sequences of Earthquakes and Aseismic Slips simulations using the Spectral Boundary Integral Method on GPUs. 
 
