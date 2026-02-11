@@ -122,7 +122,7 @@ end
 
 function get_data(saver::SnaptshotSaver)
 
-    plotter = saver.plotter
+    plotter = saver.data
     step = GetStep(saver.stepper)
     UpdatePlot(plotter)
     fig = plotter.fig
