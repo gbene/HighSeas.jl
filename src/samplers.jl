@@ -145,7 +145,7 @@ struct SectionSampler{S<:AbstractState, ST<:AbstractStepper,G<:AbstractGrid, M<:
 
         if typeof(get_backend()) <: AbstractGPUBackend
             mask = memcopy(mask)
-            temp = memcopy(temp)
+            temp = memcopy(temp, CUDA.UnifiedMemory)
         end
 
         new{typeof(state), typeof(stepper), typeof(grid), typeof(temp), typeof(mask)}(state, stepper, grid, temp, mask, NT, section, coord, axis)

@@ -38,4 +38,17 @@ module CudaExt
         return A_cu
     end
 
+    function HighSeas.memcopy(A::AbstractArray{T, N}, mem::DataType, dev_id::Int=0) where {T, N}
+
+        prev_dev = device() # save current device
+
+        device!(dev_id) # change to selected device
+
+        A_cu = CUDA.CuArray{T, N, mem}(A) # move to memory
+
+        device!(prev_dev) # change back to starting device
+
+        return A_cu
+    end
+
 end
