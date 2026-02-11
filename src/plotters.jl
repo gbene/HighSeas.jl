@@ -92,7 +92,7 @@ function UpdatePlot(rsPlotter)
 end
 
 
-function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, display=false)
+function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, display=false)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -101,10 +101,10 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, d
     fig = Figure(size=(1920,1080))
 
 
-    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$(string(sampler_quantity))")
+    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$sampler_quantity")
 
 
-    lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, sampler_quantity), label="Ours", color=:black)
+    lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, Symbol(sampler_quantity)), label="Ours", color=:black)
 
     ax.titlesize=30
     ax.xlabelsize = 25
@@ -120,7 +120,7 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, d
     return fig, ax
 
 end
-function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, scale::Function, display=false)
+function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, scale::Function, display=false)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -129,10 +129,10 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, s
     fig = Figure(size=(1920,1080))
 
 
-    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$(string(scale))($(string(sampler_quantity))")
+    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$(string(scale))($sampler_quantity)")
 
 
-    lines!(ax, pointSampler.times/(365*24*60*60), scale.(getproperty(pointSampler, sampler_quantity)), label="Ours", color=:black)
+    lines!(ax, pointSampler.times/(365*24*60*60), scale.(getproperty(pointSampler, Symbol(sampler_quantity))), label="Ours", color=:black)
 
     ax.titlesize=30
     ax.xlabelsize = 25
@@ -148,7 +148,7 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, s
     return fig, ax
 
 end
-function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::Symbol, sampler_quantity::Symbol, display=false)
+function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::String, sampler_quantity::String, display=false)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -161,7 +161,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     fig = Figure(size=(1920,1080), figure_padding=30)
 
 
-    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$(string(sampler_quantity))")
+    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$sampler_quantity")
 
 
     for i in eachindex(paths)
@@ -171,7 +171,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
         lines!(ax, data.t/(365*24*60*60), getproperty(data, quantity), label=label, linewidth=5)
     end
 
-    lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, sampler_quantity), label="Ours", color=:black, linewidth=5)
+    lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, Symbol(sampler_quantity)), label="Ours", color=:black, linewidth=5)
 
     ax.titlesize=40
     ax.xlabelsize = 40
@@ -187,7 +187,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     return fig, ax
 
 end
-function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::Symbol, sampler_quantity::Symbol, scale::Function, display=false)
+function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::String, sampler_quantity::String, scale::Function, display=false)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -200,7 +200,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     fig = Figure(size=(1920,1080), figure_padding=30)
 
 
-    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$(string(scale))($(string(sampler_quantity)))")
+    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$(string(scale))($sampler_quantity)")
 
 
     for i in eachindex(paths)
@@ -210,7 +210,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
         lines!(ax, data.t/(365*24*60*60), getproperty(data, quantity), label=label, linewidth=5)
     end
 
-    lines!(ax, pointSampler.times/(365*24*60*60), scale.(getproperty(pointSampler, sampler_quantity)), label="Ours", color=:black, linewidth=5)
+    lines!(ax, pointSampler.times/(365*24*60*60), scale.(getproperty(pointSampler, Symbol(sampler_quantity))), label="Ours", color=:black, linewidth=5)
 
     ax.titlesize=40
     ax.xlabelsize = 40
