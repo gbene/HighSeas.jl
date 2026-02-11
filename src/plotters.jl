@@ -298,6 +298,23 @@ function plotDomain(domain::AbstractDomain, dot_grid=false)
 
 end
 
+function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_section::SectionSampler, dot_grid=false; sample_point_kwargs=(), sample_section_kwargs=())
+
+    fig, ax = plotDomain(domain, dot_grid)
+
+
+    scatter!(ax, sample_point.sample_point_x, sample_point.sample_point_y; sample_point_kwargs...)
+
+    if sample_section.axis == "y"
+        hlines!(ax, sample_section.coord; sample_section_kwargs...)
+    else
+        vlines!(ax, sample_section.coord; sample_section_kwargs...)
+    end
+
+    return fig, ax
+
+end
+
 function plotCatalog(catalog::AbstractCatalog, quantity::String; ax_kwargs, stem_kwargs)
 
     n_events = catalog.n_events
