@@ -168,7 +168,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
         path = paths[i]
         data = CSV.File(open(path))
         label = splitpath(path)[end-1]
-        lines!(ax, data.t/(365*24*60*60), getproperty(data, quantity), label=label, linewidth=5)
+        lines!(ax, data.t/(365*24*60*60), getproperty(data, Symbol(quantity)), label=label, linewidth=5)
     end
 
     lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, Symbol(sampler_quantity)), label="Ours", color=:black, linewidth=5)
