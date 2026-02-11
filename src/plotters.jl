@@ -1,6 +1,5 @@
 abstract type AbstractPlotter end
 abstract type LivePlotter <: AbstractPlotter end
-# abstract type RSPlotter <: LivePlotter end
 
 struct RSPlotter <: LivePlotter
 
@@ -145,7 +144,6 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, s
     return fig, ax
 
 end
-
 function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::Symbol, sampler_quantity::Symbol, scale::Function)
 
     point = pointSampler.sample_point_id
@@ -281,7 +279,6 @@ function plotCatalog(catalog_path::String, upto::Int; kwargs...)
 
     return fig, ax
 end
-
 function plotCatalog(catalog_path::String, upto::Int, ax::Axis; kwargs...)
 
     catalog  = load(catalog_path)["data"][1:upto, :]
@@ -292,6 +289,7 @@ function plotCatalog(catalog_path::String, upto::Int, ax::Axis; kwargs...)
 
 
 end
+
 function plotCatalogSSH(catalog_path::String, upto::Int; kwargs...)
     url = ENV["elja_url"]
     username = ENV["elja_user"]
@@ -323,7 +321,6 @@ function plotCatalogSSH(catalog_path::String, upto::Int; kwargs...)
 
 
 end
-
 function plotCatalogSSH(catalog_path::String, upto::Int, ax::Axis; kwargs...)
     url = ENV["elja_url"]
     username = ENV["elja_user"]

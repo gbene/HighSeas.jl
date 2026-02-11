@@ -1,6 +1,6 @@
 name = "HighSeas"
 uuid = "cf55fe6e-1192-45e2-9362-6673aaff05ef"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["gbene <gabri.benedetti@gmail.com>"]
 
 [deps]
@@ -20,8 +20,6 @@ TimeZones = "f269a46b-ccf7-5d73-abea-4c690281aa53"
 [weakdeps]
 AMDGPU = "21141c5a-9bdb-4563-92ae-f87d6854732e"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
-GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 Metal = "dde4c033-4e86-420c-a63e-0dd931031962"
 
 [extensions]
@@ -29,18 +27,3 @@ CudaExt = "CUDA"
 MetalExt = "Metal"
 RocExt = "AMDGPU"
 
-[compat]
-AbstractFFTs = "1.5.0"
-CSV = "0.10.15"
-CairoMakie = "0.15.8"
-FFTW = "1.10.0"
-FastBroadcast = "0.3.5"
-GLMakie = "0.13.8"
-GPUArrays = "11.4.0"
-Glob = "1.4.0"
-JLD2 = "0.6.3"
-LinearAlgebra = "1.12.0"
-Makie = "0.24.8"
-SFTPClient = "0.4.8"
-StyledStrings = "1.11.0"
-TimeZones = "1.22.2"
