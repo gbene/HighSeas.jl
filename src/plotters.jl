@@ -221,7 +221,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
 
 end
 
-function plotSection(sectionSampler::SectionSampler)
+function plotSection(sectionSampler::SectionSampler, s_slip_freq=50, as_slip_freq=50)
 
 
     X = sectionSampler.grid.X
@@ -232,13 +232,13 @@ function plotSection(sectionSampler::SectionSampler)
 
     fig = Figure(size=(480,1080))
     if sectionSampler.axis == "x"
-        ax = Axis(fig[1,1], title="Along dip slip profile (x = $(sectionSampler.coord))",xlabel="Dip distance", ylabel="Cumulative slip")
-        series!(ax, Y/1000, seismic_slips[1:50:end,:], solid_color=:red, linewidth=1)
-        series!(ax, Y/1000, aseismic_slips[1:50:end,:], solid_color=:blue, linewidth=1)
+        ax = Axis(fig[1,1], title="Along dip slip profile (x = $(sectionSampler.coord))",xlabel="Dip distance [Km]", ylabel="Cumulative slip")
+        series!(ax, Y/1000, seismic_slips[1:s_slip_freq:end,:], solid_color=:red, linewidth=1)
+        series!(ax, Y/1000, aseismic_slips[1:as_slip_freq:end,:], solid_color=:blue, linewidth=1)
     else
-        ax = Axis(fig[1,1], title="Along strike slip profile (y = $(sectionSampler.coord))",xlabel="Strike distance", ylabel="Cumulative slip")
-        series!(ax, X/1000, seismic_slips[1:50:end,:], solid_color=:red, linewidth=1)
-        series!(ax, X/1000, aseismic_slips[1:50:end,:], solid_color=:blue, linewidth=1)
+        ax = Axis(fig[1,1], title="Along strike slip profile (y = $(sectionSampler.coord))",xlabel="Strike distance [Km]", ylabel="Cumulative slip")
+        series!(ax, X/1000, seismic_slips[1:s_slip_freq:end,:], solid_color=:red, linewidth=1)
+        series!(ax, X/1000, aseismic_slips[1:as_slip_freq:end,:], solid_color=:blue, linewidth=1)
     end
 
     tightlimits!(ax)
