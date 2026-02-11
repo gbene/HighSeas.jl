@@ -150,7 +150,7 @@ struct SectionSampler{S<:AbstractState, ST<:AbstractStepper,G<:AbstractGrid, M<:
 
             temp = memcopy(temp)
 
-            HighSeas.set_GPUbackend(old_backend)
+            HighSeas.set_GPUbackend(old_memtype)
 
         end
 
