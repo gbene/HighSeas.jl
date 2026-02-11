@@ -36,7 +36,7 @@ end
 struct Catalog{S<:SubArray} <: AbstractCatalog
 
     catalog::Matrix{Float64}
-    max_events::int
+    max_events::Int
 
     t::S
     interevent_time::S
