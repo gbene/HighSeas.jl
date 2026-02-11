@@ -33,7 +33,7 @@ struct State{M<:AbstractArray{Float64}} <: AbstractState
     end
 end
 
-struct Catalog{S<:SubArray} <: AbstractCatalog
+mutable struct Catalog{S<:SubArray} <: AbstractCatalog
 
     catalog::Matrix{Float64}
     max_events::Int
