@@ -294,6 +294,8 @@ function plotDomain(domain::AbstractDomain, dot_grid=false)
 
     tightlimits!(ax)
     resize_to_layout!(fig)
+
+    display(fig)
     return fig, ax
 
 end
@@ -311,6 +313,7 @@ function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_s
         vlines!(ax, sample_section.coord; sample_section_kwargs...)
     end
 
+    display(fig)
     return fig, ax
 
 end
