@@ -65,3 +65,4 @@ If you use this code please cite our work!
     + https://github.com/JuliaMath/FFTW.jl
 + FastBroadcast.jl: https://github.com/YingboMa/FastBroadcast.jl
 + Ylse Anna de Vries for the name of the package: https://github.com/ylseanna
++ Others?
