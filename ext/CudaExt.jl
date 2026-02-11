@@ -29,7 +29,7 @@ module CudaExt
 
         prev_dev = device() # save current device
 
-        device!(dev) # change to selected device
+        device!(dev_id) # change to selected device
 
         A_cu = CUDA.CuArray{T, N, mem}(A) # move to memory
 
