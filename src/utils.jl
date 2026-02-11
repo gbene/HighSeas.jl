@@ -1,3 +1,17 @@
+"""
+memcopy(A::AbstractGPUArray)
+memcopy(A::AbstractArray, dev=0)
+
+Copy an array to and from GPU/CPU depending on the output data type.
+
+Overload this method with GPU specific Arrays using extensions
+
+# Examples
+
+A = rand(256, 256)
+memcopy(A) # Copy A to the default device of an available backend
+memcopy(A, 1) # Copy A to device 1 of the available backend
+"""
 memcopy(A::AbstractGPUArray{T,N}) where {T, N} = Array{T, N}(A)
 
 
@@ -16,6 +30,12 @@ function ReadSheet(path_file::String, start_line=3)
       input_dict
 end
 
+"""
+CalcMinDt(fract, cs, cellsize)
+CalcMinDt(input_dict::Dict)
+
+Calculate minimum dt given the wave speed and cellsize
+"""
 function CalcMinDt(fract, cs, cellsize)
 
     frac     = 1/2^(fract-1)
@@ -27,7 +47,6 @@ function CalcMinDt(fract, cs, cellsize)
     end
     return mindt
 end
-
 function CalcMinDt(input_dict::Dict)
 
       fract    = input_dict["fract"]
@@ -44,6 +63,14 @@ function CalcMinDt(input_dict::Dict)
       return mindt
 end
 
+"""
+CheckLengthScales(material::AbstractMaterial, domain::AbstractDomain, σ::Float64)
+CheckLengthScales(input_dict::Dict, material::AbstractMaterial, domain::AbstractDomain)
+
+
+Check if grid and smallest dimension of the RW domain are within the imposed ratios:
+    Lb/gridside > 3, Linf/gridside>10, L/Linf > 1
+"""
 function CheckLengthScales(material::AbstractMaterial, domain::AbstractDomain, σ::Float64)
 
 
@@ -72,6 +99,13 @@ function CheckLengthScales(material::AbstractMaterial, domain::AbstractDomain, �
       else
             return (Lb=Lb, Linf=Linf, ratio=ratio)
       end
+end
+function CheckLengthScales(input_dict::Dict, material::AbstractMaterial, domain::AbstractDomain)
+
+    si = input_dict["si0"]
+
+    res = CheckLengthScales(material, domain, si)
+    return res
 end
 
 
@@ -183,7 +217,7 @@ set_GPUbackend()
 
 # Notes
 
-Some GPU backends support UnifiedMemory (e.g. CUDA and ROCm). The default will always be DeviceMemory but
+Some GPU backends support UnifiedMemory (e.g. CUDA, ROCm, Metal). The default will always be DeviceMemory but
 users can choose UnifiedMemory by running ```set_GPUbackend("unified")```
 """
 function set_GPUbackend end

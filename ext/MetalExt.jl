@@ -25,10 +25,17 @@ module MetalExt
     end
 
 
-    function HighSeas.memcopy(A::AbstractArray{T, N}) where {T, N}
+    function HighSeas.memcopy(A::AbstractArray{T, N}, dev_id::Int=0) where {T, N}
         mem = HighSeas.get_backend().memory
 
+        prev_dev = device() # save current device
+        device!(dev_id) # change to selected device
+
+
         A_mtl = Metal.MtlArray{T, N, mem}(A)
+
+        device!(prev_dev) # change to selected device
+
         return A_mtl
     end
 

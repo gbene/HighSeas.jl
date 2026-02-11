@@ -1,12 +1,11 @@
 module HighSeas
 
-# using BenchmarkTools
 using Makie
 using AbstractFFTs
 using LinearAlgebra
 using FFTW
 using FastBroadcast
-import GPUArrays.AbstractGPUArray
+using GPUArrays
 using JLD2
 using TimeZones
 using StyledStrings
