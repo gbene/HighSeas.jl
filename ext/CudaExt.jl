@@ -31,7 +31,7 @@ module CudaExt
 
         device!(dev_id) # change to selected device
 
-        A_cu = CUDA.CuArray{T, N, mem}(A) # move to memory
+        A_cu = CuArray{T, N, mem}(A) # move to memory
 
         device!(prev_dev) # change back to starting device
 

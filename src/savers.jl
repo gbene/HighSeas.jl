@@ -97,9 +97,9 @@ struct SnaptshotSaver{P<:AbstractPlotter, ST<:AbstractStepper} <: AbstractSaver
 
         stepper = algorithm.stepper
 
-        if get_backend().platform == "CPU"
-            CairoMakie.activate!()
-        end
+        # if get_backend().platform == "CPU"
+        #     CairoMakie.activate!()
+        # end
 
         data = plotter
         new{typeof(data), typeof(stepper)}(outpath, every, data, stepper)

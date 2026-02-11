@@ -22,6 +22,15 @@ struct CUDABackend <: AbstractGPUBackend
 
 end
 
+struct ROCmBackend <: AbstractGPUBackend
+
+    platform::String
+    device::String
+    memtype::String
+    memory::DataType
+
+end
+
 struct MetalBackend <: AbstractGPUBackend
 
     platform::String

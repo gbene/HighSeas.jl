@@ -1,17 +1,18 @@
-module MetalExt
+module RocExt
 
-    using Metal
+    using AMDGPU
     using HighSeas
     using StyledStrings
 
-    # Metal PrivateStorage = CUDA DeviceMemory, Metal SharedStorage = CUDA UnifiedMemory
     function HighSeas.set_GPUbackend(mem::String="device")
 
         if mem == "device"
-            backend = HighSeas.MetalBackend("GPU", "METAL", mem, Metal.PrivateStorage)
+            backend = HighSeas.ROCmBackend("GPU", "ROCm", mem, AMDGPU.Runtime.Mem.HIPBuffer)
 
         elseif mem == "unified"
-            backend = HighSeas.MetalBackend("GPU", "METAL", mem, Metal.SharedStorage)
+            # backend = HighSeas.MetalBackend("GPU", "METAL", mem, Metal.SharedStorage)
+            error(styled"Memory {bold:$mem} not supported")
+
 
         else
             error(styled"Memory {bold:$mem} type not recognized")
@@ -32,7 +33,7 @@ module MetalExt
         device!(dev_id) # change to selected device
 
 
-        A_mtl = MtlArray{T, N, mem}(A)
+        A_mtl = ROCArray{T, N, mem}(A)
 
         device!(prev_dev) # change to selected device
 
