@@ -40,11 +40,11 @@ struct PointSampler{S<:AbstractState, ST<:AbstractStepper, M<:AbstractArray{Floa
         mask = @. Int8((grid.x == sample_point_x) * (grid.y == sample_point_y));
         temp = zeros(grid.n_elementsy, grid.n_elementsx)
 
-        dxs           = fill(0.0, NT)
-        Vs            = fill(0.0, NT)
-        thetas        = fill(0.0, NT)
-        taus          = fill(0.0, NT)
-        times         = fill(0.0, NT)
+        dxs           = fill(NaN, NT)
+        Vs            = fill(NaN, NT)
+        thetas        = fill(NaN, NT)
+        taus          = fill(NaN, NT)
+        times         = fill(NaN, NT)
 
         if typeof(get_backend()) <: AbstractGPUBackend
             mask = memcopy(mask)
@@ -141,7 +141,7 @@ struct SectionSampler{S<:AbstractState, ST<:AbstractStepper,G<:AbstractGrid, M<:
         end
         temp = zeros(grid.n_elementsy, grid.n_elementsx)
 
-        section = fill(0.0, (NT, sum(mask)+1))
+        section = fill(NaN, (NT, sum(mask)+1))
 
         if typeof(get_backend()) <: AbstractGPUBackend
             mask = memcopy(mask)
