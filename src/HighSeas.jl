@@ -3,6 +3,7 @@ module HighSeas
 # using BenchmarkTools
 # using CairoMakie
 # using GLMakie
+using Makie
 using AbstractFFTs
 using LinearAlgebra
 using FFTW
