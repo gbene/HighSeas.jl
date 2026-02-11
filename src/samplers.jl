@@ -145,7 +145,13 @@ struct SectionSampler{S<:AbstractState, ST<:AbstractStepper,G<:AbstractGrid, M<:
 
         if typeof(get_backend()) <: AbstractGPUBackend
             mask = memcopy(mask)
-            temp = memcopy(temp, CUDA.UnifiedMemory)
+            old_memtype = HighSeas.get_backend().memtype
+            HighSeas.set_GPUbackend("unified")
+
+            temp = memcopy(temp)
+
+            HighSeas.set_GPUbackend(old_backend)
+
         end
 
         new{typeof(state), typeof(stepper), typeof(grid), typeof(temp), typeof(mask)}(state, stepper, grid, temp, mask, NT, section, coord, axis)

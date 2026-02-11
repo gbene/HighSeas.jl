@@ -7,10 +7,10 @@ module CudaExt
     function HighSeas.set_GPUbackend(mem::String="device")
 
         if mem == "device"
-            backend = HighSeas.CUDABackend("GPU", "CUDA", CUDA.DeviceMemory)
+            backend = HighSeas.CUDABackend("GPU", "CUDA", mem, CUDA.DeviceMemory)
 
         elseif mem == "unified"
-            backend = HighSeas.CUDABackend("GPU", "CUDA", CUDA.UnifiedMemory)
+            backend = HighSeas.CUDABackend("GPU", "CUDA", mem, CUDA.UnifiedMemory)
 
         else
             error(styled"Memory {bold:$mem} type not recognized")
@@ -38,17 +38,17 @@ module CudaExt
         return A_cu
     end
 
-    function HighSeas.memcopy(A::AbstractArray{T, N}, mem::DataType, dev_id::Int=0) where {T, N}
+    # function HighSeas.memcopy(A::AbstractArray{T, N}, mem::DataType, dev_id::Int=0) where {T, N}
 
-        prev_dev = device() # save current device
+    #     prev_dev = device() # save current device
 
-        device!(dev_id) # change to selected device
+    #     device!(dev_id) # change to selected device
 
-        A_cu = CUDA.CuArray{T, N, mem}(A) # move to memory
+    #     A_cu = CUDA.CuArray{T, N, mem}(A) # move to memory
 
-        device!(prev_dev) # change back to starting device
+    #     device!(prev_dev) # change back to starting device
 
-        return A_cu
-    end
+    #     return A_cu
+    # end
 
 end

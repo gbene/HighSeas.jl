@@ -8,10 +8,10 @@ module MetalExt
     function HighSeas.set_GPUbackend(mem::String="device")
 
         if mem == "device"
-            backend = HighSeas.MetalBackend("GPU", "METAL", Metal.PrivateStorage)
+            backend = HighSeas.MetalBackend("GPU", "METAL", mem, Metal.PrivateStorage)
 
         elseif mem == "unified"
-            backend = HighSeas.MetalBackend("GPU", "METAL", Metal.SharedStorage)
+            backend = HighSeas.MetalBackend("GPU", "METAL", mem, Metal.SharedStorage)
 
         else
             error(styled"Memory {bold:$mem} type not recognized")
