@@ -47,8 +47,8 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
 
     eventStart::Bool
     eventN::Int
-    maxVThresh::Float64
     minVThresh::Float64
+    maxVThresh::Float64
 
     state::S
     stepper::ST
