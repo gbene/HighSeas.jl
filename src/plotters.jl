@@ -144,6 +144,44 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, s
     return fig, ax
 
 end
+function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::Symbol, sampler_quantity::Symbol)
+
+    point = pointSampler.sample_point_id
+    pointx = pointSampler.sample_point_x
+    pointy = pointSampler.sample_point_y
+
+
+    paths = glob("**/$point.csv", ref_path)
+    data = Array{CSV.File, 1}(undef, length(paths))
+    label = Array{String, 1}(undef, length(paths))
+    fig = Figure(size=(1920,1080), figure_padding=30)
+
+
+    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$(string(sampler_quantity))")
+
+
+    for i in eachindex(paths)
+        path = paths[i]
+        data = CSV.File(open(path))
+        label = splitpath(path)[end-1]
+        lines!(ax, data.t/(365*24*60*60), getproperty(data, quantity), label=label, linewidth=5)
+    end
+
+    lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, sampler_quantity), label="Ours", color=:black, linewidth=5)
+
+    ax.titlesize=40
+    ax.xlabelsize = 40
+    ax.ylabelsize = 40
+    ax.xticklabelsize = 40
+    ax.yticklabelsize = 40
+    axislegend(labelsize=40)
+
+
+    display(fig)
+
+    return fig, ax
+
+end
 function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::Symbol, sampler_quantity::Symbol, scale::Function)
 
     point = pointSampler.sample_point_id
