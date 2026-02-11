@@ -170,6 +170,7 @@ function (catalogDetector::CatalogDetector)()
         catalog.Area[eventN] = Area
         catalog.MeanSlip[eventN] = MeanSlip
         catalog.MeanStress[eventN] = MeanStress
+        catalog.n_events += 1
 
     end
     return nothing

@@ -36,7 +36,7 @@ end
 struct Catalog{S<:SubArray} <: AbstractCatalog
 
     catalog::Matrix{Float64}
-    n_events::Int
+    max_events::int
 
     t::S
     interevent_time::S
@@ -47,11 +47,30 @@ struct Catalog{S<:SubArray} <: AbstractCatalog
     MeanStress::S
     hypo_x::S
     hypo_y::S
+    n_events::Int
 
 
-    function Catalog(n_events::Int)
 
-        catalog = zeros(n_events, 9)
+    function Catalog(max_events::Int)
+
+        catalog = zeros(max_events, 9)
+
+        t                   = @view catalog[:,1]
+        interevent_time     = @view catalog[:,2]
+        Moment              = @view catalog[:,3]
+        mag                 = @view catalog[:,4]
+        Area                = @view catalog[:,5]
+        MeanSlip            = @view catalog[:,6]
+        MeanStress          = @view catalog[:,7]
+        hypo_x              = @view catalog[:,8]
+        hypo_y              = @view catalog[:,9]
+        n_events = 0
+
+        new{typeof(t)}(catalog, max_events, t, interevent_time, Moment, mag, Area, MeanSlip, MeanStress, hypo_x, hypo_y, n_events)
+
+    end
+
+    function Catalog(catalog::Matrix{Float64})
 
         t                   = @view catalog[:,1]
         interevent_time     = @view catalog[:,2]
@@ -63,14 +82,14 @@ struct Catalog{S<:SubArray} <: AbstractCatalog
         hypo_x              = @view catalog[:,8]
         hypo_y              = @view catalog[:,9]
 
-        new{typeof(t)}(catalog, n_events, t, interevent_time, Moment, mag, Area, MeanSlip, MeanStress, hypo_x, hypo_y)
+        max_events = n_events = size(catalog)[1]
 
+        new{typeof(t)}(catalog, max_events, t, interevent_time, Moment, mag, Area, MeanSlip, MeanStress, hypo_x, hypo_y, n_events)
     end
-
-    function Catalog{S}(catalog, n_events, t::S, interevent_time::S,
+    function Catalog{S}(catalog, max_events, t::S, interevent_time::S,
                     Moment::S, mag::S, Area::S, MeanSlip::S,
-                    MeanStress::S, hypo_x::S, hypo_y::S) where S
+                    MeanStress::S, hypo_x::S, hypo_y::S, n_events) where S
 
-        new{S}(catalog, n_events, t, interevent_time, Moment, mag, Area, MeanSlip, MeanStress, hypo_x, hypo_y)
+        new{S}(catalog, max_events, t, interevent_time, Moment, mag, Area, MeanSlip, MeanStress, hypo_x, hypo_y, n_events)
     end
 end

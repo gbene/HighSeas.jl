@@ -255,7 +255,31 @@ function plotDomain(domain::AbstractDomain, dot_grid=false)
 
 end
 
+function plotCatalog(catalog::AbstractCatalog, quantity::String; ax_kwargs, stem_kwargs)
 
+    n_events = catalog.n_events
+    trimmed_catalog = Catalog(catalog.catalog[1:n_events, :])
+    data = getfield(trimmed_catalog, Symbol(quantity))
+
+    fig = Figure(size=(1920,1080), figure_padding=30)
+
+
+    ax = Axis(fig[1,1], title="Simulated catalog", xlabel="Time [yrs]", ax_kwargs)
+
+    stem!(ax, trimmed_catalog.t/(365*24*60*60), data; stem_kwargs...)
+
+    ax.titlesize=30
+    ax.xticklabelsize = 25
+    ax.xlabelsize = 25
+    ax.ylabelsize = 25
+    ax.yticklabelsize = 25
+
+    # axislegend(ax)
+
+    display(fig)
+
+    return fig, ax
+end
 function plotCatalog(catalog_path::String, upto::Int; kwargs...)
 
     catalog  = load(catalog_path)["data"].catalog[1:upto, :]
