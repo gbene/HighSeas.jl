@@ -264,7 +264,7 @@ function plotCatalog(catalog::AbstractCatalog, quantity::String; ax_kwargs, stem
     fig = Figure(size=(1920,1080), figure_padding=30)
 
 
-    ax = Axis(fig[1,1], title="Simulated catalog", xlabel="Time [yrs]", ax_kwargs)
+    ax = Axis(fig[1,1], title="Simulated catalog", xlabel="Time [yrs]", ax_kwargs...)
 
     stem!(ax, trimmed_catalog.t/(365*24*60*60), data; stem_kwargs...)
 
