@@ -250,6 +250,11 @@ function plotSection(sectionSampler::SectionSampler, s_slip_freq=50, as_slip_fre
     ax.xticklabelsize = 20
     ax.yticklabelsize = 20
 
+    legend_seismic = LineElement(color=:red, linewidth=1)
+    legend_aseismic = LineElement(color=:blue, linewidth=1)
+
+    axislegend(ax, [legend_seismic, legend_aseismic], ["Seismic", "Aseismic"])
+
     display(fig)
 
     return fig, ax

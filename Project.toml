@@ -1,6 +1,6 @@
 name = "HighSeas"
 uuid = "cf55fe6e-1192-45e2-9362-6673aaff05ef"
-version = "0.2.4"
+version = "0.2.5"
 authors = ["gbene <gabri.benedetti@gmail.com>"]
 
 [deps]
