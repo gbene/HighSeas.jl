@@ -48,6 +48,7 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
     eventStart::Bool
     eventN::Int
     maxVThresh::Float64
+    minVThresh::Float64
 
     state::S
     stepper::ST
@@ -68,7 +69,7 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
     last_event_time::Float64
     cell_area::Float64
 
-    function CatalogDetector(maxVThresh::Float64, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function CatalogDetector(minVThresh::Float64, maxVThresh::Float64, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
         Nx = experiment.domain.grid.n_elementsx
         Ny = experiment.domain.grid.n_elementsy
 
@@ -99,7 +100,7 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
             ruptured_nodes      = memcopy(ruptured_nodes)
         end
 
-        new{typeof(state), typeof(stepper), typeof(catalog), typeof(dx_start), typeof(ruptured_nodes)}(false, 1, maxVThresh, state, stepper, material,
+        new{typeof(state), typeof(stepper), typeof(catalog), typeof(dx_start), typeof(ruptured_nodes)}(false, 1, minVThresh, maxVThresh, state, stepper, material,
                                                                                      catalog, dx_start, slip, tau_start, stressdrop, x, y, temp,
                                                                                      ruptured_nodes, time_start, last_event_time, cell_area)
     end
@@ -192,7 +193,7 @@ function detect(detector::AbstractDetector)
             println("event $(detector.eventN) has started, time: $(time/(365*24*60*60))")
     end
 
-    if maxV <= detector.maxVThresh && detector.eventStart == true
+    if maxV <= detector.minVThresh && detector.eventStart == true
             detector()
             println("Event has ended")
             detector.eventN +=1
