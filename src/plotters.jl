@@ -264,7 +264,7 @@ function plotCatalog(catalog::AbstractCatalog, quantity::String; ax_kwargs, stem
     fig = Figure(size=(1920,1080), figure_padding=30)
 
 
-    ax = Axis(fig[1,1], title="Simulated catalog", xlabel="Time [yrs]"; ax_kwargs...)
+    ax = Axis(fig[1,1], title="Simulated catalog", xlabel="Time [yrs]", ylabel=quantity; ax_kwargs...)
 
     stem!(ax, trimmed_catalog.t/(365*24*60*60), data; stem_kwargs...)
 
@@ -280,41 +280,34 @@ function plotCatalog(catalog::AbstractCatalog, quantity::String; ax_kwargs, stem
 
     return fig, ax
 end
-function plotCatalog(catalog_path::String, upto::Int; kwargs...)
+function plotCatalog(catalog::AbstractCatalog, quantity::String, ax::Axis; stem_kwargs)
 
-    catalog  = load(catalog_path)["data"].catalog[1:upto, :]
+    n_events = catalog.n_events
+    trimmed_catalog = Catalog(catalog.catalog[1:n_events, :])
+    data = getfield(trimmed_catalog, Symbol(quantity))
 
-    fig = Figure(size=(1920,1080), figure_padding=30)
+    stem!(ax, trimmed_catalog.t/(365*24*60*60), data; stem_kwargs...)
 
-
-    ax = Axis(fig[1,1], title="Simulated events", xlabel="Time [yrs]", ylabel="Mw")
-
-    stem!(ax, catalog[:,1]/(365*24*60*60), catalog[:,4]; kwargs...)
-
-    ax.titlesize=30
-    ax.xticklabelsize = 25
-    ax.xlabelsize = 25
-    ax.ylabelsize = 25
-    ax.yticklabelsize = 25
-
-    # axislegend(ax)
-
-    display(fig)
-
-    return fig, ax
-end
-function plotCatalog(catalog_path::String, upto::Int, ax::Axis; kwargs...)
-
-    catalog  = load(catalog_path)["data"][1:upto, :]
-
-    stem!(ax, catalog[:,1]/(365*24*60*60), catalog[:,4]; kwargs...)
-    # axislegend(ax)
     return ax
+end
+
+
+function plotCatalogSSH(catalog_path::String, quantity::String; ax_kwargs, stem_kwargs)
+    url = ENV["elja_url"]
+    username = ENV["elja_user"]
+    private_file = ENV["elja_private"]
+    public_file = ENV["elja_pub"]
+
+
+    sftp = SFTP(url, username, public_file, private_file)
+
+    catalog  = load(SFTPClient.download(sftp, catalog_path))["data"]
+
+    return plotCatalog(catalog, quantity; ax_kwargs, stem_kwargs)
 
 
 end
-
-function plotCatalogSSH(catalog_path::String, upto::Int; kwargs...)
+function plotCatalogSSH(catalog_path::String, quantity::String, ax::Axis; stem_kwargs)
     url = ENV["elja_url"]
     username = ENV["elja_user"]
     private_file = ENV["elja_private"]
@@ -325,42 +318,7 @@ function plotCatalogSSH(catalog_path::String, upto::Int; kwargs...)
 
     catalog  = load(SFTPClient.download(sftp, catalog_path))["catalog"][1:upto, :]
 
-    fig = Figure(size=(1920,1080), figure_padding=30)
-
-
-    ax = Axis(fig[1,1], title="Simulated events", xlabel="Time [yrs]", ylabel="Mw")
-
-    stem!(ax, catalog[:,1]/(365*24*60*60), catalog[:,4]; kwargs...)
-
-    ax.titlesize=30
-    ax.xticklabelsize = 25
-    ax.xlabelsize = 25
-    ax.ylabelsize = 25
-    ax.yticklabelsize = 25
-
-    # axislegend(ax)
-    display(fig)
-
-    return fig, ax
-
-
-end
-function plotCatalogSSH(catalog_path::String, upto::Int, ax::Axis; kwargs...)
-    url = ENV["elja_url"]
-    username = ENV["elja_user"]
-    private_file = ENV["elja_private"]
-    public_file = ENV["elja_pub"]
-
-
-    sftp = SFTP(url, username, public_file, private_file)
-
-    catalog  = load(SFTPClient.download(sftp, catalog_path))["catalog"][1:upto, :]
-
-
-    stem!(ax, catalog[:,1]/(365*24*60*60), catalog[:,4]; kwargs...)
-    # axislegend(ax)
-
-    return ax
+    return plotCatalog(catalog, quantity, ax; stem_kwargs)
 
 
 end
