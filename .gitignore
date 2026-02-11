@@ -1,2 +1,6 @@
 *.fuse*
 Manifest.toml
+LocalPreferences.toml
+*.svg
+*.png
+*.jld2

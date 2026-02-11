@@ -92,7 +92,7 @@ function UpdatePlot(rsPlotter)
 end
 
 
-function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol)
+function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, display=false)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -113,12 +113,14 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol)
     ax.yticklabelsize = 25
     axislegend()
 
-    display(fig)
+    if display
+        display(fig)
+    end
 
     return fig, ax
 
 end
-function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, scale::Function)
+function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, scale::Function, display=false)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -139,12 +141,14 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::Symbol, s
     ax.yticklabelsize = 25
     axislegend()
 
-    display(fig)
+    if display
+        display(fig)
+    end
 
     return fig, ax
 
 end
-function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::Symbol, sampler_quantity::Symbol)
+function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::Symbol, sampler_quantity::Symbol, display=false)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -177,12 +181,13 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     axislegend(labelsize=40)
 
 
-    display(fig)
-
+    if display
+        display(fig)
+    end
     return fig, ax
 
 end
-function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::Symbol, sampler_quantity::Symbol, scale::Function)
+function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::Symbol, sampler_quantity::Symbol, scale::Function, display=false)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -215,13 +220,15 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     axislegend(labelsize=40)
 
 
-    display(fig)
+    if display
+        display(fig)
+    end
 
     return fig, ax
 
 end
 
-function plotSection(sectionSampler::SectionSampler, s_slip_freq=50, as_slip_freq=50)
+function plotSection(sectionSampler::SectionSampler, s_slip_freq=50, as_slip_freq=50, display=false)
 
 
     X = sectionSampler.grid.X
@@ -255,13 +262,15 @@ function plotSection(sectionSampler::SectionSampler, s_slip_freq=50, as_slip_fre
 
     axislegend(ax, [legend_seismic, legend_aseismic], ["Seismic", "Aseismic"])
 
-    display(fig)
+    if display
+        display(fig)
+    end
 
     return fig, ax
 end
 
 
-function plotDomain(domain::AbstractDomain, dot_grid=false)
+function plotDomain(domain::AbstractDomain, dot_grid=false, display=false)
     fig = Figure(size=(480,480))
     ax = Axis(fig[1,1], aspect = DataAspect(), xlabel= "X [m]", ylabel= "Y [m]", title="Simulated domain")
 
@@ -295,12 +304,15 @@ function plotDomain(domain::AbstractDomain, dot_grid=false)
     tightlimits!(ax)
     resize_to_layout!(fig)
 
-    display(fig)
+    if display
+        display(fig)
+    end
+
     return fig, ax
 
 end
 
-function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_section::SectionSampler, dot_grid=false; sample_point_kwargs=(), sample_section_kwargs=())
+function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_section::SectionSampler, dot_grid=false, display=false; sample_point_kwargs=(), sample_section_kwargs=())
 
     fig, ax = plotDomain(domain, dot_grid)
 
@@ -313,12 +325,14 @@ function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_s
         vlines!(ax, sample_section.coord; sample_section_kwargs...)
     end
 
-    display(fig)
+    if display
+        display(fig)
+    end
     return fig, ax
 
 end
 
-function plotCatalog(catalog::AbstractCatalog, quantity::String; ax_kwargs, stem_kwargs)
+function plotCatalog(catalog::AbstractCatalog, quantity::String, display=false; ax_kwargs, stem_kwargs)
 
     n_events = catalog.n_events
     trimmed_catalog = Catalog(catalog.catalog[1:n_events, :])
@@ -339,7 +353,9 @@ function plotCatalog(catalog::AbstractCatalog, quantity::String; ax_kwargs, stem
 
     # axislegend(ax)
 
-    display(fig)
+    if display
+        display(fig)
+    end
 
     return fig, ax
 end
