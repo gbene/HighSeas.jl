@@ -4,14 +4,22 @@
 Ahoy, matey! Welcome to HighSeas, a Julia package focused on accelerating Sequences of Earthquakes and Aseismic Slips simulations using the Spectral Boundary Integral Method on GPUs. 
 
 # How to install
-Open the repl and type either ```using Pkg; Pkg.add(url="https://github.com/gbene/HighSeas.jl")``` or ```] add https://github.com/gbene/HighSeas.jl ``` 
+Open the repl and type either 
+
+```using Pkg; Pkg.add(url="git@github.com:gbene/HighSeas.jl.git")``` 
+
+or 
+
+```] add git@github.com:gbene/HighSeas.jl.git``` 
 
 Users are encouraged to use environments but it is not necessary. 
 
 
 # How to use
 
-Look at the examples folder for a complete example on how to use the library. Crude docs will eventually come. To run the example, cd in the examples directory and do either
+Look at the examples folder for a complete example on how to use the library. Crude docs will eventually come. 
+
+To run the examples, cd in the examples directory and do either
 
 ```bash
 julia --project=CPU --threads auto BP4QD.jl
@@ -26,7 +34,7 @@ to run on GPU (CUDA)
 
 Before trying both it is suggested to look at the code to understand what is being saved.
 
-Then to plot it is best to run ```BP4QD_plot.jl``` in an active REPL.
+Then to plot the results, run ```BP4QD_plot.jl``` in an active REPL.
 ```bash
 julia --project=CPU --threads auto 
 ```
