@@ -252,12 +252,10 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
         tau0 = @. si0*a*asinh((Vi/(2*Vr))*exp((fr+bₛ*log(Vr/Vi))/a))+eta*Vi;
         @. tau0[dNU] = si0[dNU]*a[dNU]*asinh((Vnu/(2*Vr))*exp((fr+bₛ*log(Vr/Vi))/a[dNU]))+eta*Vnu;
 
-        dx_init = copy(template)
-        V_init  = Vi.+dx_init
-        V_init[dNU] .= Vnu
-        theta_init  = Dc/Vi.+dx_init
-
-        tau_init = copy(tau0)
+        dx_init = state.dx
+        V_init  = state.V
+        theta_init  = state.theta
+        tau_init = state.tau
 
 
         if typeof(get_backend()) <: AbstractGPUBackend
@@ -271,7 +269,8 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
             tau_init        = memcopy(tau_init)
         end
 
-        state_init = state
+        state_init = State(dx_init, V_init, theta_init, tau_init)
+
         catalog_init = Catalog(n_events)
 
 
