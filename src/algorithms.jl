@@ -49,7 +49,7 @@ struct CustomNewtonSolver{E<:AbstractGoverningEquations, S<:AbstractAdaptiveStep
                         Vp, thetap, dxg, Vg, Vmg, Vm)
     end
 
-    function CustomNewtonSolver(ntries=10, experiment::AbstractExperiment, equations::AbstractGoverningEquations, stepper::AbstractStepper)
+    function CustomNewtonSolver(experiment::AbstractExperiment, equations::AbstractGoverningEquations, stepper::AbstractStepper, ntries=10)
 
         domainsize = size(experiment.domain.grid.x)
 
