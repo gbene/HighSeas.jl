@@ -5,9 +5,9 @@ body:
   - type: textarea
     id: report
     attributes:
-      label: Paste here the reported problem
+      label: What does the AI say?
       description: |
-        Paste here the reported problem
+        Describe what was prompted and the result
       placeholder: Paste here the reported problem
     validations:
       required: true
