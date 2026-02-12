@@ -6,29 +6,21 @@ struct EmptyDetector <: AbstractDetector
 
 end
 
-function (emptyDetector::EmptyDetector)()
-
-    if emptyDetector.eventStart == false
-        emptyDetector.eventStart = true
-    else
-        emptyDetector.eventStart = false
-    end
-    return nothing
-end
 
 mutable struct SimpleDetector{S<:AbstractState, ST<:AbstractStepper} <: AbstractDetector
 
     eventStart::Bool
     eventN::Int
+    minVThresh::Float64
     maxVThresh::Float64
     state::S
     stepper::ST
 
 
-    function SimpleDetector(maxVThresh::Float64, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function SimpleDetector(minVThresh::Float64, maxVThresh::Float64, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
         state = experiment.state
         stepper = algorithm.stepper
-        new{typeof(state), typeof(stepper)}(false, 1, maxVThresh, state, stepper)
+        new{typeof(state), typeof(stepper)}(false, 1, minVThresh, maxVThresh, state, stepper)
     end
 end
 
@@ -51,6 +43,9 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
     eventN::Int
     minVThresh::Float64
     maxVThresh::Float64
+    x::Matrix{Float64}
+    y::Matrix{Float64}
+
 
     state::S
     stepper::ST
@@ -61,10 +56,7 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
     tau_start::M
     slip::M
     stressdrop::M
-    x::M
-    y::M
     temp::M
-
     ruptured_nodes::B
 
     time_start::Float64
@@ -72,15 +64,15 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
     cell_area::Float64
 
     function CatalogDetector(minVThresh::Float64, maxVThresh::Float64, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
-        Nx = experiment.domain.grid.n_elementsx
-        Ny = experiment.domain.grid.n_elementsy
 
-        dx_start=zeros(Nx, Ny)
-        slip=zeros(Nx, Ny)
-        tau_start=zeros(Nx, Ny)
-        stressdrop=zeros(Nx, Ny)
-        temp = zeros(Nx, Ny)
-        ruptured_nodes=zeros(Int8, Nx, Ny)
+        sz = size(experiment.state.dx)
+
+        dx_start=zeros(sz)
+        slip=zeros(sz)
+        tau_start=zeros(sz)
+        stressdrop=zeros(sz)
+        temp = zeros(sz)
+        ruptured_nodes=zeros(Int8, sz)
 
         time_start=0.0
         last_event_time=0.0
@@ -94,19 +86,25 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
         x = experiment.domain.grid.x
         y = experiment.domain.grid.y
         cell_area = experiment.domain.grid.cell_area
+
         if typeof(get_backend()) <: AbstractGPUBackend
             dx_start            = memcopy(dx_start)
             slip                = memcopy(slip)
             tau_start           = memcopy(tau_start)
             stressdrop          = memcopy(stressdrop)
             ruptured_nodes      = memcopy(ruptured_nodes)
+            x                   = memcopy(x)
+            y                   = memcopy(y)
         end
 
-        new{typeof(state), typeof(stepper), typeof(catalog), typeof(dx_start), typeof(ruptured_nodes)}(false, 1, minVThresh, maxVThresh, state, stepper, material,
-                                                                                     catalog, dx_start, slip, tau_start, stressdrop, x, y, temp,
-                                                                                     ruptured_nodes, time_start, last_event_time, cell_area)
+        new{typeof(state), typeof(stepper),
+            typeof(catalog), typeof(dx_start),
+            typeof(ruptured_nodes)}(false, 1, minVThresh, maxVThresh, x, y, state, stepper, material,
+                                    catalog, dx_start, slip, tau_start, stressdrop, temp,
+                                    ruptured_nodes, time_start, last_event_time, cell_area)
     end
 end
+
 function (catalogDetector::CatalogDetector)()
 
     state = catalogDetector.state
