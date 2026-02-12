@@ -21,14 +21,14 @@ mutable struct AdaptiveStepper{EL<:AbstractErrorLaw} <: AbstractAdaptiveStepper
     breakcode::Bool
 
 
-    function AdaptiveStepper(input_dict::Dict, errorlaw::AbstractErrorLaw, step::Int=0, time::Float64=0.0)
+    function AdaptiveStepper(input_dict::Dict, errorlaw::AbstractErrorLaw, step::Int=0, time::Float64=0.0, mintries::Int=2)
 
 
         frac = 1/2^(input_dict["fract"]-1)
         tollo = frac*input_dict["tollo"]
         tolup = frac*input_dict["tolup"]
         mindt = CalcMinDt(input_dict)
-        mintries = Int(input_dict["miniter"])
+        mintries = mintries
 
 
         step = step
