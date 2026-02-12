@@ -120,7 +120,7 @@ function get_data(saver::AbstractSaver)
 end
 
 function get_data(saver::StepSaver)
-    data = (saver.data, saver.stepper)
+    data = (saver.data, saver.stepper.step, saver.stepper.time)
     step = GetStep(saver.stepper)
     name = string(nameof(typeof(saver)))
     filename = "$(saver.outpath)/saved_$name.jld2"
