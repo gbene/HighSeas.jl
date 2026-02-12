@@ -38,6 +38,8 @@ function (simpleDetector::SimpleDetector)()
         simpleDetector.eventStart = true
     else
         simpleDetector.eventStart = false
+        println("$(string(now()))  Event has ended")
+
     end
     return nothing
 end
@@ -171,6 +173,8 @@ function (catalogDetector::CatalogDetector)()
         catalog.MeanSlip[eventN] = MeanSlip
         catalog.MeanStress[eventN] = MeanStress
         catalog.n_events += 1
+        println("$(string(now())) Event has ended, mag: $mag")
+
 
     end
     return nothing
@@ -191,12 +195,11 @@ function detect(detector::AbstractDetector)
 
     if maxV > detector.maxVThresh && detector.eventStart == false
             detector()
-            println("event $(detector.eventN) has started, time: $(time/(365*24*60*60))")
+            println("$(string(now()))  event $(detector.eventN) has started, time: $(time/(365*24*60*60))")
     end
 
     if maxV <= detector.minVThresh && detector.eventStart == true
             detector()
-            println("Event has ended")
             detector.eventN +=1
     end
     return nothing

@@ -119,6 +119,15 @@ function get_data(saver::AbstractSaver)
     return filename, data, step
 end
 
+function get_data(saver::StepSaver)
+    data = (saver.data, saver.stepper)
+    step = GetStep(saver.stepper)
+    name = string(nameof(typeof(saver)))
+    filename = "$(saver.outpath)/saved_$name.jld2"
+
+    return filename, data, step
+end
+
 
 function get_data(saver::SnaptshotSaver)
 
