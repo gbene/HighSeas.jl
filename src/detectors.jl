@@ -43,8 +43,7 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
     eventN::Int
     minVThresh::Float64
     maxVThresh::Float64
-    x::Matrix{Float64}
-    y::Matrix{Float64}
+
 
 
     state::S
@@ -57,6 +56,8 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
     slip::M
     stressdrop::M
     temp::M
+    x::M
+    y::M
     ruptured_nodes::B
 
     time_start::Float64
@@ -99,8 +100,8 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
 
         new{typeof(state), typeof(stepper),
             typeof(catalog), typeof(dx_start),
-            typeof(ruptured_nodes)}(false, 1, minVThresh, maxVThresh, x, y, state, stepper, material,
-                                    catalog, dx_start, slip, tau_start, stressdrop, temp,
+            typeof(ruptured_nodes)}(false, 1, minVThresh, maxVThresh, state, stepper, material,
+                                    catalog, dx_start, slip, tau_start, stressdrop, temp, x, y,
                                     ruptured_nodes, time_start, last_event_time, cell_area)
     end
 end
