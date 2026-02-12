@@ -11,30 +11,30 @@ struct StepSolver{S<:Vector{<:AbstractSaver}, D<:AbstractDetector, Sa<:Vector{<:
     detector::D
     samplers::Sa
 
-    function StepSolver(tf::Float64, savers::S) where S
+    function StepSolver(NT::Int, savers::S) where S
         detector = EmptyDetector()
         samplers = [EmptySampler()]
-        new{typeof(savers), typeof(detector), typeof(samplers)}(tf, savers, detector, samplers)
+        new{typeof(savers), typeof(detector), typeof(samplers)}(NT, savers, detector, samplers)
     end
 
-    function StepSolver(tf::Float64, savers::S, detector::D) where {S, D<:AbstractDetector}
+    function StepSolver(NT::Int, savers::S, detector::D) where {S, D<:AbstractDetector}
         samplers = [EmptySampler()]
 
-        new{typeof(savers), typeof(detector), typeof(samplers)}(tf, savers, detector, samplers)
+        new{typeof(savers), typeof(detector), typeof(samplers)}(NT, savers, detector, samplers)
     end
 
-    function StepSolver(tf::Float64, savers::S, samplers::Sa) where {S, Sa<:AbstractSampler}
+    function StepSolver(NT::Int, savers::S, samplers::Sa) where {S, Sa<:Vector{AbstractSampler}}
         detector = EmptyDetector()
 
-        new{typeof(savers), typeof(detector), typeof(samplers)}(tf, savers, detector, samplers)
+        new{typeof(savers), typeof(detector), typeof(samplers)}(NT, savers, detector, samplers)
     end
 
-    function StepSolver(tf::Float64, savers::S, detector::D, samplers::Sa) where {S, D, Sa}
-        new{typeof(savers), typeof(detector), typeof(samplers)}(tf, savers, detector, samplers)
+    function StepSolver(NT::Int, savers::S, detector::D, samplers::Sa) where {S, D, Sa}
+        new{typeof(savers), typeof(detector), typeof(samplers)}(NT, savers, detector, samplers)
     end
 
-    function StepSolver{S, D, Sa}(tf::Float64, savers::S, detector::D, samplers::Sa) where {S, D, Sa}
-        new{S, D, Sa}(tf, savers, detector, samplers)
+    function StepSolver{S, D, Sa}(NT::Int, savers::S, detector::D, samplers::Sa) where {S, D, Sa}
+        new{S, D, Sa}(NT, savers, detector, samplers)
     end
 end
 
@@ -57,7 +57,7 @@ struct TimeSolver{S<:Vector{<:AbstractSaver}, D<:AbstractDetector, Sa<:Vector{<:
         new{typeof(savers), typeof(detector), typeof(samplers)}(tf, savers, detector, samplers)
     end
 
-    function TimeSolver(tf::Float64, savers::S, samplers::Sa) where {S, Sa<:AbstractSampler}
+    function TimeSolver(tf::Float64, savers::S, samplers::Sa) where {S, Sa<:Vector{<:AbstractSampler}}
         detector = EmptyDetector()
 
         new{typeof(savers), typeof(detector), typeof(samplers)}(tf, savers, detector, samplers)

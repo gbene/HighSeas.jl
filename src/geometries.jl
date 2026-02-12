@@ -144,11 +144,11 @@ struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
         W             = input_dict["W"]
 
 
-        domain_powerx  = round(log2(L/cell_sizex))
-        domain_powery  = round(log2(W/cell_sizey))
+        domain_powerx  = round(Int, log2(L/cell_sizex))
+        domain_powery  = round(Int, log2(W/cell_sizey))
 
-        n_elementsx   = Int(2^domain_powerx)
-        n_elementsy   = Int(2^domain_powery)
+        n_elementsx   = 2^domain_powerx
+        n_elementsy   = 2^domain_powery
 
         L_domain = (cell_sizex*n_elementsx)
         W_domain = (cell_sizey*n_elementsy)
