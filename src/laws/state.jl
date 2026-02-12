@@ -41,16 +41,6 @@ function (ageingLaw::AgeingLaw)(theta, V, dt)
 end
 
 
-# function (ageingLaw::AgeingLaw)(theta::CuMatrix{Float64}, V::CuMatrix{Float64}, dt)
-#     Dc = ageingLaw.Dc
-#     theta_res = ageingLaw.theta
-
-#     @. theta_res = theta * exp(-V * dt / Dc) + Dc / V * (1. - exp(-V * dt / Dc))
-
-#     return theta_res
-# end
-
-
 """
 SlipLaw(experiment::AbstractExperiment)
 
@@ -71,7 +61,7 @@ struct SlipLaw <: AbstractStateLaw
     Dc::Float64
     theta_mem:: AbstractArray{Float64}
 
-    function AgeingLaw(experiment::AbstractExperiment)
+    function SlipLaw(experiment::AbstractExperiment)
 
         Dc = experiment.material.Dc
         theta = experiment.state.theta
@@ -79,4 +69,13 @@ struct SlipLaw <: AbstractStateLaw
         new(Dc, theta)
     end
 
+end
+
+function (slipLaw::SlipLaw)(theta, V, dt)
+    Dc = ageingLaw.Dc
+    theta_mem = ageingLaw.theta_mem
+
+    @.. thread=true theta_mem = Dc/V * (V * theta / Dc)^exp(-V * dt / Dc)
+
+    return theta_mem
 end
