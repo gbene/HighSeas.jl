@@ -35,7 +35,7 @@ const supported_GPU_platforms  = ["CUDA", "METAL"]
 const supported_platforms = ["CPU", supported_GPU_platforms...]
 const global_settings = Dict{String, Any}("backend"=>CPUBackend())
 
-Base.copy(x::T) where T = T([deepcopy(getfield(x, k)) for k ∈ fieldnames(T)]...)
+mycopy(x::T) where T = T([deepcopy(getfield(x, k)) for k ∈ fieldnames(T)]...)
 
 export global_settings
 export State, Catalog
