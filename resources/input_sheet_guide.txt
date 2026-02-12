@@ -1,7 +1,5 @@
 # ==================== input variables sheet ====================
 
-Please start at the third line of the input file
-
 + fract             : increase for higher precisions (higher=slower)
 + tollo             : lower threashold for the error calculations
 + tollup            : upper threashold for the error calculations
@@ -31,3 +29,5 @@ Please start at the third line of the input file
 + wi                : Half-width of the nucleation patch (can be zero)
 + li                : Half-length of the nucleation patch (can be zero)
 + tf                : final time to reach
+
+Note: Any line containing a "#" will be ignored
