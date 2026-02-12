@@ -1,0 +1,13 @@
+name: Clanker Report
+description: Post reports made from LLMs analysis
+labels: ["clanker"]
+body:
+  - type: textarea
+    id: report
+    attributes:
+      label: Paste here the reported problem
+      description: |
+        Paste here the reported problem
+      placeholder: Paste here the reported problem
+    validations:
+      required: true
