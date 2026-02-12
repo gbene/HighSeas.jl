@@ -21,7 +21,7 @@ mutable struct AdaptiveStepper{EL<:AbstractErrorLaw} <: AbstractAdaptiveStepper
     breakcode::Bool
 
 
-    function AdaptiveStepper(input_dict::Dict, errorlaw::AbstractErrorLaw)
+    function AdaptiveStepper(input_dict::Dict, errorlaw::AbstractErrorLaw, step::Int=0, time::Float64=0.0)
 
 
         frac = 1/2^(input_dict["fract"]-1)
@@ -31,9 +31,9 @@ mutable struct AdaptiveStepper{EL<:AbstractErrorLaw} <: AbstractAdaptiveStepper
         mintries = Int(input_dict["miniter"])
 
 
-        step = 0
+        step = step
         dt   = mindt
-        time = 0.0
+        time = time
         breakcode=false
 
         err  = 1.0
