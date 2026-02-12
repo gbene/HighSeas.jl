@@ -191,6 +191,97 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
     end
 
+
+    function BP4QDExp(input_dict::Dict, material::M, domain::D, n_events, state::AbstractState) where {M, D}
+
+        start_time = string(now())
+        println("Experiment start time: $start_time")
+
+        AL                = 1
+
+        Vpl               = input_dict["Vpl"]
+        Vi                = input_dict["Vi"]
+        Vr                = input_dict["Vr"]
+        Vnu               = input_dict["Vnu"]
+        si                = input_dict["si0"]
+        Dc                = input_dict["Dc"]
+
+
+        grid = domain.grid
+        patch = domain.patch
+        nucleation = domain.nucleation
+
+        aRSₛ = material.aRs
+        aₛ   = material.a
+        bₛ   = material.b
+        eta  = material.eta
+        fr   = material.fr
+
+
+        lengthscales = CheckLengthScales(material, domain, si)
+
+        println(lengthscales)
+
+        x = grid.x
+        y = grid.y
+        dRS = Matrix(patch.dRS .== 1) # i really hate this, maybe we should have a function that before launching the solve moves everything to GPU?
+        dTR = Matrix(patch.dTR .== 1)
+        dNU = Matrix(nucleation.dNU .== 1)
+        L = patch.l
+        H = patch.w
+        h = patch.h
+
+        x_buffer = x[dTR]
+        y_buffer = y[dTR]
+
+
+        r = maximum([(abs.(x_buffer).- L);; (abs.(y_buffer).- H)],dims=2)./h;
+
+
+
+        template = zeros(size(x))
+
+        a_buffer = @. aₛ + r*(aRSₛ-aₛ);
+        a = aₛ .+ template;
+        a[dRS] .= aRSₛ;
+        a[dTR] .= a_buffer;
+        b = bₛ .+ template;
+
+        si0 = si .+template
+
+        tau0 = @. si0*a*asinh((Vi/(2*Vr))*exp((fr+bₛ*log(Vr/Vi))/a))+eta*Vi;
+        @. tau0[dNU] = si0[dNU]*a[dNU]*asinh((Vnu/(2*Vr))*exp((fr+bₛ*log(Vr/Vi))/a[dNU]))+eta*Vnu;
+
+        dx_init = copy(template)
+        V_init  = Vi.+dx_init
+        V_init[dNU] .= Vnu
+        theta_init  = Dc/Vi.+dx_init
+
+        tau_init = copy(tau0)
+
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            a               = memcopy(a)
+            b               = memcopy(b)
+            tau0            = memcopy(tau0)
+            si0             = memcopy(si0)
+            dx_init         = memcopy(dx_init)
+            V_init          = memcopy(V_init)
+            theta_init      = memcopy(theta_init)
+            tau_init        = memcopy(tau_init)
+        end
+
+        state_init = state
+        catalog_init = Catalog(n_events)
+
+
+        new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time,
+                                                                                                   AL, Vpl, Vr, Vi, Vnu,
+                                                                                                   lengthscales, a, b, tau0, si0,
+                                                                                                   state_init, catalog_init)
+
+    end
+
     function BP4QDExp{F, M, D, S, C}(material::M, domain::D, start_time,
                         AL, Vpl, Vr, Vi, Vnu, lengthscales,
                         a::F, b::F, tau0::F, si0::F,
