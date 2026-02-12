@@ -17,11 +17,13 @@ memcopy(A::AbstractGPUArray{T,N}) where {T, N} = Array{T, N}(A)
 
 
 
-function ReadSheet(path_file::String, start_line=3)
+function ReadSheet(path_file::String)
       input_dict = Dict{String, Any}()
       open(path_file) do f
             lines = readlines(f)
-            for line in lines[start_line:end]
+            mask = @. !(isempty(lines) || contains(lines, "#"))
+            lines = lines[mask]
+            for line in lines
                   key, value = split(line,':')
                   # display(key)
                   push!(input_dict,key=>parse(Float64, value))
