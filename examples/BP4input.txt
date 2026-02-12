@@ -1,7 +1,6 @@
 # ==================== input variables sheet ====================
 
 fract: 4
-miniter: 1
 tollo: 0.5e-3
 tolup: 5.0e-3
 cs: 3464

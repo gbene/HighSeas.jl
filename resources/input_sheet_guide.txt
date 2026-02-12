@@ -2,9 +2,7 @@
 
 Please start at the third line of the input file
 
-+ AL                : 1 = Aging law, 0=Slip law # Maybe this can be removed 
 + fract             : increase for higher precisions (higher=slower)
-+ miniter           : number of minimum iterations for the solver (this maybe can be removed from here)
 + tollo             : lower threashold for the error calculations
 + tollup            : upper threashold for the error calculations
 + cs                : shear wave velocity [m/s]
