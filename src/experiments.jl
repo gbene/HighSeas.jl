@@ -105,6 +105,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
         start_time = string(now())
         println("Experiment start time: $start_time")
+        start_time = replace(start_time, ":"=>"_", "-"=>"_")
 
         AL                = 1
 
