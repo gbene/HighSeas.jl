@@ -8,8 +8,8 @@ struct CustomNewtonSolver{E<:AbstractGoverningEquations, S<:AbstractAdaptiveStep
     # stresslaw::AbstractStressLaw   # Law to calculate the stress
     # statelaw::AbstractStateLaw     # Law to calculate the state
     # ratelaw::AbstractRateLaw       # Law to calculate the rate
+    ntries::Int
     equations::E
-
     stepper::S         # Stepper used to decide the step in the simulation
 
 
@@ -38,18 +38,18 @@ struct CustomNewtonSolver{E<:AbstractGoverningEquations, S<:AbstractAdaptiveStep
     #thetag is not needed as preallocation, we can use the temporary value of the state!
 
 
-    function CustomNewtonSolver{E, S, I, M}(equations::E, stepper::S, dLO::I, dCR::I,
+    function CustomNewtonSolver{E, S, I, M}(ntries, equations::E, stepper::S, dLO::I, dCR::I,
                                      Vpl, si0::M, tau0::M, a::M, b::M,
                                      dxp::M, Vp::M, thetap::M,
                                      dxg::M, Vg::M, Vmg::M, Vm::M) where {E, S, I, M}
 
 
-        new{E, S, I, M}(equations, stepper, dLO, dCR,
+        new{E, S, I, M}(ntries, equations, stepper, dLO, dCR,
                         Vpl, si0, tau0, a, b, dxp,
                         Vp, thetap, dxg, Vg, Vmg, Vm)
     end
 
-    function CustomNewtonSolver(experiment::AbstractExperiment, equations::AbstractGoverningEquations, stepper::AbstractStepper)
+    function CustomNewtonSolver(ntries=10, experiment::AbstractExperiment, equations::AbstractGoverningEquations, stepper::AbstractStepper)
 
         domainsize = size(experiment.domain.grid.x)
 
@@ -86,7 +86,7 @@ struct CustomNewtonSolver{E<:AbstractGoverningEquations, S<:AbstractAdaptiveStep
 
 
 
-        new{typeof(equations), typeof(stepper), typeof(dLO), typeof(si0)}(equations, stepper, dLO, dCR, Vpl,
+        new{typeof(equations), typeof(stepper), typeof(dLO), typeof(si0)}(ntries, equations, stepper, dLO, dCR, Vpl,
                                                                           si0, tau0, a, b, dxp, Vp, thetap,
                                                                           dxg, Vg, Vmg, Vm)
     end
@@ -123,6 +123,8 @@ function (customNewtonSolver::CustomNewtonSolver)(dx, V, theta)
     ratelaw     = customNewtonSolver.equations.ratelaw
     stepper     = customNewtonSolver.stepper
 
+    n_tries     = customNewtonSolver.ntries
+
 
     copy!(dxp, dx)
     copy!(Vp, V)
@@ -131,15 +133,15 @@ function (customNewtonSolver::CustomNewtonSolver)(dx, V, theta)
     dt, exitcode = StepUp(stepper)
 
 
-    for trycount in 0:9 # maybe this can be a parameter of the solver!
+    for trycount in 1:n_tries
         # If this is the first attempt
-        if trycount < 1
+        if trycount == 1
 
             copy!(Vg, V);
             copy!(Vmg, V);
             @.. thread=true dxg = dx + dt*V;
 
-        elseif trycount == 1
+        elseif trycount == 2
             # First iteration is treated as a special case where time-step
             # is not decreased, in attempt to obtain a better guess.
 
@@ -172,13 +174,13 @@ function (customNewtonSolver::CustomNewtonSolver)(dx, V, theta)
 
 
         if exitcode
-            theta = statelaw(thetap, Vm, dt)
-            NextStep(stepper)
             break
         end
 
-
     end
+
+    theta = statelaw(thetap, Vm, dt)
+    NextStep(stepper)
     return dx, V, theta
 
 
