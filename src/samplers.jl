@@ -176,7 +176,11 @@ function (sectionSampler::SectionSampler)()
 
 
     section[step,1]       = maximum(V)
-    section[step,2:end]   = sum(temp, dims=1)
+    if sectionSampler.axis == "y"
+        section[step,2:end]   = sum(temp, dims=1)
+    else
+        section[step,2:end]   = sum(temp, dims=2)
+    end
 
     return nothing
 
