@@ -79,7 +79,7 @@ function StepDown(stepper::AbstractAdaptiveStepper, ntries::Int, A, B)
 
 
         if (ntries < stepper.mintries || ((err > stepper.tolup || erra > 10*stepper.tolup) && stepper.dt > stepper.mindt))
-            if ntries>0
+            if ntries > 1
 
                     # If accuracy metrics are violated then time-step is refined
                     stepper.dt /= 2.0;
