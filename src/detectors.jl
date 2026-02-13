@@ -112,7 +112,7 @@ function (catalogDetector::CatalogDetector)()
     catalog = catalogDetector.catalog
     eventN = catalogDetector.eventN
 
-    temp = catalogDetector.temp
+    # temp = catalogDetector.temp
 
     if catalogDetector.eventStart == false
         catalogDetector.eventStart = true
