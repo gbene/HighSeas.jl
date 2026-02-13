@@ -5,11 +5,11 @@ struct EmptySampler <: AbstractSampler
 end
 
 
-struct PointSampler{S<:AbstractState, ST<:AbstractStepper, M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractSampler
+struct PointSampler{S<:AbstractState, ST<:AbstractStepper, B<:AbstractArray{Int8}} <: AbstractSampler
 
     state::S
     stepper::ST
-    temp::M
+    # temp::M
     mask::B
 
     NT::Int
@@ -38,7 +38,7 @@ struct PointSampler{S<:AbstractState, ST<:AbstractStepper, M<:AbstractArray{Floa
         sample_point_y = sample_points.y[sample_point_id]*1000
 
         mask = @. Int8((grid.x == sample_point_x) * (grid.y == sample_point_y));
-        temp = zeros(grid.n_elementsy, grid.n_elementsx)
+        # temp = zeros(grid.n_elementsy, grid.n_elementsx)
 
         dxs           = fill(NaN, NT)
         Vs            = fill(NaN, NT)
@@ -48,14 +48,14 @@ struct PointSampler{S<:AbstractState, ST<:AbstractStepper, M<:AbstractArray{Floa
 
         if typeof(get_backend()) <: AbstractGPUBackend
             mask = memcopy(mask)
-            temp = memcopy(temp)
+            # temp = memcopy(temp)
         end
 
-        new{typeof(state), typeof(stepper), typeof(temp), typeof(mask)}(state, stepper, temp, mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
+        new{typeof(state), typeof(stepper), typeof(mask)}(state, stepper, mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
     end
 
-    function PointSampler{S,ST,M,B}(state::S, stepper::ST, temp::M, mask::B, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y) where {S,ST,M,B}
-        new{S,ST,M,B}(state, stepper, temp, mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
+    function PointSampler{S,ST,B}(state::S, stepper::ST, mask::B, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y) where {S,ST,B}
+        new{S,ST,B}(state, stepper, mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
     end
 
 end
@@ -64,7 +64,7 @@ end
 function (pointSampler::PointSampler)()
 
     mask = pointSampler.mask
-    temp = pointSampler.temp
+    # temp = pointSampler.temp
     step = pointSampler.stepper.step
 
     dx = pointSampler.state.dx
@@ -81,24 +81,21 @@ function (pointSampler::PointSampler)()
     taus   = pointSampler.taus
     times = pointSampler.times
 
-    @.. thread=true temp = dx * mask
+    # @.. thread=true temp = dx * mask
 
-    # display(sum(temp))
+    dxs[step]       = dot(dx, mask)
 
-    dxs[step]       = sum(temp)
+    # @.. thread=true temp = V * mask
 
-    @.. thread=true temp = V * mask
+    Vs[step]        = dot(V, mask)
 
-    Vs[step]        = sum(temp)
+    # @.. thread=true temp = theta * mask
 
+    thetas[step]    = dot(theta, mask)
 
-    @.. thread=true temp = theta * mask
+    # @.. thread=true temp = tau * mask
 
-    thetas[step]        = sum(temp)
-
-    @.. thread=true temp = tau * mask
-
-    taus[step]      = sum(temp)
+    taus[step]      = dot(tau, mask)
 
     times[step]     = t
 
@@ -191,11 +188,11 @@ mutable struct ContourSampler{S<:AbstractState, ST<:AbstractStepper, D<:Abstract
     state::S
     stepper::ST
     detector::D
-    temp::M
+    # temp::M
+    contour::M
     mask::B
 
 
-    contour::M
     thresh::Float64
     first_contour::Int8
     t_fc::Float64
@@ -207,26 +204,26 @@ mutable struct ContourSampler{S<:AbstractState, ST<:AbstractStepper, D<:Abstract
         stepper = algorithm.stepper
 
 
-        grid = experiment.domain.grid
+        sz = size(experiment.domain.grid.x)
 
-        temp = zeros(grid.n_elementsy, grid.n_elementsx)
+        # temp = zeros(grid.n_elementsy, grid.n_elementsx)
+        contour = fill(NaN, sz)
 
-        mask = zeros(Int8, size(temp))
+        mask = zeros(Int8, sz)
 
-        contour = fill(NaN, size(temp))
 
         first_contour = 0
         t_fc = 0.0
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            mask    = memcopy(mask)
-            temp    = memcopy(temp)
             contour = memcopy(contour)
+            mask    = memcopy(mask)
+            # temp    = memcopy(temp)
         end
 
         field = getproperty(state, field)
 
-        new{typeof(state), typeof(stepper), typeof(detector), typeof(temp), typeof(mask)}(state, stepper, detector, temp, mask, contour, thresh, first_contour, t_fc, field)
+        new{typeof(state), typeof(stepper), typeof(detector), typeof(contour), typeof(mask)}(state, stepper, detector, contour, mask, thresh, first_contour, t_fc, field)
     end
 
 
@@ -241,10 +238,10 @@ function (contourSampler::ContourSampler)()
 
     if eventN == 1
         mask = contourSampler.mask
-        temp = contourSampler.temp
-        step = contourSampler.stepper.step
+        # temp = contourSampler.temp
+        # step = contourSampler.stepper.step
         t = contourSampler.stepper.time
-        state = contourSampler.state
+        # state = contourSampler.state
 
         field = contourSampler.field
         contour = contourSampler.contour
