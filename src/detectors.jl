@@ -111,7 +111,7 @@ function (catalogDetector::CatalogDetector)()
     material = catalogDetector.material
     catalog = catalogDetector.catalog
     eventN = catalogDetector.eventN
-
+    ruptured_nodes = catalogDetector.ruptured_nodes
     # temp = catalogDetector.temp
 
     if catalogDetector.eventStart == false
@@ -125,16 +125,16 @@ function (catalogDetector::CatalogDetector)()
         catalogDetector.last_event_time = catalogDetector.time_start
         catalogDetector.time_start = t
 
-        @.. thread=true catalogDetector.ruptured_nodes = state.V > catalogDetector.maxVThresh
-        total_nodes = sum(catalogDetector.ruptured_nodes)
+        @.. thread=true ruptured_nodes = state.V > catalogDetector.maxVThresh
+        total_nodes = sum(ruptured_nodes)
 
         catalog.t[eventN] = t
 
         # @.. thread=true temp = catalogDetector.x * catalogDetector.ruptured_nodes
-        catalog.hypo_x[eventN] = dot(x, ruptured_nodes)/total_nodes
+        catalog.hypo_x[eventN] = dot(catalogDetector.x, ruptured_nodes)/total_nodes
 
         # @.. thread=true temp = catalogDetector.y * catalogDetector.ruptured_nodes
-        catalog.hypo_y[eventN] = dot(y, ruptured_nodes)/total_nodes
+        catalog.hypo_y[eventN] = dot(catalogDetector.y, ruptured_nodes)/total_nodes
 
 
 
@@ -148,17 +148,17 @@ function (catalogDetector::CatalogDetector)()
         @.. thread=true catalogDetector.slip = state.dx - catalogDetector.dx_start
         @.. thread=true catalogDetector.stressdrop = state.tau - catalogDetector.tau_start
 
-        @.. thread=true catalogDetector.ruptured_nodes = catalogDetector.slip > material.Dc/2
+        @.. thread=true ruptured_nodes = catalogDetector.slip > material.Dc/2
 
-        total_nodes = sum(catalogDetector.ruptured_nodes)
+        total_nodes = sum(ruptured_nodes)
 
         Area = total_nodes*catalogDetector.cell_area
 
         # @.. thread=true temp = catalogDetector.slip * catalogDetector.ruptured_nodes
-        MeanSlip   = dot(slip, ruptured_nodes)/total_nodes
+        MeanSlip   = dot(catalogDetector.slip, ruptured_nodes)/total_nodes
 
         # @.. thread=true temp = catalogDetector.stressdrop * catalogDetector.ruptured_nodes
-        MeanStress = dot(stressdrop, ruptured_nodes)/total_nodes
+        MeanStress = dot(catalogDetector.stressdrop, ruptured_nodes)/total_nodes
 
         Moment = material.G*MeanSlip*Area
         mag = (log10(Moment)-9.05)/1.5
