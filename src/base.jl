@@ -53,7 +53,7 @@ mutable struct Catalog{S<:SubArray} <: AbstractCatalog
 
     function Catalog(max_events::Int)
 
-        catalog = zeros(max_events, 9)
+        catalog = fill(NaN, max_events, 9)
 
         t                   = @view catalog[:,1]
         interevent_time     = @view catalog[:,2]

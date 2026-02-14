@@ -19,7 +19,18 @@ function loadObj(input::Tuple)
 end
 
 function loadObj(input::AbstractCatalog)
-    return input
+    catalog = input.catalog
+    mask = any(isnan, catalog; dims=2)
+    catalog = catalog[.!vec(mask), :]
+
+
+    return Catalog(catalog)
+end
+
+function loadObj(input::AbstractCatalog, n_events::Int)
+    catalog = input.catalog[1:n_events, :]
+
+    return Catalog(catalog)
 end
 
 function loadData(input::String)
