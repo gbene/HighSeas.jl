@@ -38,6 +38,11 @@ function loadData(input::String)
     return loadObj(data)
 end
 
+function loadData(input::String, n_events::Int)
+    data = load(input)["data"]
+    return loadObj(data, n_events)
+end
+
 function loadSSH(url, username, private_file, public_file)
     # url = ENV["elja_url"]
     # username = ENV["elja_user"]
