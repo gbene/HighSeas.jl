@@ -17,11 +17,11 @@ end
 struct LoadedSamplers <: AbstractLoadedObject
 
     n_samplers::Int
-    samplers_info::Vector
+    info::Dict
     samplers::Vector
 
-    function LoadedSamplers(state::AbstractState, step::Int, time::Float64)
-        new(state, step, time)
+    function LoadedSamplers(n_samplers::Int, info::Dict, samplers::Vector)
+        new(n_samplers, info, samplers)
     end
 
 
@@ -29,18 +29,25 @@ struct LoadedSamplers <: AbstractLoadedObject
 
         samplers = input
         n_samplers = length(input)
-        samplers_info = Vector{NamedTuple}(undef, n_samplers)
+        info = Dict{String, Vector}([])
 
-        for i in eachindex(samplers_info)
+        names = @. String(nameof(typeof(samplers)))
+        unames = unique(names)
+        for n in unames
+            info[n] = []
+        end
+        
+
+        for i in eachindex(samplers)
             sampler = samplers[i]
             name = String(nameof(typeof(sampler)))
+            
             if name == "PointSampler"
-                point_id = sampler.sample_point_id
-                samplers_info[i] = (name=name, point_id=point_id)
+                append!(info[name], sampler.sample_point_id)
             elseif name == "SectionSampler"
                 coord = sampler.coord
                 axis  = sampler.axis
-                samplers_info[i] = (name=name, axis=axis, coord=coord)
+                append!(info[name], (axis=axis, coord=coord))
             else
             end
         end
