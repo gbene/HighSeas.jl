@@ -51,6 +51,7 @@ export SimpleDetector, CatalogDetector
 export PointSampler, SectionSampler, ContourSampler, SamplerSaver
 export RSPlotter
 export StepSaver, CatalogSaver, SnaptshotSaver
+export loadData, loadSSH
 export TimeSolver, StepSolver
 
 
