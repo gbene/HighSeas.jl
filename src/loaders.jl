@@ -22,7 +22,7 @@ function loadObj(input::AbstractCatalog)
     return input
 end
 
-function loadData(input::path)
+function loadData(input::String)
     data = load(input)["data"]
     return loadObj(data)
 end
