@@ -14,7 +14,32 @@ memcopy(A, 1) # Copy A to device 1 of the available backend
 """
 memcopy(A::AbstractGPUArray{T,N}) where {T, N} = Array{T, N}(A)
 
+function removenans(data::Vector)
+      mask = any(!isnan, data; dims=2)
+      return data[mask]
+end
 
+
+function removenans(data::Matrix)
+      mask = any(!isnan, data; dims=2)
+      return data[mask, :]
+end
+
+# function mycopy(x::T) where T
+           
+#       fnames = fieldnames(T)
+#       v = Vector{Any}(undef, length(fnames))
+#       for i in eachindex(fnames)
+#             fname = fnames[i]
+#             prop = deepcopy(getfield(x, fname))
+#             prop_type = typeof(prop)
+#             if prop_type <: Vector || prop_type <: Matrix
+#                   prop = removenans(prop)
+#             end
+#             v[i] = prop
+#       end
+#       return T(v...)
+# end
 
 
 function ReadSheet(path_file::String)
