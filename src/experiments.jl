@@ -264,10 +264,6 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
             b               = memcopy(b)
             tau0            = memcopy(tau0)
             si0             = memcopy(si0)
-            dx_init         = memcopy(dx_init)
-            V_init          = memcopy(V_init)
-            theta_init      = memcopy(theta_init)
-            tau_init        = memcopy(tau_init)
         end
 
         state_init = State(dx_init, V_init, theta_init, tau_init)
