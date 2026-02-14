@@ -43,7 +43,7 @@ struct LoadedSamplers <: AbstractLoadedObject
             name = String(nameof(typeof(sampler)))
             
             if name == "PointSampler"
-                append!(info[name], [(point_id=sampler.sample_point_id)])
+                append!(info[name], [(point_id=sampler.sample_point_id,)])
             elseif name == "SectionSampler"
                 coord = sampler.coord
                 axis  = sampler.axis
