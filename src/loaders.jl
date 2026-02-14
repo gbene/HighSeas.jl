@@ -47,7 +47,7 @@ struct LoadedSamplers <: AbstractLoadedObject
             elseif name == "SectionSampler"
                 coord = sampler.coord
                 axis  = sampler.axis
-                append!(info[name], (axis=axis, coord=coord))
+                append!(info[name], [(axis=axis, coord=coord)])
             else
             end
         end
