@@ -28,6 +28,7 @@ include("detectors.jl")
 include("samplers.jl")
 include("plotters.jl")
 include("savers.jl")
+include("loaders.jl")
 include("solvers.jl")
 
 
