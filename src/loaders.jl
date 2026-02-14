@@ -52,7 +52,7 @@ struct LoadedSamplers <: AbstractLoadedObject
             end
         end
 
-        new(n_samplers, samplers_info, samplers)
+        new(n_samplers, info, samplers)
 
     end
 end
