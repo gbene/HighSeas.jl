@@ -8,7 +8,7 @@ struct LoadedStep <: AbstractLoadedObject
     function LoadedStep(state::AbstractState, step::Int, time::Float64)
         new(state, step, time)
     end
-    function(input::Tuple)
+    function LoadedStep(input::Tuple)
         state, step, time = input
         new(state, step, time)
     end
