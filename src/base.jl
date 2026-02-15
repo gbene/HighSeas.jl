@@ -2,6 +2,21 @@ abstract type AbstractState end
 abstract type AbstractCatalog end
 
 
+
+
+function +(x::AbstractCatalog...)
+    catalog = copy(x[1].catalog)
+    for i in 2:length(x)
+        c = x[i].catalog
+        catalog = vcat(catalog, c)
+    end
+
+    mask = all.(!iszero, eachrow(catalog)) .* all.(!isnan, eachrow(catalog))
+
+
+    return Catalog(catalog[mask, :])
+end
+
 struct State{M<:AbstractArray{Float64}} <: AbstractState
 
     dx::M
