@@ -90,7 +90,7 @@ function loadData(input::String, n_events::Int)
     return loadObj(data, n_events)
 end
 
-function loadSSH(url, username, private_file, public_file)
+function loadSSH(url, username, private_file, public_file, path)
     # url = ENV["elja_url"]
     # username = ENV["elja_user"]
     # private_file = ENV["elja_private"]
@@ -98,7 +98,7 @@ function loadSSH(url, username, private_file, public_file)
     sftp = SFTP(url, username, public_file, private_file)
 
 
-    data  = load(SFTPClient.download(sftp, catalog_path))["data"]
+    data  = load(SFTPClient.download(sftp, path))["data"]
     return loadObj(data)
 
 
