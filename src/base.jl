@@ -4,7 +4,7 @@ abstract type AbstractCatalog end
 
 
 
-function +(x::AbstractCatalog...)
+function Base.:+(x::AbstractCatalog...)
     catalog = copy(x[1].catalog)
     for i in 2:length(x)
         c = x[i].catalog
