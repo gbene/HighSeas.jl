@@ -335,7 +335,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
             dTR = zeros(Int8, grid.n_elementsy, grid.n_elementsx); #Transition zone between RS and RW
         else
             s = [1+2*h/shape.l, 1+2*h/shape.w]
-            buffer = shape.*s'
+            buffer = shape*s
             maskb = inpoly2(g, buffer.points, buffer.edges)[:,1]
             maskb = reshape(maskb, size(x))
             maskb .-= mask
