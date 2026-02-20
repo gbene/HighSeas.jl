@@ -362,6 +362,48 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
 
     end
 
+    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid, buffer_points::AbstractMatrix{Float64}; w::Float64=NaN, l::Float64=NaN)
+
+
+        x = grid.x
+        y = grid.y
+
+        g = [vec(x) vec(y)]
+        shape = ClosedShape(points)
+        buffer = ClosedShape(buffer)
+
+
+
+        mask = inpoly2(g, shape.points, shape.edges)[:,1]
+        mask = reshape(mask, size(x))
+
+        maskb = inpoly2(g, buffer.points, buffer.edges)[:,1]
+        maskb = reshape(maskb, size(x))
+        maskb .-= mask
+
+        if isnan(w)
+            w = shape.bb[2]
+        end
+        if isnan(l)
+            l = shape.bb[1]
+        end
+
+        dRW = @. Int8(mask); #inside rate/velocity weakening area
+        dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
+        dTR = @. Int8(maskb)
+
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            dRW = memcopy(dRW)
+            dRS = memcopy(dRS)
+            dTR = memcopy(dTR)
+
+        end
+
+        new{typeof(dRW)}(w, l, h, dRW, dRS, dTR)
+
+    end
+
     function CustomPatch{M}(w, l, h, dRW::M, dRS::M, dTR::M) where M
         new{M}(w, l, h, dRW, dRS, dTR)
     end
