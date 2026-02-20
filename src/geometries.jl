@@ -370,7 +370,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
 
         g = [vec(x) vec(y)]
         shape = ClosedShape(points)
-        buffer = ClosedShape(buffer)
+        buffer = ClosedShape(buffer_points)
 
 
 
