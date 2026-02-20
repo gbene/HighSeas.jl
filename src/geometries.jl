@@ -313,16 +313,42 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
     dTR::M # Mask indicating the transition between RS and RW
 
 
-    function CustomPatch(dRW::AbstractArray, w::Float64, l::Float64, grid::AbstractGrid)
-        h             = NaN
+    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid, w::Float64=NaN, l::Float64=NaN, h::Float64=NaN)
 
 
         x = grid.x
         y = grid.y
 
-        dRW = @. Int8(dRW); #inside rate/velocity weakening area
+        g = [vec(x) vec(y)]
+        shape = ClosedShape(points)
+
+
+
+        mask = inpoly2(g, shape.points, shape.edges)[:,1]
+        mask = reshape(mask, size(x))
+
+
+        dRW = @. Int8(mask); #inside rate/velocity weakening area
         dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
-        dTR = zeros(Int8, grid.n_elementsy, grid.n_elementsx); #Transition zone between RS and RW
+
+        if isnan(h)
+            dTR = zeros(Int8, grid.n_elementsy, grid.n_elementsx); #Transition zone between RS and RW
+        else
+            s = 1+2*h/(shape.bb[2]-shape.bb[1])
+            buffer = shape*s
+            maskb = inpoly2(grid, buffer.points, buffer.edges)[:,1]
+            maskb = reshape(maskb, size(x))
+            maskb .-= mask
+            dTR = @. Int8(maskb)
+        end
+
+        if isnan(w)
+            w = shape.bb[2]
+        end
+        if isnan(l)
+            l = shape.bb[1]
+        end
+
 
 
         if typeof(get_backend()) <: AbstractGPUBackend

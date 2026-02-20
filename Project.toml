@@ -1,6 +1,6 @@
 name = "HighSeas"
 uuid = "cf55fe6e-1192-45e2-9362-6673aaff05ef"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["gbene <gabri.benedetti@gmail.com>"]
 
 [deps]
@@ -8,11 +8,13 @@ AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 FastBroadcast = "7034ab61-46d4-4ed7-9d0f-46aef9175898"
+Fractalizer = "c0cd90ba-f482-40dc-b865-bff11b43dfb3"
 GPUArrays = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"
 Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+PolygonInbounds = "e4521ec6-8c1d-418e-9da2-b3bc4ae105d6"
 SFTPClient = "6f0ef2a9-1531-47bc-8c87-f4ce50005508"
 StyledStrings = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 TimeZones = "f269a46b-ccf7-5d73-abea-4c690281aa53"
@@ -27,3 +29,6 @@ CudaExt = "CUDA"
 MetalExt = "Metal"
 RocExt = "AMDGPU"
 
+[compat]
+Fractalizer = "0.1.0"
+PolygonInbounds = "0.2.0"

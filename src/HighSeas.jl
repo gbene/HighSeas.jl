@@ -12,6 +12,8 @@ using StyledStrings
 using CSV
 using Glob
 using SFTPClient
+using PolygonInbounds
+using Fractalizer
 
 
 include("base.jl")
