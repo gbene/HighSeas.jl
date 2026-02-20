@@ -313,7 +313,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
     dTR::M # Mask indicating the transition between RS and RW
 
 
-    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid, w::Float64=NaN, l::Float64=NaN, h::Float64=NaN)
+    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid; w::Float64=NaN, l::Float64=NaN, h::Float64=NaN)
 
 
         x = grid.x
