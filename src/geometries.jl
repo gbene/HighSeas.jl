@@ -336,7 +336,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
         else
             s = 1+2*h/(shape.bb[2]-shape.bb[1])
             buffer = shape*s
-            maskb = inpoly2(grid, buffer.points, buffer.edges)[:,1]
+            maskb = inpoly2(g, buffer.points, buffer.edges)[:,1]
             maskb = reshape(maskb, size(x))
             maskb .-= mask
             dTR = @. Int8(maskb)
