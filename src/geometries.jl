@@ -373,7 +373,6 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
         buffer = ClosedShape(buffer_points)
 
 
-
         mask = inpoly2(g, shape.points, shape.edges)[:,1]
         mask = reshape(mask, size(x))
 
@@ -387,6 +386,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
         if isnan(l)
             l = shape.bb[1]
         end
+        h = buffer.l - l
 
         dRW = @. Int8(mask); #inside rate/velocity weakening area
         dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
