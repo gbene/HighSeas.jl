@@ -328,9 +328,6 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
         mask = reshape(mask, size(x))
 
 
-        dRW = @. Int8(mask); #inside rate/velocity weakening area
-        dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
-
         if isnan(h)
             dTR = zeros(Int8, grid.n_elementsy, grid.n_elementsx); #Transition zone between RS and RW
         else
@@ -348,6 +345,9 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
         if isnan(l)
             l = shape.bb[1]
         end
+
+        dRW = @. Int8(mask); #inside rate/velocity weakening area
+        dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
 
 
 
