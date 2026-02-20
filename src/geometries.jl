@@ -374,11 +374,11 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
 
 
         mask = inpoly2(g, shape.points, shape.edges)[:,1]
-        mask = reshape(mask, size(x))
+        dRW = map(Int8, reshape(mask, size(x)))
 
         maskb = inpoly2(g, buffer.points, buffer.edges)[:,1]
-        maskb = reshape(maskb, size(x))
-        maskb .-= mask
+        dTR = map(Int8, reshape(maskb, size(x)))
+        dTR .-= dRW
 
         if isnan(w)
             w = shape.bb[2]
@@ -388,9 +388,9 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
         end
         h = buffer.l - l
 
-        dRW = @. Int8(mask); #inside rate/velocity weakening area
+        # dRW = @. Int8(mask); #inside rate/velocity weakening area
         dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
-        dTR = @. Int8(maskb)
+        # dTR = @. Int8(maskb)
 
 
         if typeof(get_backend()) <: AbstractGPUBackend
