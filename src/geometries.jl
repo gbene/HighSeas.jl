@@ -503,7 +503,7 @@ struct RectangleNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
         y_llim = yi-wi/2
 
 
-        dNU = @. Int8((x_llim <= x < x_rlim)*(y_llim <= y < y_ulim)) # To be exact it should be <= but I am debugging
+        dNU = @. Int8((x_llim < x < x_rlim)*(y_llim < y < y_ulim)) # To be exact it should be <= but I am debugging
 
         dFD = @. Int8(dNU==0)
 
