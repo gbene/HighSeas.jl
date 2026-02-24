@@ -312,6 +312,48 @@ function plotDomain(domain::AbstractDomain, dot_grid=false, display=false)
 
 end
 
+function plotDomain(ax::Axis, domain::AbstractDomain, dot_grid=false, display=false)
+    # fig = Figure(size=(480,480))
+    # ax = Axis(fig[1,1], aspect = DataAspect(), xlabel= "X [m]", ylabel= "Y [m]", title="Simulated domain")
+
+    grid  = domain.grid
+    fault = domain.fault
+    patch = domain.patch
+    nucleation = domain.nucleation
+
+
+    heatmap!(ax, grid.X, grid.Y, Matrix(patch.dRS'),colormap=[(:black), :cyan], rasterize=10)
+
+    heatmap!(ax, grid.X, grid.Y, Matrix(fault.dCR'),colormap=[(:white, 0.), :gray96], rasterize=10)
+    # heatmap!(ax, grid.X, grid.Y, fault.dLO',colormap=[(:white, 0.), :cyan])
+
+
+    heatmap!(ax, grid.X, grid.Y, Matrix(patch.dRW'),colormap=[(:white,0.), :springgreen1], rasterize=10)
+
+    if patch.h > 0.0
+        heatmap!(ax, grid.X, grid.Y, Matrix(patch.dTR'),colormap=[(:white,0.), :yellow], rasterize=10)
+    end
+
+    if ~(typeof(nucleation) <: EmptyNucleation)
+        heatmap!(ax, grid.X, grid.Y, Matrix(nucleation.dNU'),colormap=[(:white,0.), :darkgreen], rasterize=10)
+        # scatter!(ax, nucleation.xi, nucleation.yi, color=:black)
+    end
+
+    if dot_grid
+        scatter!(ax, [(x, y) for x in grid.X for y in grid.Y], markersize=3,strokecolor=:white,strokewidth=0.5)
+    end
+
+    tightlimits!(ax)
+    resize_to_layout!(fig)
+
+    if display
+        display(fig)
+    end
+
+    return fig, ax
+
+end
+
 function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_section::SectionSampler, dot_grid=false, display=false; sample_point_kwargs=(), sample_section_kwargs=())
 
     fig, ax = plotDomain(domain, dot_grid)
@@ -331,6 +373,7 @@ function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_s
     return fig, ax
 
 end
+
 
 function plotCatalog(catalog::AbstractCatalog, quantity::String, display=false; ax_kwargs, stem_kwargs)
 
