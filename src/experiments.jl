@@ -63,6 +63,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
     domain::D
 
     start_time::String
+    outpath::String
     AL::Int # not sure if this goes here, I don't even think this is necessary anymore.
     Vpl::Float64
     Vr::Float64
@@ -101,11 +102,11 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
     catalog::C
 
 
-    function BP4QDExp(input_dict::Dict, material::M, domain::D, n_events) where {M, D}
+    function BP4QDExp(input_dict::Dict, material::M, domain::D, n_events, output_dir::String) where {M, D}
 
         start_time = string(now())
         println("Experiment start time: $start_time")
-        start_time = replace(start_time, ":"=>"_", "-"=>"_")
+        outpath = make_outdir(start_time, output_dir)
 
         AL                = 1
 
@@ -184,8 +185,17 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
         state_init = State(dx_init, V_init, theta_init, tau_init)
         catalog_init = Catalog(n_events)
 
+        open("$outpath/summary.txt","w") do file
+                write(file, "================================================================\n")
+                for k in keys(input_dict)
+                        write(file, "$k: $(input_dict[k])\n")
+                end
+                write(file, "================================================================\n")
+                write(file, "$(string(lengthscales))\n")
+            end
 
-        new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time,
+
+        new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time, outpath,
                                                                                                    AL, Vpl, Vr, Vi, Vnu,
                                                                                                    lengthscales, a, b, tau0, si0,
                                                                                                    state_init, catalog_init)

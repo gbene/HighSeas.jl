@@ -12,14 +12,15 @@ struct StepSaver{S<:AbstractState, ST<:AbstractStepper} <: AbstractSaver
 
     function StepSaver(outdir::String, every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
-        start_time = experiment.start_time
-        platform = get_backend().device
+        # start_time = experiment.start_time
+        # platform = get_backend().device
 
-        outpath = "$(outdir)/$(start_time)/$(platform)"
+        # outpath = "$(outdir)/$(start_time)/$(platform)"
 
-        if ~isdir(outpath)
-            mkpath(outpath)
-        end
+        # if ~isdir(outpath)
+        #     mkpath(outpath)
+        # end
+        outpath = experiment.outpath
 
         data = experiment.state
         stepper = algorithm.stepper
@@ -37,14 +38,15 @@ struct CatalogSaver{C<:AbstractCatalog, ST<:AbstractStepper}  <: AbstractSaver
 
     function CatalogSaver(outdir::String, every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
-        start_time = experiment.start_time
-        platform = get_backend().device
+        # start_time = experiment.start_time
+        # platform = get_backend().device
 
-        outpath = "$(outdir)/$(start_time)/$(platform)"
+        # outpath = "$(outdir)/$(start_time)/$(platform)"
 
-        if ~isdir(outpath)
-            mkpath(outpath)
-        end
+        # if ~isdir(outpath)
+        #     mkpath(outpath)
+        # end
+        outpath = experiment.outpath
 
         data = experiment.catalog
         stepper = algorithm.stepper
@@ -61,14 +63,15 @@ struct SamplerSaver{V<:Vector{<:AbstractSampler}, ST<:AbstractStepper} <: Abstra
 
     function SamplerSaver(outdir::String, every::Int, samplers::Vector{<:AbstractSampler}, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
-        start_time = experiment.start_time
-        platform = get_backend().device
+        # start_time = experiment.start_time
+        # platform = get_backend().device
 
-        outpath = "$(outdir)/$(start_time)/$(platform)"
+        # outpath = "$(outdir)/$(start_time)/$(platform)"
 
-        if ~isdir(outpath)
-            mkpath(outpath)
-        end
+        # if ~isdir(outpath)
+        #     mkpath(outpath)
+        # end
+        outpath = experiment.outpath
 
         stepper = algorithm.stepper
         data = samplers
@@ -87,10 +90,17 @@ struct SnaptshotSaver{P<:AbstractPlotter, ST<:AbstractStepper} <: AbstractSaver
 
     function SnaptshotSaver(outdir::String, every::Int, plotter::AbstractPlotter, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
-        start_time = experiment.start_time
-        device = get_backend().device
+        # start_time = experiment.start_time
+        # platform = get_backend().device
 
-        outpath = "$(outdir)/$(start_time)/$(device)/saved_figures"
+        # outpath = "$(outdir)/$(start_time)/$(platform)"
+
+        # if ~isdir(outpath)
+        #     mkpath(outpath)
+        # end
+        outpath = "$(experiment.outpath)/saved_figures"
+
+        # outpath = "$(outdir)/$(start_time)/$(device)/saved_figures"
         if ~isdir(outpath)
             mkpath(outpath)
         end

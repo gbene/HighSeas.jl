@@ -26,7 +26,7 @@ function removenans(data::Matrix)
 end
 
 # function mycopy(x::T) where T
-           
+
 #       fnames = fieldnames(T)
 #       v = Vector{Any}(undef, length(fnames))
 #       for i in eachindex(fnames)
@@ -248,3 +248,18 @@ Some GPU backends support UnifiedMemory (e.g. CUDA, ROCm, Metal). The default wi
 users can choose UnifiedMemory by running ```set_GPUbackend("unified")```
 """
 function set_GPUbackend end
+
+
+function make_outdir(start_time, output_dir)
+
+    start_time = replace(start_time, ":"=>"_", "-"=>"_")
+    device = get_backend().device
+
+    outpath = "$(output_dir)/$(start_time)/$(device)"
+    if ~isdir(outpath)
+        mkpath(outpath)
+    end
+
+    return outpath
+
+end
