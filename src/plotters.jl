@@ -344,13 +344,6 @@ function plotDomain(ax::Axis, domain::AbstractDomain, dot_grid=false, display=fa
     end
 
     tightlimits!(ax)
-    resize_to_layout!(fig)
-
-    if display
-        display(fig)
-    end
-
-    return fig, ax
 
 end
 
