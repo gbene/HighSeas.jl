@@ -30,5 +30,5 @@ MetalExt = "Metal"
 RocExt = "AMDGPU"
 
 [compat]
-Fractalizer = "0.1.0"
+Fractalizer = "0.3.0"
 PolygonInbounds = "0.2.0"
