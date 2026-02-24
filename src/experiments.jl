@@ -187,7 +187,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
         open("$outpath/summary.txt","w") do file
                 write(file, "================================================================\n")
-                for k in keys(input_dict)
+                for k in sort!(collect(keys(input_dict)))
                         write(file, "$k: $(input_dict[k])\n")
                 end
                 write(file, "================================================================\n")
