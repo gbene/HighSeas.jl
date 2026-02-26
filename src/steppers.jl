@@ -1,7 +1,3 @@
-abstract type AbstractStepper end
-abstract type AbstractAdaptiveStepper <: AbstractStepper end
-
-
 
 mutable struct AdaptiveStepper{EL<:AbstractErrorLaw} <: AbstractAdaptiveStepper
 
