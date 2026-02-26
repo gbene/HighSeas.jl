@@ -347,7 +347,7 @@ function plotDomain(ax::Axis, domain::AbstractDomain, dot_grid=false, display=fa
 
 end
 
-function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_section::SectionSampler, dot_grid=false, display=false; sample_point_kwargs=(), sample_section_kwargs=())
+function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_section::SectionSampler, dot_grid=false, display::Bool=false; sample_point_kwargs=(), sample_section_kwargs=())
 
     fig, ax = plotDomain(domain, dot_grid)
 
@@ -368,7 +368,7 @@ function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_s
 end
 
 
-function plotCatalog(catalog::AbstractCatalog, quantity::String, display=false; ax_kwargs, stem_kwargs)
+function plotCatalog(catalog::AbstractCatalog, quantity::String, display::Bool=false; ax_kwargs=(), stem_kwargs=())
 
     n_events = catalog.n_events
     trimmed_catalog = Catalog(catalog.catalog[1:n_events, :])
@@ -395,7 +395,7 @@ function plotCatalog(catalog::AbstractCatalog, quantity::String, display=false; 
 
     return fig, ax
 end
-function plotCatalog(catalog::AbstractCatalog, quantity::String, ax::Axis; stem_kwargs)
+function plotCatalog(catalog::AbstractCatalog, quantity::String, ax::Axis; stem_kwargs=())
 
     n_events = catalog.n_events
     trimmed_catalog = Catalog(catalog.catalog[1:n_events, :])
@@ -404,36 +404,4 @@ function plotCatalog(catalog::AbstractCatalog, quantity::String, ax::Axis; stem_
     stem!(ax, trimmed_catalog.t/(365*24*60*60), data; stem_kwargs...)
 
     return ax
-end
-
-
-function plotCatalogSSH(catalog_path::String, quantity::String; ax_kwargs, stem_kwargs)
-    url = ENV["elja_url"]
-    username = ENV["elja_user"]
-    private_file = ENV["elja_private"]
-    public_file = ENV["elja_pub"]
-
-
-    sftp = SFTP(url, username, public_file, private_file)
-
-    catalog  = load(SFTPClient.download(sftp, catalog_path))["data"]
-
-    return plotCatalog(catalog, quantity; ax_kwargs, stem_kwargs)
-
-
-end
-function plotCatalogSSH(catalog_path::String, quantity::String, ax::Axis; stem_kwargs)
-    url = ENV["elja_url"]
-    username = ENV["elja_user"]
-    private_file = ENV["elja_private"]
-    public_file = ENV["elja_pub"]
-
-
-    sftp = SFTP(url, username, public_file, private_file)
-
-    catalog  = load(SFTPClient.download(sftp, catalog_path))["catalog"][1:upto, :]
-
-    return plotCatalog(catalog, quantity, ax; stem_kwargs)
-
-
 end
