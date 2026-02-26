@@ -185,7 +185,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
         catalog_init = Catalog(n_events)
 
         open("$outpath/simulation.log","w") do file
-                write(file, "Experiment start time: $start_time")
+                write(file, "Experiment start time: $start_time \n")
                 write(file, "================================================================\n")
                 for k in sort!(collect(keys(input_dict)))
                         write(file, "$k: $(input_dict[k])\n")
@@ -283,7 +283,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
         catalog_init = Catalog(n_events)
 
         open("$outpath/simulation.log","w") do file
-            write(file, "Experiment start time: $start_time")
+            write(file, "Experiment start time: $start_time \n")
             write(file, "================================================================\n")
             for k in sort!(collect(keys(input_dict)))
                     write(file, "$k: $(input_dict[k])\n")

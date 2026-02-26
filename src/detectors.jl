@@ -14,7 +14,7 @@ function end_event_message(mag, file)
     println(msg)
 
     open(file,"a") do f
-        write(f, "\n $msg")
+        write(f, "\n$msg")
     end
 
 end
