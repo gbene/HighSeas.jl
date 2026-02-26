@@ -1,5 +1,4 @@
-abstract type AbstractPlotter end
-abstract type LivePlotter <: AbstractPlotter end
+
 
 struct RSPlotter <: LivePlotter
 

@@ -1,5 +1,4 @@
-abstract type AbstractBackend end
-abstract type AbstractGPUBackend<:AbstractBackend end
+
 
 
 struct CPUBackend <: AbstractBackend

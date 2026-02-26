@@ -1,5 +1,4 @@
-abstract type AbstractExperiment end
-abstract type AbstractBenchExperiment <: AbstractExperiment end
+
 
 
 function plot_experiment(experiment::AbstractExperiment, field::Symbol, inspector=false)

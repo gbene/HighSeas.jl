@@ -1,13 +1,3 @@
-abstract type AbstractGrid end
-abstract type AbstractPowerGrid <:AbstractGrid end
-
-abstract type AbstractFault end
-abstract type AbstractPatch end
-abstract type AbstractNucleation end
-
-abstract type AbstractDomain end
-
-
 """
 Grid(input_dict::Dict)
 

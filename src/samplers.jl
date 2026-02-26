@@ -1,4 +1,3 @@
-abstract type AbstractSampler end
 
 
 struct EmptySampler <: AbstractSampler

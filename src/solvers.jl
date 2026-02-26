@@ -1,6 +1,4 @@
-abstract type AbstractSolver end
-abstract type AbstractStepSolver <: AbstractSolver end
-abstract type AbstractTimeSolver <: AbstractSolver end
+
 
 
 

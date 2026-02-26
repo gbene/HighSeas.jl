@@ -1,5 +1,3 @@
-abstract type AbstractSaver end
-
 struct EmptySaver <: AbstractSaver
 end
 

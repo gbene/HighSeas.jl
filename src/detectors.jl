@@ -1,4 +1,3 @@
-abstract type AbstractDetector end
 
 
 function start_event_message(eventN, time, file)

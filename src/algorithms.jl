@@ -1,5 +1,3 @@
-abstract type AbstractAlgorithm end
-abstract type AbstractNewton <: AbstractAlgorithm end
 
 
 

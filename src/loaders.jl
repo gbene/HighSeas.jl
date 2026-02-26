@@ -1,4 +1,3 @@
-abstract type AbstractLoadedObject end
 
 struct LoadedStep <: AbstractLoadedObject
     state::AbstractState
@@ -36,12 +35,12 @@ struct LoadedSamplers <: AbstractLoadedObject
         for n in unames
             info[n] = []
         end
-        
+
 
         for i in eachindex(samplers)
             sampler = samplers[i]
             name = String(nameof(typeof(sampler)))
-            
+
             if name == "PointSampler"
                 append!(info[name], [(point_id=sampler.sample_point_id,)])
             elseif name == "SectionSampler"
@@ -103,4 +102,3 @@ function loadSSH(url, username, private_file, public_file, path)
 
 
 end
-
