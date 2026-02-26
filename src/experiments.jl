@@ -185,7 +185,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
         state_init = State(dx_init, V_init, theta_init, tau_init)
         catalog_init = Catalog(n_events)
 
-        open("$outpath/summary.txt","w") do file
+        open("$outpath/simulation.log","w") do file
                 write(file, "================================================================\n")
                 for k in sort!(collect(keys(input_dict)))
                         write(file, "$k: $(input_dict[k])\n")

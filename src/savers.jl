@@ -160,13 +160,11 @@ end
 Common interface function to save any AbstractSaver. Add type specific functions
 for AbstractSavers that require specific treatment (e.g. the SnaptshotSaver)
 """
-function simsave(saver::AbstractSaver)
+function simsave(saver::AbstractSaver, step::Int=1)
 
     if ~(typeof(saver) <: EmptySaver)
-        step = saver.stepper.step
 
-
-        if step % saver.every == 0 || step == 1
+        if step == 1 || step % saver.every == 0
             filename, data, step = get_data(saver)
 
             @save filename data
@@ -175,11 +173,9 @@ function simsave(saver::AbstractSaver)
     end
 end
 
-function simsave(saver::SnaptshotSaver)
+function simsave(saver::SnaptshotSaver, step::Int=1)
 
-    step = saver.stepper.step
-
-    if step % saver.every == 0 || step == 1
+    if step == 1 || step % saver.every == 0
         filename, data = get_data(saver)
 
         save(filename, data, px_per_unit=3)

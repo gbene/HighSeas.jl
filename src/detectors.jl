@@ -1,6 +1,36 @@
 abstract type AbstractDetector end
 
 
+function start_event_message(eventN, time, file)
+    string = "$(string(now())) event $eventN has started, time: $(time/(365*24*60*60))"
+    println(string)
+
+    open(file,"a") do f
+        write(f, "\n$string")
+    end
+
+end
+function end_event_message(mag, file)
+    string = "$(string(now())) Event has ended, mag: $mag"
+    println(string)
+
+    open(file,"a") do f
+        write(f, "\n$string")
+    end
+
+end
+
+function end_event_message(file)
+    string = "$(string(now())) Event has ended"
+    println(string)
+
+    open(file,"a") do f
+        write(f, "\n$string")
+    end
+
+end
+
+
 
 struct EmptyDetector <: AbstractDetector
 
@@ -15,22 +45,26 @@ mutable struct SimpleDetector{S<:AbstractState, ST<:AbstractStepper} <: Abstract
     maxVThresh::Float64
     state::S
     stepper::ST
+    log_file::String
 
 
     function SimpleDetector(minVThresh::Float64, maxVThresh::Float64, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
         state = experiment.state
         stepper = algorithm.stepper
-        new{typeof(state), typeof(stepper)}(false, 1, minVThresh, maxVThresh, state, stepper)
+        log_file = "$(experiment.outpath)/simulation.log"
+        new{typeof(state), typeof(stepper)}(false, 1, minVThresh, maxVThresh, state, stepper, log_file)
     end
 end
 
-function (simpleDetector::SimpleDetector)()
+function (simpleDetector::SimpleDetector)(savers)
 
     if simpleDetector.eventStart == false
+        start_event_message(simpleDetector.eventN, simpleDetector.stepper.time, simpleDetector.log_file)
         simpleDetector.eventStart = true
     else
         simpleDetector.eventStart = false
-        println("$(string(now()))  Event has ended")
+        end_event_message(simpleDetector.log_file)
+        simsave(savers)
 
     end
     return nothing
@@ -62,6 +96,7 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
     time_start::Float64
     last_event_time::Float64
     cell_area::Float64
+    log_file::String
 
     function CatalogDetector(minVThresh::Float64, maxVThresh::Float64, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
@@ -96,15 +131,17 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
             ruptured_nodes      = memcopy(ruptured_nodes)
         end
 
+        log_file = "$(experiment.outpath)/simulation.log"
+
         new{typeof(state), typeof(stepper),
             typeof(catalog), typeof(dx_start),
             typeof(ruptured_nodes)}(false, 1, minVThresh, maxVThresh, state, stepper, material,
                                     catalog, dx_start, tau_start, slip, stressdrop, x, y,
-                                    ruptured_nodes, time_start, last_event_time, cell_area)
+                                    ruptured_nodes, time_start, last_event_time, cell_area, log_file)
     end
 end
 
-function (catalogDetector::CatalogDetector)()
+function (catalogDetector::CatalogDetector)(savers)
 
     state = catalogDetector.state
     stepper = catalogDetector.stepper
@@ -112,12 +149,14 @@ function (catalogDetector::CatalogDetector)()
     catalog = catalogDetector.catalog
     eventN = catalogDetector.eventN
     ruptured_nodes = catalogDetector.ruptured_nodes
-    # temp = catalogDetector.temp
+
+    t = stepper.time
 
     if catalogDetector.eventStart == false
+        start_event_message(eventN, t, simpleDetector.log_file)
+
         catalogDetector.eventStart = true
 
-        t = stepper.time
 
         copy!(catalogDetector.dx_start, state.dx)
         copy!(catalogDetector.tau_start, state.tau)
@@ -141,7 +180,7 @@ function (catalogDetector::CatalogDetector)()
     else
         catalogDetector.eventStart = false
 
-        trup = stepper.time-catalogDetector.time_start
+        trup = t-catalogDetector.time_start
 
         interevent_time = catalogDetector.time_start-catalogDetector.last_event_time
 
@@ -170,7 +209,8 @@ function (catalogDetector::CatalogDetector)()
         catalog.MeanSlip[eventN] = MeanSlip
         catalog.MeanStress[eventN] = MeanStress
         catalog.n_events += 1
-        println("$(string(now())) Event has ended, mag: $mag")
+        end_event_message(mag, simpleDetector.log_file)
+        simsave(savers)
 
 
     end
@@ -184,19 +224,17 @@ function detect(detector::EmptyDetector)
 end
 
 
-function detect(detector::AbstractDetector)
+function detect(detector::AbstractDetector, savers)
     V = detector.state.V
-    time = detector.stepper.time
 
     maxV = maximum(V)
 
     if maxV > detector.maxVThresh && detector.eventStart == false
-            detector()
-            println("$(string(now()))  event $(detector.eventN) has started, time: $(time/(365*24*60*60))")
+            detector(savers)
     end
 
     if maxV <= detector.minVThresh && detector.eventStart == true
-            detector()
+            detector(savers)
             detector.eventN +=1
     end
     return nothing

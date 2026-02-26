@@ -152,8 +152,11 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
         dx, V, theta = algorithm(dx, V, theta)
 
         sample(samplers)
-        detect(detector)
-        simsave(savers)
+        if typeof(detector) != EmptyDetector
+            detect(detector, savers)
+        else
+            simsave(savers, stepper.step)
+        end
 
 
 
