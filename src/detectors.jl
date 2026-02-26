@@ -2,30 +2,30 @@ abstract type AbstractDetector end
 
 
 function start_event_message(eventN, time, file)
-    string = "$(string(now())) event $eventN has started, time: $(time/(365*24*60*60))"
-    println(string)
+    msg = "$(string(now())) event $eventN has started, time: $(time/(365*24*60*60))"
+    println(msg)
 
     open(file,"a") do f
-        write(f, "\n$string")
+        write(f, "\n$msg")
     end
 
 end
 function end_event_message(mag, file)
-    string = "$(string(now())) Event has ended, mag: $mag"
-    println(string)
+    msg = "$(string(now())) Event has ended, mag: $mag"
+    println(msg)
 
     open(file,"a") do f
-        write(f, "\n$string")
+        write(f, "\n $msg")
     end
 
 end
 
 function end_event_message(file)
-    string = "$(string(now())) Event has ended"
-    println(string)
+    msg = "$(string(now())) Event has ended"
+    println(msg)
 
     open(file,"a") do f
-        write(f, "\n$string")
+        write(f, "\n$msg")
     end
 
 end
