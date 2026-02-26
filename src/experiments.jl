@@ -187,7 +187,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
         open("$outpath/simulation.log","w") do file
                 write(file, "Experiment start time: $start_time")
-                write(file, "========================================================\n")
+                write(file, "================================================================\n")
                 for k in sort!(collect(keys(input_dict)))
                         write(file, "$k: $(input_dict[k])\n")
                 end
@@ -208,6 +208,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
         start_time = string(now())
         println("Experiment start time: $start_time")
+        outpath = make_outdir(start_time, output_dir)
 
         AL                = 1
 
@@ -281,20 +282,30 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
         catalog_init = Catalog(n_events)
 
+        open("$outpath/simulation.log","w") do file
+            write(file, "Experiment start time: $start_time")
+            write(file, "================================================================\n")
+            for k in sort!(collect(keys(input_dict)))
+                    write(file, "$k: $(input_dict[k])\n")
+            end
+            write(file, "================================================================\n")
+            write(file, "$(string(lengthscales))\n")
+        end
 
-        new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time,
+
+        new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time, outpath,
                                                                                                    AL, Vpl, Vr, Vi, Vnu,
                                                                                                    lengthscales, a, b, tau0, si0,
                                                                                                    state_init, catalog_init)
 
     end
 
-    function BP4QDExp{F, M, D, S, C}(material::M, domain::D, start_time,
+    function BP4QDExp{F, M, D, S, C}(material::M, domain::D, start_time, outpath,
                         AL, Vpl, Vr, Vi, Vnu, lengthscales,
                         a::F, b::F, tau0::F, si0::F,
                         state_init::S, catalog_init::C) where {F, M, D, S, C}
 
-        new{F, M, D, S, C}(material, domain, start_time,
+        new{F, M, D, S, C}(material, domain, start_time,outpath,
                            AL, Vpl, Vr, Vi, Vnu,
                            lengthscales, a, b, tau0, si0,
                            state_init, catalog_init)
