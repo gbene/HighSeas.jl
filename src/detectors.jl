@@ -153,7 +153,7 @@ function (catalogDetector::CatalogDetector)(savers)
     t = stepper.time
 
     if catalogDetector.eventStart == false
-        start_event_message(eventN, t, simpleDetector.log_file)
+        start_event_message(eventN, t, catalogDetector.log_file)
 
         catalogDetector.eventStart = true
 
@@ -209,7 +209,7 @@ function (catalogDetector::CatalogDetector)(savers)
         catalog.MeanSlip[eventN] = MeanSlip
         catalog.MeanStress[eventN] = MeanStress
         catalog.n_events += 1
-        end_event_message(mag, simpleDetector.log_file)
+        end_event_message(mag, catalogDetector.log_file)
         simsave(savers)
 
 
