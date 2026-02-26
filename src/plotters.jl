@@ -270,7 +270,7 @@ function plotSection(sectionSampler::SectionSampler, s_slip_freq=50, as_slip_fre
 end
 
 
-function plotDomain(domain::AbstractDomain, dot_grid=false, display=false)
+function plotDomain(domain::AbstractDomain, dot_grid::Bool=false; display::Bool=false)
     fig = Figure(size=(480,480))
     ax = Axis(fig[1,1], aspect = DataAspect(), xlabel= "X [m]", ylabel= "Y [m]", title="Simulated domain")
 
@@ -312,7 +312,7 @@ function plotDomain(domain::AbstractDomain, dot_grid=false, display=false)
 
 end
 
-function plotDomain(ax::Axis, domain::AbstractDomain, dot_grid=false, display=false)
+function plotDomain(ax::Axis, domain::AbstractDomain, dot_grid::Bool=false)
     # fig = Figure(size=(480,480))
     # ax = Axis(fig[1,1], aspect = DataAspect(), xlabel= "X [m]", ylabel= "Y [m]", title="Simulated domain")
 
@@ -347,7 +347,7 @@ function plotDomain(ax::Axis, domain::AbstractDomain, dot_grid=false, display=fa
 
 end
 
-function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_section::SectionSampler, dot_grid=false, display::Bool=false; sample_point_kwargs=(), sample_section_kwargs=())
+function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_section::SectionSampler, dot_grid::Bool=false; display::Bool=false, sample_point_kwargs=(), sample_section_kwargs=())
 
     fig, ax = plotDomain(domain, dot_grid)
 
@@ -368,7 +368,7 @@ function plotDomain(domain::AbstractDomain, sample_point::PointSampler, sample_s
 end
 
 
-function plotCatalog(catalog::AbstractCatalog, quantity::String, display::Bool=false; ax_kwargs=(), stem_kwargs=())
+function plotCatalog(catalog::AbstractCatalog, quantity::String; display::Bool=false, ax_kwargs=(), stem_kwargs=())
 
     n_events = catalog.n_events
     trimmed_catalog = Catalog(catalog.catalog[1:n_events, :])
