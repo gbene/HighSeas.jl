@@ -203,7 +203,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
     end
 
 
-    function BP4QDExp(input_dict::Dict, material::M, domain::D, n_events, loadedstep::LoadedStep) where {M, D}
+    function BP4QDExp(input_dict::Dict, material::M, domain::D, n_events, output_dir::String, loadedstep::LoadedStep) where {M, D}
 
         start_time = string(now())
         println("Experiment start time: $start_time")
