@@ -38,7 +38,7 @@ mutable struct AdaptiveStepper{EL<:AbstractErrorLaw} <: AbstractAdaptiveStepper
         new{typeof(errorlaw)}(errorlaw, err, erra, tollo, tolup, mindt, mintries, step, dt, time, breakcode)
     end
 
-    function AdaptiveStepper(input_dict::Dict, errorlaw::AbstractErrorLaw, mintries::Int=2, loadedstep::LoadedStep)
+    function AdaptiveStepper(input_dict::Dict, errorlaw::AbstractErrorLaw, loadedstep::LoadedStep,  mintries::Int=2)
 
 
         frac = 1/2^(input_dict["fract"]-1)
