@@ -4,7 +4,7 @@ struct EmptySampler <: AbstractSampler
 end
 
 
-struct PointSampler{S<:AbstractState, ST<:AbstractStepper, B<:AbstractArray{Int8}} <: AbstractSampler
+struct PointSampler{B<:AbstractArray{Int8}} <: AbstractSampler
 
     # state::S
     # stepper::ST
@@ -25,7 +25,7 @@ struct PointSampler{S<:AbstractState, ST<:AbstractStepper, B<:AbstractArray{Int8
     sample_point_y::Float64
 
 
-    function PointSampler(sample_points_paths::String, sample_point_id::Int, NT::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function PointSampler(sample_points_paths::String, sample_point_id::Int, NT::Int, experiment::AbstractExperiment)
 
         # state = experiment.state
         # stepper = algorithm.stepper
