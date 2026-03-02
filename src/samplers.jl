@@ -184,7 +184,7 @@ function (sectionSampler::SectionSampler)(stepper, state)
 
 end
 
-mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractContourSampler
+mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractSampler
 
     # state::S
     # stepper::ST
