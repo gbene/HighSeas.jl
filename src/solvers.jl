@@ -91,7 +91,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
         dx, V, theta = algorithm(dx, V, theta)
 
-        sample(samplers)
+        sample(samplers, stepper, state)
         detect(detector)
         simsave(savers)
 
@@ -118,7 +118,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
         dx, V, theta = algorithm(dx, V, theta)
 
-        sample(samplers)
+        sample(samplers, stepper, state)
         detect(detector)
         simsave(savers)
         UpdatePlot(plotter)
@@ -149,7 +149,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
         dx, V, theta = algorithm(dx, V, theta)
 
-        sample(samplers)
+        sample(samplers, stepper, state)
         if typeof(detector) != EmptyDetector
             detect(detector, savers)
         else
@@ -181,7 +181,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
         dx, V, theta = algorithm(dx, V, theta)
 
-        sample(samplers)
+        sample(samplers, stepper, state)
         detect(detector)
         simsave(savers)
         UpdatePlot(plotter)
