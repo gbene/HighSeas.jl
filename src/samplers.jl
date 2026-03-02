@@ -201,7 +201,7 @@ mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}}
 
     function ContourSampler(field::Symbol, thresh::Float64, experiment::AbstractExperiment)
 
-        # state = experiment.state
+        state = experiment.state
         # stepper = algorithm.stepper
 
 
