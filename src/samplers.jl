@@ -6,8 +6,8 @@ end
 
 struct PointSampler{S<:AbstractState, ST<:AbstractStepper, B<:AbstractArray{Int8}} <: AbstractSampler
 
-    state::S
-    stepper::ST
+    # state::S
+    # stepper::ST
     # temp::M
     mask::B
 
@@ -27,8 +27,8 @@ struct PointSampler{S<:AbstractState, ST<:AbstractStepper, B<:AbstractArray{Int8
 
     function PointSampler(sample_points_paths::String, sample_point_id::Int, NT::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
-        state = experiment.state
-        stepper = algorithm.stepper
+        # state = experiment.state
+        # stepper = algorithm.stepper
 
         sample_points = CSV.File(open(sample_points_paths))
 
@@ -50,7 +50,7 @@ struct PointSampler{S<:AbstractState, ST<:AbstractStepper, B<:AbstractArray{Int8
             # temp = memcopy(temp)
         end
 
-        new{typeof(state), typeof(stepper), typeof(mask)}(state, stepper, mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
+        new{typeof(mask)}(mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
     end
 
     function PointSampler{S,ST,B}(state::S, stepper::ST, mask::B, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y) where {S,ST,B}
@@ -60,17 +60,17 @@ struct PointSampler{S<:AbstractState, ST<:AbstractStepper, B<:AbstractArray{Int8
 end
 
 
-function (pointSampler::PointSampler)()
+function (pointSampler::PointSampler)(stepper, state)
 
     mask = pointSampler.mask
     # temp = pointSampler.temp
-    step = pointSampler.stepper.step
+    step = stepper.step
 
-    dx = pointSampler.state.dx
-    V = pointSampler.state.V
-    theta = pointSampler.state.theta
-    tau = pointSampler.state.tau
-    t = pointSampler.stepper.time
+    dx = state.dx
+    V = state.V
+    theta = state.theta
+    tau = state.tau
+    t = stepper.time
 
 
 
@@ -263,18 +263,18 @@ end
 
 
 
-function sample(sampler::AbstractSampler)
+function sample(sampler::AbstractSampler, stepper, state)
 
     if typeof(sampler) != EmptySampler
-        sampler()
+        sampler(stepper, state)
     end
 
     return nothing
 end
 
-function sample(samplers::Vector{<:AbstractSampler})
+function sample(samplers::Vector{<:AbstractSampler}, stepper, state)
     for sampler in samplers
-        sample(sampler)
+        sample(sampler, stepper, state)
     end
     return nothing
 end
