@@ -53,7 +53,7 @@ struct PointSampler{B<:AbstractArray{Int8}} <: AbstractSampler
         new{typeof(mask)}(mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
     end
 
-    function PointSampler{B}(mask::B, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y) where {S,ST,B}
+    function PointSampler{B}(mask::B, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y) where {B}
         new{B}(mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
     end
 
