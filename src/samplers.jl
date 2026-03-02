@@ -103,10 +103,8 @@ function (pointSampler::PointSampler)(stepper, state)
 end
 
 
-struct SectionSampler{S<:AbstractState, ST<:AbstractStepper,G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractSampler
+struct SectionSampler{G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractSampler
 
-    state::S
-    stepper::ST
     grid::G
     temp::M
     mask::B
@@ -120,10 +118,10 @@ struct SectionSampler{S<:AbstractState, ST<:AbstractStepper,G<:AbstractGrid, M<:
 
 
 
-    function SectionSampler(coord::Float64, axis::String, NT::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function SectionSampler(coord::Float64, axis::String, NT::Int, experiment::AbstractExperiment)
 
-        state = experiment.state
-        stepper = algorithm.stepper
+        # state = experiment.state
+        # stepper = algorithm.stepper
 
 
         grid = experiment.domain.grid
@@ -150,20 +148,24 @@ struct SectionSampler{S<:AbstractState, ST<:AbstractStepper,G<:AbstractGrid, M<:
 
         end
 
-        new{typeof(state), typeof(stepper), typeof(grid), typeof(temp), typeof(mask)}(state, stepper, grid, temp, mask, NT, section, coord, axis)
+        new{typeof(grid), typeof(temp), typeof(mask)}(grid, temp, mask, NT, section, coord, axis)
+    end
+
+    function SectionSampler{G, M, B}(grid::G, temp::M, mask::B, NT, section, coord, axis) where {G,M,B}
+        new{G, M, B}(grid, temp, mask, NT, section, coord, axis)
     end
 
 
 end
 
-function (sectionSampler::SectionSampler)()
+function (sectionSampler::SectionSampler)(stepper, state)
 
     mask = sectionSampler.mask
     temp = sectionSampler.temp
-    step = sectionSampler.stepper.step
+    step = stepper.step
 
-    V = sectionSampler.state.V
-    dx = sectionSampler.state.dx
+    V = state.V
+    dx = state.dx
 
 
     section = sectionSampler.section
@@ -182,11 +184,11 @@ function (sectionSampler::SectionSampler)()
 
 end
 
-mutable struct ContourSampler{S<:AbstractState, ST<:AbstractStepper, D<:AbstractDetector, M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractSampler
+mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractContourSampler
 
-    state::S
-    stepper::ST
-    detector::D
+    # state::S
+    # stepper::ST
+    # detector::D
     # temp::M
     contour::M
     mask::B
@@ -197,10 +199,10 @@ mutable struct ContourSampler{S<:AbstractState, ST<:AbstractStepper, D<:Abstract
     t_fc::Float64
     field::M
 
-    function ContourSampler(field::Symbol, thresh::Float64, detector::AbstractDetector, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function ContourSampler(field::Symbol, thresh::Float64, experiment::AbstractExperiment)
 
-        state = experiment.state
-        stepper = algorithm.stepper
+        # state = experiment.state
+        # stepper = algorithm.stepper
 
 
         sz = size(experiment.domain.grid.x)
@@ -222,16 +224,20 @@ mutable struct ContourSampler{S<:AbstractState, ST<:AbstractStepper, D<:Abstract
 
         field = getproperty(state, field)
 
-        new{typeof(state), typeof(stepper), typeof(detector), typeof(contour), typeof(mask)}(state, stepper, detector, contour, mask, thresh, first_contour, t_fc, field)
+        new{typeof(contour), typeof(mask)}(contour, mask, thresh, first_contour, t_fc, field)
+    end
+
+    function ContourSampler{M, B}(contour::M, mask::B, thresh, first_contour, t_fc, field) where {M, B}
+        new{M, B}(contour, mask, thresh, first_contour, t_fc, field)
     end
 
 
 end
 
-function (contourSampler::ContourSampler)()
+function (contourSampler::ContourSampler)(stepper, eventN)
 
 
-    eventN = contourSampler.detector.eventN
+    # eventN = contourSampler.detector.eventN
 
 
 
@@ -239,7 +245,7 @@ function (contourSampler::ContourSampler)()
         mask = contourSampler.mask
         # temp = contourSampler.temp
         # step = contourSampler.stepper.step
-        t = contourSampler.stepper.time
+        t = stepper.time
         # state = contourSampler.state
 
         field = contourSampler.field
@@ -263,7 +269,7 @@ end
 
 
 
-function sample(sampler::AbstractSampler, stepper, state)
+function sample(sampler::AbstractSampler, stepper, state, eventN)
 
     if typeof(sampler) != EmptySampler
         sampler(stepper, state)
@@ -272,9 +278,18 @@ function sample(sampler::AbstractSampler, stepper, state)
     return nothing
 end
 
-function sample(samplers::Vector{<:AbstractSampler}, stepper, state)
+function sample(sampler::ContourSampler, stepper, state, eventN)
+
+    if typeof(sampler) != EmptySampler
+        sampler(stepper, eventN)
+    end
+
+    return nothing
+end
+
+function sample(samplers::Vector{<:AbstractSampler}, stepper, state, eventN)
     for sampler in samplers
-        sample(sampler, stepper, state)
+        sample(sampler, stepper, state, eventN)
     end
     return nothing
 end
