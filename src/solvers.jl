@@ -149,7 +149,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
         dx, V, theta = algorithm(dx, V, theta)
 
-        sample(samplers, stepper, state)
+        sample(samplers, stepper, state, detector.eventN)
         if typeof(detector) != EmptyDetector
             detect(detector, savers)
         else
