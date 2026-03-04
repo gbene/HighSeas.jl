@@ -25,7 +25,7 @@ struct PointSampler{B<:AbstractArray{Int8}} <: AbstractSampler
     sample_point_y::Float64
 
 
-    function PointSampler(sample_points_paths::String, sample_point_id::Int, NT::Int, experiment::AbstractExperiment)
+    function PointSampler(sample_points_paths::String, sample_point_id::Int, NT::Int, experiment::AbstractExperiment; gpu_id::Int=0)
 
         # state = experiment.state
         # stepper = algorithm.stepper
@@ -46,7 +46,7 @@ struct PointSampler{B<:AbstractArray{Int8}} <: AbstractSampler
         times         = fill(NaN, NT)
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            mask = memcopy(mask)
+            mask = memcopy(mask, gpu_id)
             # temp = memcopy(temp)
         end
 
@@ -118,7 +118,7 @@ struct SectionSampler{G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArr
 
 
 
-    function SectionSampler(coord::Float64, axis::String, NT::Int, experiment::AbstractExperiment)
+    function SectionSampler(coord::Float64, axis::String, NT::Int, experiment::AbstractExperiment; gpu_id::Int=0)
 
         # state = experiment.state
         # stepper = algorithm.stepper
@@ -138,11 +138,11 @@ struct SectionSampler{G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArr
         section = fill(NaN, (NT, sum(mask)+1))
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            mask = memcopy(mask)
-            old_memtype = HighSeas.get_backend().memtype
+            mask = memcopy(mask, gpu_id)
+            old_memtype = HighSeas.get_backend().memtype # I really don't like this but it is necessary as section is on CPU memory.
             HighSeas.set_GPUbackend("unified")
 
-            temp = memcopy(temp)
+            temp = memcopy(temp, gpu_id)
 
             HighSeas.set_GPUbackend(old_memtype)
 
@@ -199,7 +199,7 @@ mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}}
     t_fc::Float64
     field::M
 
-    function ContourSampler(field::Symbol, thresh::Float64, experiment::AbstractExperiment)
+    function ContourSampler(field::Symbol, thresh::Float64, experiment::AbstractExperiment; gpu_id::Int=0)
 
         state = experiment.state
         # stepper = algorithm.stepper
@@ -217,8 +217,8 @@ mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}}
         t_fc = 0.0
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            contour = memcopy(contour)
-            mask    = memcopy(mask)
+            contour = memcopy(contour, gpu_id)
+            mask    = memcopy(mask, gpu_id)
             # temp    = memcopy(temp)
         end
 

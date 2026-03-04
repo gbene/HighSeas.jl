@@ -17,7 +17,7 @@ module RocExt
         else
             error(styled"Memory {bold:$mem} type not recognized")
         end
-        println(styled"METAL with {bold:$(backend.memory)} will now be used")
+        println(styled"AMDGPU with {bold:$(backend.memory)} will now be used")
 
 
 
@@ -25,19 +25,29 @@ module RocExt
         return nothing
     end
 
-
+    # AMDGPU has a weird API. device and device_id are distinct functions and indexing is 1 based.
+    # To be uniform with the others API, the input dev_id must be 0 based and so we adapt the code
+    # correspondingly!
     function HighSeas.memcopy(A::AbstractArray{T, N}, dev_id::Int=0) where {T, N}
         mem = HighSeas.get_backend().memory
 
+        dev_id +=1
+
         prev_dev = device() # save current device
-        device!(dev_id) # change to selected device
+        if device_id() != dev_id
+            println(styled"Switching to device {bold:$(dev_id-1)}")
 
+            device_id!(dev_id) # change to selected device
 
-        A_mtl = ROCArray{T, N, mem}(A)
+            A_roc = ROCArray{T, N, mem}(A) # move to memory
 
-        device!(prev_dev) # change to selected device
-
-        return A_mtl
+            println(styled"Switching back to orginal device {bold:$(device_id(prev_dev))}")
+            device!(prev_dev) # change back to starting device
+            return A_roc
+        else
+            A_roc = ROCArray{T, N, mem}(A) # move to memory
+            return A_roc
+        end
     end
 
 end

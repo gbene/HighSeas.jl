@@ -29,7 +29,7 @@ struct StressFFT{M<:AbstractArray{Float64}, C<:AbstractArray{ComplexF64}} <: Abs
 
     tau::M
 
-    function StressFFT(experiment::AbstractExperiment)
+    function StressFFT(experiment::AbstractExperiment; gpu_id::Int=0)
         gridside = experiment.domain.grid.cell_sizex
         Nx = experiment.domain.grid.n_elementsx
         Ny = experiment.domain.grid.n_elementsy
@@ -74,10 +74,10 @@ struct StressFFT{M<:AbstractArray{Float64}, C<:AbstractArray{ComplexF64}} <: Abs
         tau = experiment.state.tau
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            akdhat      = memcopy(akdhat)
-            taur        = memcopy(taur)
-            F           = memcopy(F)
-            dx_hat      = memcopy(dx_hat)
+            akdhat      = memcopy(akdhat, gpu_id)
+            taur        = memcopy(taur, gpu_id)
+            F           = memcopy(F, gpu_id)
+            dx_hat      = memcopy(dx_hat, gpu_id)
             p_rfft      = plan_rfft(taur)
             p_irfft     = plan_irfft(dx_hat, Ny)
         end

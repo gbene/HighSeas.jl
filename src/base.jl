@@ -62,7 +62,7 @@ struct State{M<:AbstractArray{Float64}} <: AbstractState
     theta::M
     tau::M
 
-    function State(Ncols, Nrows)
+    function State(Ncols, Nrows; gpu_id::Int=0)
 
         dx     = zeros(Ncols, Nrows)
         V      = zeros(Ncols, Nrows)
@@ -70,10 +70,10 @@ struct State{M<:AbstractArray{Float64}} <: AbstractState
         tau    = zeros(Ncols, Nrows)
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            dx      = memcopy(dx)
-            V       = memcopy(V)
-            theta   = memcopy(theta)
-            tau     = memcopy(tau)
+            dx      = memcopy(dx, gpu_id)
+            V       = memcopy(V, gpu_id)
+            theta   = memcopy(theta, gpu_id)
+            tau     = memcopy(tau, gpu_id)
         end
 
         new{typeof(dx)}(dx, V, theta, tau)

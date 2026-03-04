@@ -29,14 +29,21 @@ module MetalExt
         mem = HighSeas.get_backend().memory
 
         prev_dev = device() # save current device
-        device!(dev_id) # change to selected device
 
+        if prev_dev.handle != dev_id
+            println(styled"Switching to device {bold:$(dev_id)}")
 
-        A_mtl = MtlArray{T, N, mem}(A)
+            device!(dev_id) # change to selected device
 
-        device!(prev_dev) # change to selected device
+            A_mtl = MtlArray{T, N, mem}(A) # move to memory
 
-        return A_mtl
+            println(styled"Switching back to orginal device {bold:$(prev_dev.handle)}")
+            device!(prev_dev) # change back to starting device
+            return A_mtl
+        else
+            A_mtl = MtlArray{T, N, mem}(A) # move to memory
+            return A_mtl
+        end
     end
 
 end

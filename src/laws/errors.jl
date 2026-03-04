@@ -23,7 +23,7 @@ struct DoubleError{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: Abstrac
     absdiff::M
     mask::B
 
-    function DoubleError(experiment::AbstractExperiment)
+    function DoubleError(experiment::AbstractExperiment; gpu_id::Int=0)
 
         Nrows = experiment.domain.grid.n_elementsy
         Ncols = experiment.domain.grid.n_elementsx
@@ -33,9 +33,9 @@ struct DoubleError{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: Abstrac
         mask        = zeros(Int8, Nrows, Ncols)
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            diff        = memcopy(diff)
-            absdiff     = memcopy(absdiff)
-            mask        = memcopy(mask)
+            diff        = memcopy(diff, gpu_id)
+            absdiff     = memcopy(absdiff, gpu_id)
+            mask        = memcopy(mask, gpu_id)
         end
 
         new{typeof(diff), typeof(mask)}(diff, absdiff, mask)

@@ -97,7 +97,7 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
     cell_area::Float64
     log_file::String
 
-    function CatalogDetector(minVThresh::Float64, maxVThresh::Float64, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function CatalogDetector(minVThresh::Float64, maxVThresh::Float64, experiment::AbstractExperiment, algorithm::AbstractAlgorithm; gpu_id::Int=0)
 
         sz = size(experiment.state.dx)
 
@@ -121,13 +121,13 @@ mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:Abstrac
         cell_area = experiment.domain.grid.cell_area
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            dx_start            = memcopy(dx_start)
-            tau_start           = memcopy(tau_start)
-            slip                = memcopy(slip)
-            stressdrop          = memcopy(stressdrop)
-            x                   = memcopy(x)
-            y                   = memcopy(y)
-            ruptured_nodes      = memcopy(ruptured_nodes)
+            dx_start            = memcopy(dx_start, gpu_id)
+            tau_start           = memcopy(tau_start, gpu_id)
+            slip                = memcopy(slip, gpu_id)
+            stressdrop          = memcopy(stressdrop, gpu_id)
+            x                   = memcopy(x, gpu_id)
+            y                   = memcopy(y, gpu_id)
+            ruptured_nodes      = memcopy(ruptured_nodes, gpu_id)
         end
 
         log_file = "$(experiment.outpath)/simulation.log"

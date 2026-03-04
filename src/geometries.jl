@@ -188,7 +188,7 @@ struct RectangleFault{M<:AbstractArray{Int8}} <: AbstractFault # Try if Abstract
     dCR::M # Mask indicating the creeping region
 
 
-    function RectangleFault(input_dict::Dict, grid::AbstractGrid)
+    function RectangleFault(input_dict::Dict, grid::AbstractGrid; gpu_id::Int=0)
 
         Wf            = input_dict["Wf"]
         Lf            = input_dict["Lf"]
@@ -202,8 +202,8 @@ struct RectangleFault{M<:AbstractArray{Int8}} <: AbstractFault # Try if Abstract
         dCR = @. Int8(dLO == 0);
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            dLO = memcopy(dLO)
-            dCR = memcopy(dCR)
+            dLO = memcopy(dLO, gpu_id)
+            dCR = memcopy(dCR, gpu_id)
         end
 
         new{typeof(dLO)}(Wf, Lf, dLO, dCR)
@@ -244,7 +244,7 @@ struct RectanglePatch{M<:AbstractArray{Int8}} <: AbstractPatch
     dTR::M # Mask indicating the transition between RS and RW
 
 
-    function RectanglePatch(input_dict::Dict, grid::AbstractGrid)
+    function RectanglePatch(input_dict::Dict, grid::AbstractGrid; gpu_id::Int=0)
         w             = input_dict["w"]
         l             = input_dict["l"]
         h             = input_dict["h"]
@@ -258,9 +258,9 @@ struct RectanglePatch{M<:AbstractArray{Int8}} <: AbstractPatch
         dTR = @. Int8(((( l <= abs(x) <= l+h)*(abs(y)<=w+h))+(( w <= abs(y) <= w+h)*(abs(x)<=l+h)))>=1); #Transition zone between RS and RW
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            dRW = memcopy(dRW)
-            dRS = memcopy(dRS)
-            dTR = memcopy(dTR)
+            dRW = memcopy(dRW, gpu_id)
+            dRS = memcopy(dRS, gpu_id)
+            dTR = memcopy(dTR, gpu_id)
 
         end
 
@@ -303,7 +303,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
     dTR::M # Mask indicating the transition between RS and RW
 
 
-    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid; w::Float64=NaN, l::Float64=NaN, h::Float64=NaN)
+    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid; w::Float64=NaN, l::Float64=NaN, h::Float64=NaN; gpu_id::Int=0)
 
 
         x = grid.x
@@ -342,9 +342,9 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
 
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            dRW = memcopy(dRW)
-            dRS = memcopy(dRS)
-            dTR = memcopy(dTR)
+            dRW = memcopy(dRW, gpu_id)
+            dRS = memcopy(dRS, gpu_id)
+            dTR = memcopy(dTR, gpu_id)
 
         end
 
@@ -405,7 +405,7 @@ EmptyNucleation(grid)
 
 Create an empty nucleation object i.e. no nucleation patches in the domain.
 """
-struct EmptyNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
+struct EmptyNucleation{M<:AbstractArray{Int8}; gpu_id::Int=0} <: AbstractNucleation
 
     xi::Float64 # x center of the nucleation zone
     yi::Float64 # y center of the nucleation zone
@@ -430,8 +430,8 @@ struct EmptyNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
         dFD = @. Int8(dNU==0)
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            dNU = memcopy(dNU)
-            dFD = memcopy(dFD)
+            dNU = memcopy(dNU, gpu_id)
+            dFD = memcopy(dFD, gpu_id)
 
         end
 
@@ -476,7 +476,7 @@ struct RectangleNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
     dFD::M # Mask indicationg everything outside the nucleation zone
 
 
-    function RectangleNucleation(input_dict::Dict, grid::AbstractGrid)
+    function RectangleNucleation(input_dict::Dict, grid::AbstractGrid; gpu_id::Int=0)
         xi = input_dict["xi"]
         yi = input_dict["yi"]
 
@@ -498,8 +498,8 @@ struct RectangleNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
         dFD = @. Int8(dNU==0)
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            dNU = memcopy(dNU)
-            dFD = memcopy(dFD)
+            dNU = memcopy(dNU, gpu_id)
+            dFD = memcopy(dFD, gpu_id)
         end
 
         new{typeof(dNU)}(xi, yi, wi, li, dNU, dFD)

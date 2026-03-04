@@ -101,7 +101,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
     catalog::C
 
 
-    function BP4QDExp(input_dict::Dict, material::M, domain::D, n_events, output_dir::String) where {M, D}
+    function BP4QDExp(input_dict::Dict, material::M, domain::D, n_events, output_dir::String; gpu_id::Int=0) where {M, D}
 
         start_time = string(now())
         println("Experiment start time: $start_time")
@@ -171,14 +171,14 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            a               = memcopy(a)
-            b               = memcopy(b)
-            tau0            = memcopy(tau0)
-            si0             = memcopy(si0)
-            dx_init         = memcopy(dx_init)
-            V_init          = memcopy(V_init)
-            theta_init      = memcopy(theta_init)
-            tau_init        = memcopy(tau_init)
+            a               = memcopy(a, gpu_id)
+            b               = memcopy(b, gpu_id)
+            tau0            = memcopy(tau0, gpu_id)
+            si0             = memcopy(si0, gpu_id)
+            dx_init         = memcopy(dx_init, gpu_id)
+            V_init          = memcopy(V_init, gpu_id)
+            theta_init      = memcopy(theta_init, gpu_id)
+            tau_init        = memcopy(tau_init, gpu_id)
         end
 
         state_init = State(dx_init, V_init, theta_init, tau_init)
@@ -203,7 +203,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
     end
 
 
-    function BP4QDExp(input_dict::Dict, material::M, domain::D, n_events, output_dir::String, loadedstep::LoadedStep) where {M, D}
+    function BP4QDExp(input_dict::Dict, material::M, domain::D, n_events, output_dir::String, loadedstep::LoadedStep; gpu_id::Int=0) where {M, D}
 
         start_time = string(now())
         println("Experiment start time: $start_time")
@@ -272,10 +272,10 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            a               = memcopy(a)
-            b               = memcopy(b)
-            tau0            = memcopy(tau0)
-            si0             = memcopy(si0)
+            a               = memcopy(a, gpu_id)
+            b               = memcopy(b, gpu_id)
+            tau0            = memcopy(tau0, gpu_id)
+            si0             = memcopy(si0, gpu_id)
         end
 
         state_init = State(dx_init, V_init, theta_init, tau_init)

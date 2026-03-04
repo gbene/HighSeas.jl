@@ -47,7 +47,7 @@ struct CustomNewtonSolver{E<:AbstractGoverningEquations, S<:AbstractAdaptiveStep
                         Vp, thetap, dxg, Vg, Vmg, Vm)
     end
 
-    function CustomNewtonSolver(experiment::AbstractExperiment, equations::AbstractGoverningEquations, stepper::AbstractStepper, ntries=10)
+    function CustomNewtonSolver(experiment::AbstractExperiment, equations::AbstractGoverningEquations, stepper::AbstractStepper, ntries=10; gpu_id::Int=0)
 
         domainsize = size(experiment.domain.grid.x)
 
@@ -73,13 +73,13 @@ struct CustomNewtonSolver{E<:AbstractGoverningEquations, S<:AbstractAdaptiveStep
         Vm      = zeros(domainsize)
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            dxp     = memcopy(dxp)
-            Vp      = memcopy(Vp)
-            thetap  = memcopy(thetap)
-            dxg     = memcopy(dxg)
-            Vg      = memcopy(Vg)
-            Vmg     = memcopy(Vmg)
-            Vm      = memcopy(Vm)
+            dxp     = memcopy(dxp, gpu_id)
+            Vp      = memcopy(Vp, gpu_id)
+            thetap  = memcopy(thetap, gpu_id)
+            dxg     = memcopy(dxg, gpu_id)
+            Vg      = memcopy(Vg, gpu_id)
+            Vmg     = memcopy(Vmg, gpu_id)
+            Vm      = memcopy(Vm, gpu_id)
         end
 
 

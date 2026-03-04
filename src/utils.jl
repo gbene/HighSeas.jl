@@ -12,7 +12,7 @@ A = rand(256, 256)
 memcopy(A) # Copy A to the default device of an available backend
 memcopy(A, 1) # Copy A to device 1 of the available backend
 """
-memcopy(A::AbstractGPUArray{T,N}) where {T, N} = Array{T, N}(A)
+memcopy(A::AbstractGPUArray{T,N}, dev_id::Int=0) where {T, N} = Array{T, N}(A)
 
 function removenans(data::Vector)
       mask = any(!isnan, data; dims=2)
