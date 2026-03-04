@@ -35,9 +35,6 @@ module CudaExt
             device!(dev_id) # change to selected device
 
             A_cu = CuArray{T, N, mem}(A) # move to memory
-
-            println(styled"Switching back to orginal device {bold:$(prev_dev.handle)}")
-            device!(prev_dev) # change back to starting device
             return A_cu
         else
             A_cu = CuArray{T, N, mem}(A) # move to memory
