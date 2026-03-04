@@ -303,7 +303,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
     dTR::M # Mask indicating the transition between RS and RW
 
 
-    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid; w::Float64=NaN, l::Float64=NaN, h::Float64=NaN; gpu_id::Int=0)
+    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid; w::Float64=NaN, l::Float64=NaN, h::Float64=NaN, gpu_id::Int=0)
 
 
         x = grid.x
@@ -352,7 +352,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
 
     end
 
-    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid, buffer_points::AbstractMatrix{Float64}; w::Float64=NaN, l::Float64=NaN)
+    function CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid, buffer_points::AbstractMatrix{Float64}; w::Float64=NaN, l::Float64=NaN, gpu_id::Int=0)
 
 
         x = grid.x
@@ -383,9 +383,9 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
 
 
         if typeof(get_backend()) <: AbstractGPUBackend
-            dRW = memcopy(dRW)
-            dRS = memcopy(dRS)
-            dTR = memcopy(dTR)
+            dRW = memcopy(dRW, gpu_id)
+            dRS = memcopy(dRS, gpu_id)
+            dTR = memcopy(dTR, gpu_id)
 
         end
 
@@ -417,7 +417,7 @@ struct EmptyNucleation{M<:AbstractArray{Int8}; gpu_id::Int=0} <: AbstractNucleat
     dFD::M # Mask indicationg everything outside the nucleation zone
 
 
-    function EmptyNucleation(grid::AbstractGrid)
+    function EmptyNucleation(grid::AbstractGrid; gpu_id::Int=0)
         xi = NaN
         yi = NaN
 
