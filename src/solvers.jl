@@ -192,7 +192,7 @@ end
 
 
 
-function benchmarksolve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, steps)
+function benchmarksolve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, steps, print_steps=false)
 
     state = experiment.state
     dx = state.dx
@@ -201,7 +201,9 @@ function benchmarksolve(experiment::AbstractExperiment, algorithm::AbstractAlgor
 
 
     for i in 1:steps
-
+        if print_steps
+            println("$(now()) step: $i")
+        end
         dx, V, theta = algorithm(dx, V, theta)
 
     end
