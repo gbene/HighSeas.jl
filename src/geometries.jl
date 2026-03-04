@@ -405,7 +405,7 @@ EmptyNucleation(grid)
 
 Create an empty nucleation object i.e. no nucleation patches in the domain.
 """
-struct EmptyNucleation{M<:AbstractArray{Int8}; gpu_id::Int=0} <: AbstractNucleation
+struct EmptyNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
 
     xi::Float64 # x center of the nucleation zone
     yi::Float64 # y center of the nucleation zone
