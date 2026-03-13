@@ -1,4 +1,17 @@
 
+"""
+    LoadedStep <: AbstractLoadedObject
+
+Loaded step
+
+### Fields
+
++ `state::AbstractState` -- Saved state of the step
++ `step::Int` -- Step
++ `time::Float64` -- Time of the step
+
+
+"""
 struct LoadedStep <: AbstractLoadedObject
     state::AbstractState
     step::Int
@@ -13,6 +26,19 @@ struct LoadedStep <: AbstractLoadedObject
     end
 end
 
+
+"""
+    LoadedSamplers <: AbstractLoadedObject
+
+Loaded samplers
+
+### Fields
+
++ `n_samplers::Int` -- Number of samples in the SamplerSaver
++ `info::Dict` -- Information of the saved samplers
++ `samplers::Vector` -- Samplers
+
+"""
 struct LoadedSamplers <: AbstractLoadedObject
 
     n_samplers::Int
@@ -79,6 +105,22 @@ function loadObj(input::AbstractSampler)
     return LoadedSamplers([input])
 end
 
+
+"""
+    loadData(input::String)
+    loadData(input::String, n_events::Int)
+
+Load AbstractSaver data
+
+### Input
+
+- `input::String` -- Input path
+- `n_events::Int` -- Number of events to load
+
+### Notes
+
+- n_events is used to load catalogs up to a certain row
+"""
 function loadData(input::String)
     data = load(input)["data"]
     return loadObj(data)
@@ -89,6 +131,21 @@ function loadData(input::String, n_events::Int)
     return loadObj(data, n_events)
 end
 
+
+"""
+    loadSSH(url::String, username::String, private_file::String, public_file::String, path::String)
+
+Load AbstracSaver data using SSH
+
+### Input
+
+- `url:String` -- ssh url
+- `username:String` -- username
+- `private_file:String` -- ssh private key
+- `public_file:String` -- ssh pub key
+- `path::String` -- Path of the data to read
+
+"""
 function loadSSH(url, username, private_file, public_file, path)
     # url = ENV["elja_url"]
     # username = ENV["elja_user"]
@@ -98,7 +155,5 @@ function loadSSH(url, username, private_file, public_file, path)
 
 
     data  = load(SFTPClient.download(sftp, path))["data"]
-    return loadObj(data)
-
-
+    return loadData(data)
 end

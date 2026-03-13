@@ -1,5 +1,16 @@
 
 
+"""
+    start_event_message(eventN, time, file)
+
+Commodity function used by the detectors to print an start event message
+
+### Input
+
+- eventN -- Number of the event
+- time -- time of the event (in s)
+- file -- Output file of where to append the message
+"""
 function start_event_message(eventN, time, file)
     msg = "$(string(now())) event $eventN has started, time: $(time/(365*24*60*60))"
     println(msg)
@@ -9,6 +20,19 @@ function start_event_message(eventN, time, file)
     end
 
 end
+
+
+"""
+    end_event_message(file)
+    end_event_message(mag, file)
+
+Commodity function used by the detectors to print an end event message, optionally with magnitude info
+
+### Input
+
+- mag -- Magnitude of the event
+- file -- Output file of where to append the message
+"""
 function end_event_message(mag, file)
     msg = "$(string(now())) Event has ended, mag: $mag"
     println(msg)
@@ -30,12 +54,54 @@ function end_event_message(file)
 end
 
 
+"""
+    EmptyDetector <: AbstractDetector
 
+Detector that does nothing
+
+"""
 struct EmptyDetector <: AbstractDetector
 
 end
 
 
+"""
+    SimpleDetector{AbstractState, AbstractStepper} <: AbstractDetector
+
+Simple detector that just prints a message and logs the event in the simulation.log file
+
+### Fields
+
+- eventStart::Bool -- Flag used to define if the event has started or not
+- eventN::Int -- Event number
+- minVThresh::Float64 -- Minimum slip rate threshold to define the **END** of the event
+- maxVThresh::Float64 -- Maximum slip rate threshold to define the **START** of the event
+- state::AbstractState -- State of the simulation
+- stepper::AbstractStepper -- Stepper used in the simulation
+- log_file::String -- Path of where to log possible console outputs
+
+### Notes
+
+- When used, the detector saves the `AbstractSavers` of the simulation at the end of each event.
+- The dector has an associated functor that can be used to detect the event
+
+
+
+### Examples
+
+```julia
+
+...
+
+detector = SimpleDetector(minVThresh, maxVThresh, experiment, algorithm) # define the detector
+
+...
+
+detector(savers) # Detect a possible event given the thresholds
+
+```
+
+"""
 mutable struct SimpleDetector{S<:AbstractState, ST<:AbstractStepper} <: AbstractDetector
 
     eventStart::Bool
@@ -70,6 +136,56 @@ function (simpleDetector::SimpleDetector)(savers)
 end
 
 
+"""
+    CatalogDetector{AbstractState, AbstractStepper, AbstractCatalog, AbstractArray{Float64}, AbstractArray{Int8}} <: AbstractDetector
+
+Detector used to detect an event and calculate the associated values and fill a catalog
+
+### Fields
+
+- `eventStart::Bool` -- Flag used to define if the event has started or not
+- `eventN::Int` -- Event number
+- `minVThresh::Float64` -- Minimum slip rate threshold to define the **END** of the event
+- `maxVThresh::Float64` -- Maximum slip rate threshold to define the **START** of the event
+- `state::AbstractState` -- State of the simulation
+- `stepper::AbstractStepper` -- Stepper used during simulation
+- `material::AbstractMaterial` -- Material of the simulation
+- `catalog::AbstractCatalog` -- Catalog used to saved the calculated values
+- `dx_start::AbstractArray{Float64}` -- Values of slip at the start of the event. These are pre-allocated temporary matrices used to calculate the different quantities in the catalog
+- `tau_start::AbstractArray{Float64}` -- Values of τ at the start of the event. These are pre-allocated temporary matrices used to calculate the different quantities in the catalog
+- `slip::AbstractArray{Float64}` -- Values of slip at the end of the event. These are pre-allocated temporary matrices used to calculate the different quantities in the catalog
+- `stressdrop::AbstractArray{Float64}` -- Stress drop at the start of the event. These are pre-allocated temporary matrices used to calculate the different quantities in the catalog
+- `x::AbstractArray{Float64}` -- x coords of the grid. These are pre-allocated temporary matrices used to calculate the different quantities in the catalog
+- `y::AbstractArray{Float64}` -- y coords of the grid. These are pre-allocated temporary matrices used to calculate the different quantities in the catalog
+- `ruptured_nodes::B` -- Mask of which nodes are being ruptured
+- `time_start::Float64` -- Start of the rupture
+- `last_event_time::Float64` -- last rupture time (to calculate the intertime event)
+- `cell_area::Float64` -- Area of the cells
+- `log_file::String` -- Path of where to log possible console outputs
+
+
+
+### Notes
+
+- When used, the detector saves the `AbstractSavers` of the simulation at the end of each event.
+- The dector has an associated functor that can be used to detect the event
+- When using GPU, it is possible to define where the temporary matrices reside using `gpu_id`
+
+
+### Examples
+
+```julia
+
+...
+
+detector = CatalogDetector(minVThresh, maxVThresh, experiment, algorithm; gpu_id::Int=0) # define the detector
+
+...
+
+detector(savers) # Detect a possible event given the thresholds
+
+```
+"""
 mutable struct CatalogDetector{S<:AbstractState, ST<:AbstractStepper, C<:AbstractCatalog, M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractDetector
 
     eventStart::Bool

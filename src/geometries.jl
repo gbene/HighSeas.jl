@@ -1,24 +1,28 @@
 """
-Grid(input_dict::Dict)
+    Grid <: AbstractGrid
 
-# Description
 Create a grid object.
 
-# Attributes
+### Fields
 
-+ cell_sizex::Float64
-+ cell_sizey::Float64
-+ cell_area::Float64
-+ W::Float64    # length of the entire domain
-+ L::Float64    # width of the entire domain
-+ n_elementsx::Int # number of elements on the x dimension
-+ n_elementsy::Int # number of elements on the y dimension
-+ X::StepRangeLen  # X range
-+ Y::StepRangeLen  # Y range
-+ x::M # x coordinates mesh
-+ y::M # y coordinates mesh
++ cell_sizex::Float64 -- Size of the cell along x (m)
++ cell_sizey::Float64 -- Size of the cell along y (m)
++ cell_area::Float64 -- Area of the cell
++ W::Float64 -- length of the entire domain
++ L::Float64 -- width of the entire domain
++ n_elementsx::Int -- number of elements on the x dimension
++ n_elementsy::Int -- number of elements on the y dimension
++ X::StepRangeLen -- X range
++ Y::StepRangeLen -- Y range
++ x::M -- x coordinates mesh
++ y::M -- y coordinates mesh
 
-# Notes
+
+### Examples
+
+- `Grid(input_dict::Dict)` -- Create a grid from an input dict
+
+
 """
 struct Grid{M<:AbstractArray{Float64}} <: AbstractGrid
     cell_sizex::Float64
@@ -72,14 +76,15 @@ end
 
 
 """
-PowerGrid(input_dict::Dict)
+    PowerGrid <: AbstractPowerGrid
 
-# Description
+
 Create a grid object in which cells are square and the number of elements in the grid is a power of 2.
-This means that a rounding operation is performed as follows round(log2(L/cell_size)), round(log2(W/cell_size))
-to define the power of 2 for x and y.
 
-# Attributes
+
+
+
+### Fields
 
 + cell_sizex::Float64
 + cell_sizey::Float64
@@ -95,9 +100,15 @@ to define the power of 2 for x and y.
 + x::M                      # x coordinates mesh
 + y::M                      # y coordinates mesh
 
-# Notes
-"""
+### Notes
 
+To define the closest power of 2 for x and y, a rounding operation is performed as follows: round(log2(L/cell_size)), round(log2(W/cell_size))
+
+### Examples
+
+-- `PowerGrid(input_dict::Dict)` -- Create a dictionary of input values
+
+"""
 struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
 
     cell_sizex::Float64
@@ -165,18 +176,24 @@ struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
 end
 
 """
-RectangleFault(input_dict, grid)
+    RectangleFault <: AbstractFault
 
 Create a rectangular fault
 
-# Attributes
+### Fields
 
-+ Wf::Float64 # half width of the fault
-+ Lf::Float64 # half length of the fault
-+ dLO::AbstractArray{Int8} # Mask indicating the loading area
-+ dCR::AbstractArray{Int8} # Mask indicating the creeping region
++ Wf::Float64 -- half width of the fault
++ Lf::Float64 -- half length of the fault
++ dLO::AbstractArray{Int8} --  Mask indicating the loading area
++ dCR::AbstractArray{Int8} -- Mask indicating the creeping region
 
-# Notes
+### Notes
+
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+
+### Examples
+
+- `RectangleFault(input_dict::Dict, grid::AbstractGrid; gpu_id=0)` -- Create a rectangle fault from an `AbstractGrid`
 
 """
 struct RectangleFault{M<:AbstractArray{Int8}} <: AbstractFault # Try if AbstractArray{Bool} works with FastBroadcasting
@@ -217,22 +234,28 @@ end
 
 
 """
-RectangleFault(input_dict, grid)
+    RectanglePatch(input_dict, grid) <: AbstractPatch
 
 Create a rectangular slip patch
 
 # Attributes
 
-+ w::Float64  # half width of the rate weakening zone
-+ l::Float64  # half length of the rate weakening zone
-+ h::Float64  # Buffer between RW and RS
-+ dRW::AbstractArray{Int8} # Mask indicating the rate weakening zone
-+ dRS::AbstractArray{Int8} # Mask indicating the rate strengthening zone
-+ dTR::AbstractArray{Int8} # Mask indicating the transition between RS and RW
++ w::Float64 -- half width of the rate weakening zone
++ l::Float64 -- half length of the rate weakening zone
++ h::Float64 -- Buffer between RW and RS
++ dRW::AbstractArray{Int8} -- Mask indicating the rate weakening zone
++ dRS::AbstractArray{Int8} -- Mask indicating the rate strengthening zone
++ dTR::AbstractArray{Int8} -- Mask indicating the transition between RS and RW
 
-# Notes
+### Notes
 
-The buffer can be set to 0, this entails that there is no transition zone between RW and RS.
+- `h` can be set to 0, i.e. entails that there is no transition zone between RW and RS.
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+
+
+### Examples
+
+- `RectanglePatch(input_dict::Dict, grid::AbstractGrid; gpu_id=0)` -- Create a rectangle fault from an `AbstractGrid`
 """
 struct RectanglePatch{M<:AbstractArray{Int8}} <: AbstractPatch
     w::Float64  # half width of the rate weakening zone
@@ -276,11 +299,13 @@ end
 
 
 """
-CustomPatch(dRW::AbstractArray{Bool}, w::Float64, l::Float64, grid)
+    CustomPatch <: AbstractPatch
 
-Create a custom slip patch object. A bool mask must be used as input together with the half width and length.
 
-# Attributes
+Create a custom slip patch object using coordinates of a polygon.
+
+
+### Fields
 
 + w::Float64  # half width of the rate weakening zone
 + l::Float64  # half length of the rate weakening zone
@@ -289,9 +314,19 @@ Create a custom slip patch object. A bool mask must be used as input together wi
 + dRS::AbstractArray{Int8} # Mask indicating the rate strengthening zone
 + dTR::AbstractArray{Int8} # Mask indicating the transition between RS and RW
 
-# Notes
+### Notes
 
-The buffer is by default NaN at the moment and no transition zone is supported.
+- If no width or length are defined, then the bounding box of the polygon will be used
+- If no buffer is defined, then no buffer will be used.
+- If a buffer size, then it will be defined as the area between the polygon and a scaled up version of it such that the perpendicular distance between the same point in the two shapes is  = h
+- If a buffer polygon is defined then it will be used to create the buffer and h will be calculated as the difference between the bounding box half-length of the buffer and custom patch.
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+
+### Examples
+
+- `CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid)` -- Create patch from polygon, no buffer
+- `CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid; w=w, l=l, h=h)` -- Create patch from polygon, specifying w, l and buffer
+- `CustomPatch(points::AbstractMatrix{Float64}, grid::AbstractGrid, buffer_points::AbstractMatrix{Float64})` -- Create patch from polygon and buffer polygon
 """
 struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
     w::Float64  # half width of the rate weakening zone
@@ -310,10 +345,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
         y = grid.y
 
         g = [vec(x) vec(y)]
-        shape = ClosedShape(points)
-
-
-
+        shape = Fractalizer.ClosedShape(points)
 
 
         mask = inpoly2(g, shape.points, shape.edges)[:,1]
@@ -376,7 +408,7 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
         if isnan(l)
             l = shape.l/2
         end
-        h = (buffer.l/2 - l)
+        h = (buffer.l/2 - shape.l/2)
 
         dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
 
@@ -400,10 +432,20 @@ struct CustomPatch{M<:AbstractArray{Int8}} <: AbstractPatch
 end
 
 """
-EmptyNucleation(grid)
+    EmptyNucleation <: AbstractNucleation
 
 
 Create an empty nucleation object i.e. no nucleation patches in the domain.
+
+### Fields
+
++ `xi::Float64` -- x center of the nucleation zone
++ `yi::Float64` -- y center of the nucleation zone
++ `wi::Float64` -- width of the nucleation zone
++ `li::Float64` -- length of the nucleation zone
++ `dNU::AbstractArray{Int8}` -- Mask indicating inside the nucleation zone
++ `dFD::AbstractArray{Int8}` -- Mask indicating everything outside the nucleation zone
+
 """
 struct EmptyNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
 
@@ -447,22 +489,27 @@ struct EmptyNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
 end
 
 """
-RectangleNucleation(input_dict::Dict, grid)
+    RectangleNucleation <: AbstractNucleation
 
 Create a rectangular nucleation object i.e. a rectangular (or square) nucleation patch in the domain.
 
-# Attributes
+### Fields
 
 
-+ xi::Float64 # x center of the nucleation zone
-+ yi::Float64 # y center of the nucleation zone
-+ wi::Float64 # width of the nucleation zone
-+ li::Float64 # length of the nucleation zone
-+ dNU::AbstractArray{Int8} # Mask indicating inside the nucleation zone
-+ dFD::AbstractArray{Int8} # Mask indicationg everything outside the nucleation zone
++ `xi::Float64` -- x center of the nucleation zone
++ `yi::Float64` -- y center of the nucleation zone
++ `wi::Float64` -- width of the nucleation zone
++ `li::Float64` -- length of the nucleation zone
++ `dNU::AbstractArray{Int8}` -- Mask indicating inside the nucleation zone
++ `dFD::AbstractArray{Int8}` -- Mask indicating everything outside the nucleation zone
 
-# Notes
+### Notes
 
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+
+
+### Examples
+- `RectangleNucleation(input_dict::Dict, grid::AbstractGrid; gpu_id::Int=0)` -- Create a nucleation patch using an input dict
 """
 struct RectangleNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
 
@@ -515,26 +562,28 @@ end
 
 
 """
-Domain(grid, fault, patch)
-Domain(grid, fault, patch, nucleation)
 
+    Domain <: AbstractDomain
 
 Create the domain object.
 
-# Attributes
+### Attributes
 
 
-+ xi::Float64 # x center of the nucleation zone
-+ yi::Float64 # y center of the nucleation zone
-+ wi::Float64 # width of the nucleation zone
-+ li::Float64 # length of the nucleation zone
-+ dNU::AbstractArray{Int8} # Mask indicating inside the nucleation zone
-+ dFD::AbstractArray{Int8} # Mask indicationg everything outside the nucleation zone
+- grid::AbstractGrid
+- fault::AbstractFault
+- patch::AbstractPatch
+- nucleation::AbstractNucleation
 
-# Notes
+### Notes
 
-If no nucleation object is given then it is assumed that there is no nucleation patch.
+-- If no nucleation object is given then it is assumed that there is no nucleation patch.
 
+
+### Examples
+
+- `Domain(grid, fault, patch)` -- Create a domain without a nucleation patch
+- `Domain(grid, fault, patch, nucleation)` -- Create a domain with a nucleation patch
 """
 struct Domain{G<:AbstractGrid, F<:AbstractFault, P<:AbstractPatch, N<:AbstractNucleation} <: AbstractDomain
 

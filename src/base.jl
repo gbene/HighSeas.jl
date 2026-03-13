@@ -1,47 +1,25 @@
-abstract type AbstractAlgorithm end
-abstract type AbstractNewton <: AbstractAlgorithm end
 
-abstract type AbstractBackend end
-abstract type AbstractGPUBackend<:AbstractBackend end
+"""
+    +(x::AbstractCatalog...)
 
-abstract type AbstractState end
-abstract type AbstractCatalog end
+Concatenate catalogs.
 
-abstract type AbstractDetector end
-
-abstract type AbstractExperiment end
-abstract type AbstractBenchExperiment <: AbstractExperiment end
-
-abstract type AbstractGrid end
-abstract type AbstractPowerGrid <:AbstractGrid end
-
-abstract type AbstractFault end
-abstract type AbstractPatch end
-abstract type AbstractNucleation end
-
-abstract type AbstractDomain end
-
-abstract type AbstractLoadedObject end
-
-abstract type AbstractMaterial end
-
-abstract type AbstractPlotter end
-abstract type LivePlotter <: AbstractPlotter end
-
-abstract type AbstractSampler end
-
-abstract type AbstractSaver end
-
-abstract type AbstractSolver end
-abstract type AbstractStepSolver <: AbstractSolver end
-abstract type AbstractTimeSolver <: AbstractSolver end
-
-abstract type AbstractStepper end
-abstract type AbstractAdaptiveStepper <: AbstractStepper end
+It is possible to concatenate and merge multiple catalogs by using the + operator
 
 
+### Notes
 
+This concatenation operator creates a new catalog without all zeros or all nans rows
 
+### Examples
+```julia
+
+...
+
+catalog = catalog_a+catalog_b+catalog_c
+
+```
+"""
 function Base.:+(x::AbstractCatalog...)
     catalog = copy(x[1].catalog)
     for i in 2:length(x)
@@ -55,6 +33,28 @@ function Base.:+(x::AbstractCatalog...)
     return Catalog(catalog[mask, :])
 end
 
+
+"""
+    State{AbstractArray{Float64}} <: AbstractState
+
+State of the simulation at a given step at i.e. the values of dx, V, theta and tau
+
+### Fields
+
+- `dx::AbstractArray{Float64}` -- Slip at the step
+- `V::AbstractArray{Float64}` -- Slip rate
+- `theta::AbstractArray{Float64}` -- State at the step
+- `tau::AbstractArray{Float64}` -- Shear stress at the step
+
+
+### Notes
+
+When creating an empty state the gpu_id can be specified to indicate on which GPU the data should reside.
+
+### Examples
+
+- `State(Ncols, Nrows; gpu_id=0)` -- Define a state of zeros for dx, V, theta and tau
+"""
 struct State{M<:AbstractArray{Float64}} <: AbstractState
 
     dx::M
@@ -86,6 +86,38 @@ struct State{M<:AbstractArray{Float64}} <: AbstractState
     end
 end
 
+
+"""
+    Catalog <: AbstractCatalog
+
+
+Create a catalog.
+
+This object contains all the event information calculated during the simulation
+
+### Fields
+
+- catalog::Matrix{Float64} -- Matrix representation of the catalog
+- max_events::Int -- Maximum number of catalog events (i.e. number of rows)
+- t::SubArray -- Time of rupter (in seconds)
+- interevent_time::SubArray -- Interevent time between (in seconds)
+- Moment::SubArray -- Moment released (in N⋅m)
+- mag::SubArray -- Magnitude using Hanks and Kanamori 1979
+- Area::SubArray -- Rupture area (m²)
+- MeanSlip::SubArray -- Mean slip in the rupture area (m)
+- MeanStress::SubArray -- Mean stress drop in the rupture area (Pa)
+- hypo_x::SubArray -- x coordinate of the event (m)
+- hypo_y::SubArray -- y coordinate of the event (m)
+- n_events::Int -- Numbe of recorded events
+
+
+
+### Bibliography
+
+Hanks, Thomas C., and Hiroo Kanamori. ‘A Moment Magnitude Scale’. Journal of Geophysical Research: Solid Earth 84, no. B5 (1979): 2348–50. https://doi.org/10.1029/JB084iB05p02348.
+
+
+"""
 mutable struct Catalog{S<:SubArray} <: AbstractCatalog
 
     catalog::Matrix{Float64}

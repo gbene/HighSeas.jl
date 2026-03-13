@@ -16,6 +16,7 @@ using PolygonInbounds
 using Fractalizer
 
 
+include("abstracttypes.jl")
 include("base.jl")
 include("backends.jl")
 include("materials.jl")
@@ -50,7 +51,7 @@ export BP4QDExp
 export StressFFT, AgeingLaw, ExplicitRate, LinearizedRate, HybridRate, GoverningEquations, DoubleError
 export AdaptiveStepper
 export CustomNewtonSolver
-export SimpleDetector, CatalogDetector
+export EmptyDetector, SimpleDetector, CatalogDetector
 export PointSampler, SectionSampler, ContourSampler, SamplerSaver
 export RSPlotter
 export StepSaver, CatalogSaver, SnaptshotSaver

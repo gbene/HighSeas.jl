@@ -2,7 +2,37 @@
 
 
 
+"""
 
+    StepSolver <: AbstractStepSolver
+
+Solve using a pre-defined number of steps
+
+
+### Fields
+
++ `NT::Int` -- Number of steps
++ `savers::Vector{<:AbstractSavers}` -- List of AbstractSavers
++ `detector::AbstractDetector` -- Which detector to use
++ `samplers::Vector{<:AbstractSampler}` -- List of AbstractSamplers
+
+
+### Notes
+
+- The object may have different combinations of savers, detectors and samplers, not all must be set. If one is not set then it will be defined as empty and not used
+- When detectors are used with the savers, then all AbstractSavers will be saved when the event ends.
+
+
+### Examples
+
+- `StepSolver(100)` -- Solve without detection, saving or sampling
+- `StepSolver(100, detector::AbstractDetector)` -- Solve and detect events using an AbstractDetector
+- `StepSolver(100, detector, savers=[saver1, saver2])` -- Solve, detect and save.
+- `StepSolver(100, detector, samplers=[sampler1, sampler2])` -- Solve, detect and sample.
+...
+
+
+"""
 struct StepSolver{S<:Vector{<:AbstractSaver}, D<:AbstractDetector, Sa<:Vector{<:AbstractSampler}} <: AbstractStepSolver
     NT::Int
     savers::S
@@ -36,7 +66,37 @@ struct StepSolver{S<:Vector{<:AbstractSaver}, D<:AbstractDetector, Sa<:Vector{<:
     end
 end
 
+"""
 
+    TimeSolver <: AbstractTimeSolver
+
+Solve up to the specified time (in seconds).
+
+
+### Fields
+
++ `tf::Int` -- Number of steps
++ `savers::Vector{<:AbstractSavers}` -- List of AbstractSavers
++ `detector::AbstractDetector` -- Which detector to use
++ `samplers::Vector{<:AbstractSampler}` -- List of AbstractSamplers
+
+
+### Notes
+
+- The object may have different combinations of savers, detectors and samplers, not all must be set. If one is not set then it will be defined as empty and not used
+- When detectors are used with the savers, then all AbstractSavers will be saved when the event ends.
+
+
+### Examples
+
+- `TimeSolver(100)` -- Solve without detection, saving or sampling
+- `TimeSolver(100, detector::AbstractDetector)` -- Solve and detect events using an AbstractDetector
+- `TimeSolver(100, detector, savers=[saver1, saver2])` -- Solve, detect and save.
+- `TimeSolver(100, detector, samplers=[sampler1, sampler2])` -- Solve, detect and sample.
+...
+
+
+"""
 struct TimeSolver{S<:Vector{<:AbstractSaver}, D<:AbstractDetector, Sa<:Vector{<:AbstractSampler}} <: AbstractTimeSolver
     tf::Float64
     savers::S
@@ -71,7 +131,28 @@ struct TimeSolver{S<:Vector{<:AbstractSaver}, D<:AbstractDetector, Sa<:Vector{<:
 end
 
 
+"""
+    solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver)
+    solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver, plotter::LivePlotter)
+    solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver)
+    solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver, plotter::LivePlotter)
 
+
+Solve the problem in a limited number of steps or time with optional live plotting
+
+### Arguments
+
+- `experiment::AbstractExperiment` -- Experimental setup to solve
+- `algorithm::AbstractAlgorithm` -- Which algorithm to use
+- `solver::AbstractSolver` -- Which solver to use
+- `plotter::LivePlotter` -- Live plot
+
+### Notes
+
+- When using GPUs live plotting is supported only with set_GPUbackend("unified")
+
+
+"""
 function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver)
 
     state = experiment.state

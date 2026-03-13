@@ -1,6 +1,31 @@
 struct EmptySaver <: AbstractSaver
 end
 
+
+"""
+    StepSaver <: AbstractSaver
+
+
+Save the state (dx, V, theta and tau) of the simulation at the given step.
+
+### Fields
+
+- `outpath::String` -- Where to save the output
+- `every::Int` -- Save every nth step
+- `data::AbstractState` -- State of the simulation to save
+- `stepper::AbstractStepper` -- Stepper used to regulate the simulation
+
+
+### Examples
+
+- `StepSaver(every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)`
+
+### Notes
+
+- When using AbstractDetectors, `every` is ignored and the step is saved at the end of each detection
+- When defining the saver, `outpath` is set from the `experiment`
+
+"""
 struct StepSaver{S<:AbstractState, ST<:AbstractStepper} <: AbstractSaver
 
     outpath::String
@@ -27,7 +52,30 @@ struct StepSaver{S<:AbstractState, ST<:AbstractStepper} <: AbstractSaver
     end
 end
 
+"""
+    CatalogSaver <: AbstractSaver
 
+
+Save the catalog of the simulation at the given step.
+
+### Fields
+
+- `outpath::String` -- Where to save the output
+- `every::Int` -- Save every nth step
+- `data::AbstractCatalog` -- Catalog of the simulation to save
+- `stepper::AbstractStepper` -- Stepper used to regulate the simulation
+
+
+### Examples
+
+- `CatalogSaver(every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)`
+
+### Notes
+
+- When using AbstractDetectors, `every` is ignored and the step is saved at the end of each detection
+- When defining the saver, `outpath` is set from the `experiment`
+
+"""
 struct CatalogSaver{C<:AbstractCatalog, ST<:AbstractStepper}  <: AbstractSaver
     outpath::String
     every::Int
@@ -53,6 +101,31 @@ struct CatalogSaver{C<:AbstractCatalog, ST<:AbstractStepper}  <: AbstractSaver
     end
 end
 
+
+"""
+    SamplerSaver <: AbstractSaver
+
+
+Save the samplers used during the simulation at the given step.
+
+### Fields
+
+- `outpath::String` -- Where to save the output
+- `every::Int` -- Save every nth step
+- `data::Vector{<:AbstractSampler}` -- Samplers to save
+- `stepper::AbstractStepper` -- Stepper used to regulate the simulation
+
+
+### Examples
+
+- `SamplerSaver(every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)`
+
+### Notes
+
+- When using AbstractDetectors, `every` is ignored and the step is saved at the end of each detection
+- When defining the saver, `outpath` is set from the `experiment`
+
+"""
 struct SamplerSaver{V<:Vector{<:AbstractSampler}, ST<:AbstractStepper} <: AbstractSaver
     outpath::String
     every::Int
@@ -79,6 +152,31 @@ struct SamplerSaver{V<:Vector{<:AbstractSampler}, ST<:AbstractStepper} <: Abstra
     end
 end
 
+
+"""
+    SnaptshotSaver <: AbstractSaver
+
+
+Save AbstractPlotters during the simulation at the given step.
+
+### Fields
+
+- `outpath::String` -- Where to save the output
+- `every::Int` -- Save every nth step
+- `data::AbstractPlotter` -- State of the simulation to save
+- `stepper::AbstractStepper` -- Stepper used to regulate the simulation
+
+
+### Examples
+
+- `SnaptshotSaver(every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)`
+
+### Notes
+
+- When using AbstractDetectors, `every` is ignored and the step is saved at the end of each detection
+- When defining the saver, `outpath` is set from the `experiment`
+
+"""
 struct SnaptshotSaver{P<:AbstractPlotter, ST<:AbstractStepper} <: AbstractSaver
 
     outpath::String

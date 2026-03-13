@@ -1,6 +1,47 @@
 
 
+"""
+    CustomNewtonSolver{AbstractGoverningEquations, AbstractAdaptiveStepper, AbstractArray{Int8}, AbstractArray{Float64}} <: AbstractNewton
 
+Custom low-memory algortihm based on Newton-Raphson.
+
+### Fields
+
++ `ntries::Int` -- Number of iterations that are performed in during root finding
++ `equations::AbstractGoverningEquations` -- System of equations that are used to solve
++ `stepper::AbstractAdaptiveStepper` -- Stepper used to regulate the step in the simulation
++ `dLO::AbstractArray{Int8}` -- Mask defining the Loading region
++ `dCR::AbstractArray{Int8}` -- Mask defining the Creeping region
++ `Vpl::Float64` -- Velocity of the plate
++ `si0::AbstractArray{Float64}` -- Initial or constat σ
++ `tau0::AbstractArray{Float64}` -- Initial τ
++ `a::AbstractArray{Float64}` -- Rate and state `a` variable
++ `b::AbstractArray{Float64}` -- Rate and state `b` variable
++ `dxp::AbstractArray{Float64}` -- Slip at the step. This is a preallocated array that is used during rootfinding
++ `Vp::AbstractArray{Float64}` -- Rate at the step. This is a preallocated array that is used during rootfinding
++ `thetap::AbstractArray{Float64}` -- State at the step. This is a preallocated array that is used during rootfinding
++ `dxg::AbstractArray{Float64}` -- Guess value of dx. This is a preallocated array that is used during rootfinding
++ `Vg::AbstractArray{Float64}` -- Guess value of V. This is a preallocated array that is used during rootfinding
++ `Vmg::AbstractArray{Float64}` -- Average between Vp and Vg. This is a preallocated array that is used during rootfinding
++ `Vm::AbstractArray{Float64}` -- Average between Vp and V. This is a preallocated array that is used during rootfinding
+
+### Notes
+
+- When defining the object a gpu_id can be passed to assign all of the AbstractArrays to a given GPU. The default is 0.
+- The struct has a functor which is what is used to find the root.
+### Examples
+
+```julia
+...
+
+algorithm = CustomNewtonSolver(experiment, equations, stepper, ntries=10; gpu_id=0) # define the object
+
+...
+
+algorithm(dx, V, theta) # Find the root for at the given step
+
+```
+"""
 struct CustomNewtonSolver{E<:AbstractGoverningEquations, S<:AbstractAdaptiveStepper, I<:AbstractArray{Int8}, M<:AbstractArray{Float64}} <: AbstractNewton
 
     # stresslaw::AbstractStressLaw   # Law to calculate the stress

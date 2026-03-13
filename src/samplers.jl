@@ -3,7 +3,44 @@
 struct EmptySampler <: AbstractSampler
 end
 
+"""
+    PointSampler <: AbstractSampler
 
+Sample simulation at a given point
+
+### Fields
+
+- mask::AbstractArray{Int8} -- Preallocated array used to define the point in the domain (1 only at the coordinate)
+- NT::Int -- Number of samples
+- dxs::Vector{Float64} -- Sampled values of slip (m)
+- Vs::Vector{Float64} -- Sampled values of slip rate (m/s)
+- thetas::Vector{Float64} -- Sampled values of θ
+- taus::Vector{Float64} -- Sampled values of τ (Pa)
+- times::Vector{Float64} -- Sampled times
+- sample_point_id::Int -- Id of the sample point
+- sample_point_x::Float64 -- x coord of the sample point (m)
+- sample_point_y::Float64 -- y coord of the sample point (m)
+
+### Notes
+
+- When using GPUs, it is possible to decide where the mask reside using `gpu_id`
+- It is possible to use a sample point file structured as follows
+
+```
+n x y
+1 -36.0 0.0
+2 -22.5 -7.50
+3 -16.5 -12.0
+...
+```
+
+
+### Examples
+
+-- `PointSampler(sample_point_id::Int, sample_point_x::Float64, sample_point_y::Float64, NT::Int, experiment::AbstractExperiment; gpu_id::Int=0)` -- Sample at point
+-- `PointSampler(sample_points_paths::String, sample_point_id, NT, experiment; gpu_id=0)` -- Sample point at a poisition given by a txt file
+
+"""
 struct PointSampler{B<:AbstractArray{Int8}} <: AbstractSampler
 
     # state::S
@@ -48,6 +85,26 @@ struct PointSampler{B<:AbstractArray{Int8}} <: AbstractSampler
         if typeof(get_backend()) <: AbstractGPUBackend
             mask = memcopy(mask, gpu_id)
             # temp = memcopy(temp)
+        end
+
+        new{typeof(mask)}(mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
+    end
+
+    function PointSampler(sample_point_id::Int, sample_point_x::Float64, sample_point_y::Float64, NT::Int, experiment::AbstractExperiment; gpu_id::Int=0)
+
+        grid = experiment.domain.grid
+
+        mask = @. Int8((grid.x == sample_point_x) * (grid.y == sample_point_y));
+        # temp = zeros(grid.n_elementsy, grid.n_elementsx)
+
+        dxs           = fill(NaN, NT)
+        Vs            = fill(NaN, NT)
+        thetas        = fill(NaN, NT)
+        taus          = fill(NaN, NT)
+        times         = fill(NaN, NT)
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            mask = memcopy(mask, gpu_id)
         end
 
         new{typeof(mask)}(mask, NT, dxs, Vs, thetas, taus, times, sample_point_id, sample_point_x, sample_point_y)
@@ -103,6 +160,34 @@ function (pointSampler::PointSampler)(stepper, state)
 end
 
 
+
+"""
+    SectionSampler <: AbstractSampler
+
+Sample simulation using a section
+
+### Fields
+
+- `grid::AbstractGrid` -- Grid useed in the simulation
+- `temp::AbstractArray{Float64}` -- Temporary matrix used to calculate the section values
+- `mask::AbstractArray{Int8}` -- Temporary mask used to calculate the section values
+- `NT::Int` -- Number of section to sample
+- `quantity::Symbol` -- Which quantity of AbstractState to sample
+- `section::Matrix{Float64}` -- NT x (n+1) matrix where n is the grid resolution and NT is the number of section to sample
+- `coord::Float64` -- Position to sample
+- `axis::String` -- Which axis
+
+### Notes
+
+- When using GPUs, it is possible to decide where the mask reside using `gpu_id`
+- When using GPUs `temp` will always be set in unified memory
+- The first column of the matrix defines the maximum slip (useful to define seismic/aseismic slips)
+
+
+### Examples
+
+-- `SectionSampler("dx", coord=0.0, axis="y", NT::Int, experiment::AbstractExperiment; gpu_id::Int=0)` -- Sample slip at all points where y=0.0
+"""
 struct SectionSampler{G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractSampler
 
     grid::G
@@ -111,14 +196,13 @@ struct SectionSampler{G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArr
 
     NT::Int
 
-
+    quantity::Symbol
     section::Matrix{Float64}
     coord::Float64
     axis::String
 
 
-
-    function SectionSampler(coord::Float64, axis::String, NT::Int, experiment::AbstractExperiment; gpu_id::Int=0)
+    function SectionSampler(quantity::String, coord::Float64, axis::String, NT::Int, experiment::AbstractExperiment; gpu_id::Int=0)
 
         # state = experiment.state
         # stepper = algorithm.stepper
@@ -148,11 +232,11 @@ struct SectionSampler{G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArr
 
         end
 
-        new{typeof(grid), typeof(temp), typeof(mask)}(grid, temp, mask, NT, section, coord, axis)
+        new{typeof(grid), typeof(temp), typeof(mask)}(grid, temp, mask, NT, Symbol(quantity), section, coord, axis)
     end
 
-    function SectionSampler{G, M, B}(grid::G, temp::M, mask::B, NT, section, coord, axis) where {G,M,B}
-        new{G, M, B}(grid, temp, mask, NT, section, coord, axis)
+    function SectionSampler{G, M, B}(grid::G, temp::M, mask::B, NT, quantity, section, coord, axis) where {G,M,B}
+        new{G, M, B}(grid, temp, mask, NT, quantity, section, coord, axis)
     end
 
 
@@ -165,12 +249,12 @@ function (sectionSampler::SectionSampler)(stepper, state)
     step = stepper.step
 
     V = state.V
-    dx = state.dx
+    data = getproperty(state, sectionSampler.quantity)
 
 
     section = sectionSampler.section
 
-    @.. thread=true temp = dx * mask
+    @.. thread=true temp = data * mask
 
 
     section[step,1]       = maximum(V)
@@ -184,12 +268,32 @@ function (sectionSampler::SectionSampler)(stepper, state)
 
 end
 
+
+"""
+    ContourSampler <: AbstractSampler
+
+Sample rupture contours
+
+### Fields
+
++ `contour::AbstractArray{Float64}` -- Contour matrix
++ `mask::AbstractArray{Int8}` -- Temporary mask used to calculate the rupture contours
++ `thresh::Float64` -- Threshold value for the contour
++ `first_contour::Int8` -- Pre allocated matrix used to store the first contour
++ `t_fc::Float64` -- First contour time
++ `quantity::Symbol` -- Quantity to sample
+
+### Notes
+
+- When using GPUs, it is possible to decide where the mask reside using `gpu_id`
+
+
+### Examples
+
+-- `ContourSampler("V", 1e-3, experiment::AbstractExperiment; gpu_id=0)` -- Sample slip speed when reaching 1e-3
+"""
 mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractSampler
 
-    # state::S
-    # stepper::ST
-    # detector::D
-    # temp::M
     contour::M
     mask::B
 
@@ -197,9 +301,9 @@ mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}}
     thresh::Float64
     first_contour::Int8
     t_fc::Float64
-    field::M
+    quantity::Symbol
 
-    function ContourSampler(field::Symbol, thresh::Float64, experiment::AbstractExperiment; gpu_id::Int=0)
+    function ContourSampler(quantity::String, thresh::Float64, experiment::AbstractExperiment; gpu_id::Int=0)
 
         state = experiment.state
         # stepper = algorithm.stepper
@@ -222,33 +326,29 @@ mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}}
             # temp    = memcopy(temp)
         end
 
-        field = getproperty(state, field)
+        quantity = Sumbol(quantity)
 
-        new{typeof(contour), typeof(mask)}(contour, mask, thresh, first_contour, t_fc, field)
+        new{typeof(contour), typeof(mask)}(contour, mask, thresh, first_contour, t_fc, quantity)
     end
 
-    function ContourSampler{M, B}(contour::M, mask::B, thresh, first_contour, t_fc, field) where {M, B}
-        new{M, B}(contour, mask, thresh, first_contour, t_fc, field)
+    function ContourSampler{M, B}(contour::M, mask::B, thresh, first_contour, t_fc, quantity) where {M, B}
+        new{M, B}(contour, mask, thresh, first_contour, t_fc, quantity)
     end
 
 
 end
 
-function (contourSampler::ContourSampler)(stepper, eventN)
+function (contourSampler::ContourSampler)(stepper, state, eventN)
 
 
     # eventN = contourSampler.detector.eventN
 
 
-
     if eventN == 1
         mask = contourSampler.mask
-        # temp = contourSampler.temp
-        # step = contourSampler.stepper.step
         t = stepper.time
-        # state = contourSampler.state
 
-        field = contourSampler.field
+        field = getfield(state, contourSampler.quantity)
         contour = contourSampler.contour
 
 
@@ -269,7 +369,7 @@ end
 
 
 
-function sample(sampler::AbstractSampler, stepper, state, eventN)
+function sample(sampler::AbstractSampler, stepper, state)
 
     if typeof(sampler) != EmptySampler
         sampler(stepper, state)
@@ -278,10 +378,10 @@ function sample(sampler::AbstractSampler, stepper, state, eventN)
     return nothing
 end
 
-function sample(sampler::ContourSampler, stepper, state, eventN)
+function sample(sampler::ContourSampler, stepper, state, eventN::Int)
 
     if typeof(sampler) != EmptySampler
-        sampler(stepper, eventN)
+        sampler(stepper, state, eventN)
     end
 
     return nothing

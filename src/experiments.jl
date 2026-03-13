@@ -32,28 +32,50 @@ end
 
 
 """
-BP4QDExp(input_dict::Dict, material::AbstractMaterial, domain::AbstractDomain, n_events::Int)
+    BP4QDExp{AbstractArray{Float64}, AbstractMaterial, AbstractDomain, AbstractState, AbstractCatalog}
 
 Create the experiment object for the BP4QD benchmark. N_events sets the size of the Catalog.
 
-# Attributes
+### Fields
 
-+ material::AbstractMaterial            # Material of the experiment
-+ domain::AbstractDomain                # Domain of the experiment
-+ start_time::String                    # Start time of the experiment
-+ AL::Int
-+ Vpl::Float64                          # Velocity of the plate
-+ Vr::Float64                           # Reference velocity
-+ Vi::Float64                           # Initial velocity
-+ Vnu::Float64                          # Nucleation patch velocity
-+ lengthscales::NamedTuple              # Calculated lengthscales (Lb, Linf, L/Linf)
-+ a::AbstractArray{Float64}             # Matrix of a values for rate and state
-+ b::AbstractArray{Float64}             # Matrix of b values for rate and state
-+ tau0::AbstractArray{Float64}          # Matrix of initial tau values for rate and state
-+ si0::AbstractArray{Float64}           # Matrix of initial si for rate and state
-+ state::AbstractState                  # State of the simulation (this is not θ of the rate and state!!)
-+ catalog::AbstractCatalog              # Catalog of the simulation
++ material::AbstractMaterial -- Material of the experiment
++ domain::AbstractDomain -- Domain of the experiment
++ start_time::String -- Start time of the experiment
++ outpath::String -- Where to save the output of the simulations
++ Vpl::Float64 -- Velocity of the plate (m/s)
++ Vr::Float64 -- Reference velocity (m/s)
++ Vi::Float64 -- Initial velocity (m/s)
++ Vnu::Float64 -- Nucleation patch velocity (m/s)
++ lengthscales::NamedTuple -- Calculated lengthscales (Lb, Linf, L/Linf)
++ a::AbstractArray{Float64} -- Matrix of a values for rate and state
++ b::AbstractArray{Float64} -- Matrix of b values for rate and state
++ tau0::AbstractArray{Float64} -- Matrix of initial tau values for rate and state (Pa)
++ si0::AbstractArray{Float64} -- Matrix of initial si for rate and state (Pa)
++ state::AbstractState -- State of the simulation (this is not θ of the rate and state!!)
++ catalog::AbstractCatalog -- Catalog of the simulation
 
+
+### Notes
+
+- When defining the experiment from scratch (i.e. not making a copy) the simulation state (`::AbstractState`) and catalog (`::AbstractCatalog`) are automatically created
+- When using GPUs, it is possible to set the `gpu_id` that defines where the temporary matrices reside
+- If an experiment must be resumed by a backup, it is possible to pass a `LoadedStep` object
+
+When the experiment is created, the following file structure is generated
+
+```bash
+.
+└── Timestamp/
+    └── Backend/
+        └── simulation.log
+```
+
+Where the simulation.log will have the input sheet + eventual appended messages by other components (i.e. the `AbstractDetectors`).
+
+### Examples
+
+- `BP4QDExp(input_dict::Dict, material::AbstractMaterial, domain::AbstractDomain, n_events::Int; gpu_id=0)` -- Create a fresh experiment
+- `BP4QDExp(input_dict, material, domain, n_events, output_dir, loadedstep::LoadedStep; gpu_id=0)` -- Resume an experiment from a given step
 
 """
 struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomain, S<:AbstractState, C<: AbstractCatalog} <: AbstractBenchExperiment
@@ -63,7 +85,6 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
     start_time::String
     outpath::String
-    AL::Int # not sure if this goes here, I don't even think this is necessary anymore.
     Vpl::Float64
     Vr::Float64
     Vi::Float64
@@ -106,8 +127,6 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
         start_time = string(now())
         println("Experiment start time: $start_time")
         outpath = make_outdir(start_time, output_dir)
-
-        AL                = 1
 
         Vpl               = input_dict["Vpl"]
         Vi                = input_dict["Vi"]
@@ -196,7 +215,7 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
 
         new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time, outpath,
-                                                                                                   AL, Vpl, Vr, Vi, Vnu,
+                                                                                                   Vpl, Vr, Vi, Vnu,
                                                                                                    lengthscales, a, b, tau0, si0,
                                                                                                    state_init, catalog_init)
 
@@ -209,8 +228,6 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
         println("Experiment start time: $start_time")
         outpath = make_outdir(start_time, output_dir)
         state = loadedstep.state
-
-        AL                = 1
 
         Vpl               = input_dict["Vpl"]
         Vi                = input_dict["Vi"]
@@ -294,19 +311,19 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
 
         new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time, outpath,
-                                                                                                   AL, Vpl, Vr, Vi, Vnu,
+                                                                                                   Vpl, Vr, Vi, Vnu,
                                                                                                    lengthscales, a, b, tau0, si0,
                                                                                                    state_init, catalog_init)
 
     end
 
     function BP4QDExp{F, M, D, S, C}(material::M, domain::D, start_time, outpath,
-                        AL, Vpl, Vr, Vi, Vnu, lengthscales,
+                        Vpl, Vr, Vi, Vnu, lengthscales,
                         a::F, b::F, tau0::F, si0::F,
                         state_init::S, catalog_init::C) where {F, M, D, S, C}
 
         new{F, M, D, S, C}(material, domain, start_time,outpath,
-                           AL, Vpl, Vr, Vi, Vnu,
+                           Vpl, Vr, Vi, Vnu,
                            lengthscales, a, b, tau0, si0,
                            state_init, catalog_init)
     end
