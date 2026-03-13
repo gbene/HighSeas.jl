@@ -16,15 +16,18 @@ include("errors.jl")
 # It can be handy and makes things more organized but at the same time it is an additional layer.
 
 """
-GoverningEquations(ratelaw, stresslaw, statelaw)
+    GoverningEquations <: AbstractGoverningEquation
 
 Commodity object used to group the governing equations of the simulation
 
-# Attributes
+### Fields
 
-+ ratelaw::AbstractRateLaw
-+ stresslaw::AbstractStressLaw
-+ statelaw::AbstractStateLaw
++ ratelaw::AbstractRateLaw -- Rate law
++ stresslaw::AbstractStressLaw -- Stress law
++ statelaw::AbstractStateLaw -- State law
+
+
+
 """
 struct GoverningEquations{RL<:AbstractRateLaw, TL<:AbstractStressLaw, SL<:AbstractStateLaw} <: AbstractGoverningEquations
 

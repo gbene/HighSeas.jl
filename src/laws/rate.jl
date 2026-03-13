@@ -1,19 +1,27 @@
 
 """
-ExplicitRate(experiment)
+    ExplicitRate <: AbstractRateLaw
 
 Create an ExplicitRate object to calculate explicitly the rate from the Rate and State equation.
 
-# Attributes
+### Fields
 
-eta::Float64                    # Radiation damping coefficient
-fr::Float64                     # Friction reference coefficient
-Vr::Float64                     # Reference slip velocity
-Dc::Float64                     # Characteristic length
-V_mem::AbstractArray{Float64}   # This is the memory matrix in which the result is saved
+- `eta::Float64` -- Radiation damping coefficient
+- `fr::Float64` -- Friction reference coefficient
+- `Vr::Float64` -- Reference slip velocity
+- `Dc::Float64` -- Characteristic length
+- `V_mem::AbstractArray{Float64}` -- This is the memory matrix in which the result is saved
+
+### Notes
+
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
 
 
-# Notes
+
+### Examples
+
+- `ExplicitRate(experiment::AbstractExperiment; gpu_id::Int=0)` -- explicit rate law for the current experiment
+
 """
 struct ExplicitRate{M<:AbstractArray{Float64}} <: AbstractRateLaw
 
@@ -41,21 +49,26 @@ struct ExplicitRate{M<:AbstractArray{Float64}} <: AbstractRateLaw
 end
 
 """
-LinearizedRate(experiment)
+    LinearizedRate <: AbstractRateLaw
 
 Create an LinearizedRate object to calculate the rate using a first order Taylor
 expansion.
 
-# Attributes
+### Fields
 
-eta::Float64                    # Radiation damping coefficient
-fr::Float64                     # Friction reference coefficient
-Vr::Float64                     # Reference slip velocity
-Dc::Float64                     # Characteristic length
-V_mem::AbstractArray{Float64}   # This is the memory matrix in which the result is saved
+- `eta::Float64` -- Radiation damping coefficient
+- `fr::Float64` -- Friction reference coefficient
+- `Vr::Float64` -- Reference slip velocity
+- `Dc::Float64` -- Characteristic length
+- `V_mem::AbstractArray{Float64}` -- This is the memory matrix in which the result is saved
 
+### Notes
 
-# Notes
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+
+### Examples
+
+- `LinearizedRate(experiment::AbstractExperiment; gpu_id::Int=0)` -- linear rate law for the current experiment
 """
 struct LinearizedRate{M<:AbstractArray{Float64}} <: AbstractRateLaw
 
@@ -83,18 +96,18 @@ struct LinearizedRate{M<:AbstractArray{Float64}} <: AbstractRateLaw
 end
 
 """
-HybridRate(experiment)
+    HybridRate <: AbstractHybridRateLaw
 
 Create an HybridRate object to calculate the rate using either the explicit or linearized method.
 
-# Attributes
+### Fields
 
-+ threshold::Float64            # Velocity threshold to decide which law to use
-+ explicit::AbstractRateLaw     # First law to use in case the V is <= than the thresh
-+ linear::AbstractRateLaw       # Second law to use in case the V is > than the thresh
++ `threshold::Float64` -- Velocity threshold to decide which law to use
++ `explicit::AbstractRateLaw` -- First law to use in case the V is <= than the thresh
++ `linear::AbstractRateLaw` -- Second law to use in case the V is > than the thresh
 
 
-# Notes
+
 """
 struct HybridRate{E<:AbstractRateLaw, L<:AbstractRateLaw} <: AbstractHybridRateLaw
 

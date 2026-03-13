@@ -1,7 +1,7 @@
 
 
 """
-DoubleError(experiment)
+    DoubleError <: AbstractErrorLaw (experiment)
 
 Create a DoubleError object used to calculate two errors between matrix A and B:
 
@@ -10,11 +10,21 @@ Create a DoubleError object used to calculate two errors between matrix A and B:
 
 err and erra are returned.
 
-# Attribures
+### Fields
 
-+ diff::AbstractArray{Float64}              # Matrix to store the difference A-B
-+ absdiff::AbstractArray{Float64}           # Matrix to store the abs(A-B)
-+ mask::AbstractArray{Bool}                 # Matrix to store where A==maximum(abs(A-B))
++ `diff::AbstractArray{Float64}` -- Matrix to store the difference A-B
++ `absdiff::AbstractArray{Float64}` -- Matrix to store the abs(A-B)
++ `mask::AbstractArray{Bool}` -- Matrix to store where A==maximum(abs(A-B))
+
+
+### Notes
+
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+
+
+### Examples
+
+- `DoubleError(experiment::AbstractExperiment; gpu_id::Int=0)` -- Create a double error instance for the current experiment
 
 """
 struct DoubleError{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractErrorLaw

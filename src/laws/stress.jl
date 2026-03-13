@@ -1,22 +1,29 @@
 
 """
-StressFFT(experiment::AbstractExperiment)
+    StressFFT <: AbstractStressLaw
 
 Analytical stress-slip relationship in the Fourier/wavenumber domain.
 
-# Attributes
-+ akdhat::AbstractArray{Float64}            # akdhat values
-+ taur::AbstractArray{Float64}              # Matrix used to store the calculated stress values from fft
-+ tau::AbstractArray{Float64}               # Matrix used to store the final stress (tau = tau0+taur)
-+ F::AbstractArray{ComplexF64}              # Matrix used to store the matrix mul result in the wavenumber domain
-+ dx_hat::AbstractArray{ComplexF64}         # Matrix used to store the slip in the wavenumber domain
-+ p_rfft::AbstractFFTs.Plan                 # FFTW plan for forward FFT
-+ p_irfft::AbstractFFTs.Plan                # FFTW plan for inverse FFT
+### Fields
 
-# Notes
-We use rfft (https://juliamath.github.io/AbstractFFTs.jl/stable/api/#AbstractFFTs.rfft)
++ `akdhat::AbstractArray{Float64}` -- akdhat values
++ `taur::AbstractArray{Float64}` -- Matrix used to store the calculated stress values from fft
++ `tau::AbstractArray{Float64}` -- Matrix used to store the final stress (tau = tau0+taur)
++ `F::AbstractArray{ComplexF64}` -- Matrix used to store the matrix mul result in the wavenumber domain
++ `dx_hat::AbstractArray{ComplexF64}` -- Matrix used to store the slip in the wavenumber domain
++ `p_rfft::AbstractFFTs.Plan` -- FFTW plan for forward FFT
++ `p_irfft::AbstractFFTs.Plan` -- FFTW plan for inverse FFT
+
+### Notes
+
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+- We use rfft (https://juliamath.github.io/AbstractFFTs.jl/stable/api/#AbstractFFTs.rfft)
 to be more memory efficient since we deal only with real numbers (i.e. slip can't be complex).
 Also we don't specify the strategy for finding a plan in FFTW because cuFFT ignores it so it is useless.
+
+### Examples
+
+- `StressFFT(experiment::AbstractExperiment; gpu_id::Int=0)` -- Stress law for the current experiment
 """
 struct StressFFT{M<:AbstractArray{Float64}, C<:AbstractArray{ComplexF64}} <: AbstractStressLaw
 

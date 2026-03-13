@@ -1,15 +1,21 @@
 
 """
-AgeingLaw(experiment::AbstractExperiment)
+    AgeingLaw <: AbstractStateLaw
 
 Create an AgeingLaw object to use the ageing law for calculating the state in the rate and state simulation
 
-# Attributes
+### Fields
 
-+ Dc::Float64
-+ theta_mem::AbstractArray{Float64} # This is the memory matrix in which the result is saved
++ Dc::Float64 -- Dc value
++ theta_mem::AbstractArray{Float64} -- This is the memory matrix in which the result is saved
 
+### Notes
 
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+
+### Examples
+
+- `AgeingLaw(experiment::AbstractExperiment; gpu_id::Int=0)` -- AgeingLaw rate law for the current experiment
 """
 struct AgeingLaw{M<:AbstractArray{Float64}} <: AbstractStateLaw
 
@@ -46,15 +52,18 @@ SlipLaw(experiment::AbstractExperiment)
 
 Create an SlipLaw object to use the slip law for calculating the state in the rate and state simulation
 
-# Attributes
+### Fields
 
-+ Dc::Float64
-+ theta_mem::AbstractArray{Float64} # This is the memory matrix in which the result is saved
++ `Dc::Float64` -- Dc value
++ `theta_mem::AbstractArray{Float64}` -- This is the memory matrix in which the result is saved
 
-# Notes
+### Notes
 
-Needs the functor. As of now this does not work.
+- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
 
+### Examples
+
+- `SlipLaw(experiment::AbstractExperiment; gpu_id::Int=0)` -- SlipLaw law for the current experiment
 """
 struct SlipLaw <: AbstractStateLaw
 
