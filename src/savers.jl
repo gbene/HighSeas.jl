@@ -8,7 +8,7 @@ struct StepSaver{S<:AbstractState, ST<:AbstractStepper} <: AbstractSaver
     data::S
     stepper::ST
 
-    function StepSaver(outdir::String, every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function StepSaver(every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
         # start_time = experiment.start_time
         # platform = get_backend().device
@@ -34,7 +34,7 @@ struct CatalogSaver{C<:AbstractCatalog, ST<:AbstractStepper}  <: AbstractSaver
     data::C
     stepper::ST
 
-    function CatalogSaver(outdir::String, every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function CatalogSaver(every::Int, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
         # start_time = experiment.start_time
         # platform = get_backend().device
@@ -59,7 +59,7 @@ struct SamplerSaver{V<:Vector{<:AbstractSampler}, ST<:AbstractStepper} <: Abstra
     data::V
     stepper::ST
 
-    function SamplerSaver(outdir::String, every::Int, samplers::Vector{<:AbstractSampler}, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function SamplerSaver(every::Int, samplers::Vector{<:AbstractSampler}, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
         # start_time = experiment.start_time
         # platform = get_backend().device
@@ -86,7 +86,7 @@ struct SnaptshotSaver{P<:AbstractPlotter, ST<:AbstractStepper} <: AbstractSaver
     data::P
     stepper::ST
 
-    function SnaptshotSaver(outdir::String, every::Int, plotter::AbstractPlotter, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
+    function SnaptshotSaver(every::Int, plotter::AbstractPlotter, experiment::AbstractExperiment, algorithm::AbstractAlgorithm)
 
         # start_time = experiment.start_time
         # platform = get_backend().device
