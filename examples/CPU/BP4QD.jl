@@ -1,10 +1,11 @@
 using HighSeas
 using JLD2
+using BenchmarkTools
 # using CairoMakie
 # using GLMakie
 
 input_dict = ReadSheet("BP4input.txt")
-saved_state, saved_step = load("BP4QD_out/2026-02-12T11:06:43.444/CPU/saved_StepSaver.jld2")["data"]
+# saved_state, step, time = load("BP4QD_out/2026-02-12T11:16:16.270/CPU/saved_StepSaver.jld2")["data"]
 
 # Define the domain
 
@@ -22,8 +23,9 @@ material = SimpleMaterial(input_dict)
 
 
 # Define the experiment
+experiment = BP4QDExp(input_dict, material, domain, 10, "BP4QD_out")
 
-experiment = BP4QDExp(input_dict, material, domain, 5, saved_state)
+# experiment = BP4QDExp(input_dict, material, domain, 10, saved_state)
 
 # Define the Govenring equations
 
@@ -39,10 +41,12 @@ governing_equations = GoverningEquations(hybridlaw, stresslaw, statelaw)
 
 # Define the error law and stepper
 
-# errorlaw = DoubleError(experiment)
-# stepper  = AdaptiveStepper(input_dict, errorlaw)
+errorlaw = DoubleError(experiment)
+stepper  = AdaptiveStepper(input_dict, errorlaw)
+# stepper  = AdaptiveStepper(input_dict, errorlaw, saved_state)
 
-stepper = saved_step
+
+# stepper = saved_step
 
 
 # Define the algorithm used to solve
@@ -59,27 +63,28 @@ detector = CatalogDetector(1e-3, 1e-2, experiment, algorithm)
 
 # Additional samplers
 
-# samplers = Array{HighSeas.AbstractSampler, 1}(undef, 15)
-# for sp in 1:14
-#     samplers[sp] = PointSampler("BP4_sample_points.txt", sp, 70000, experiment, algorithm)
-# end
-# samplers[15] = SectionSampler(0.0, "y", 70000, experiment, algorithm)
+samplers = Array{HighSeas.AbstractSampler, 1}(undef, 16)
+for sp in 1:14
+    samplers[sp] = PointSampler("BP4_sample_points.txt", sp, 700000, experiment)
+end
+samplers[15] = SectionSampler(0.0, "y", 700000, experiment)
+samplers[16] = ContourSampler(:V, 1e-3, experiment)
 
 # # Define savers
 
-stepsaver = StepSaver("BP4QD_out", 500, experiment, algorithm) # save simulation state at every 500 steps
-catalogsaver = CatalogSaver("BP4QD_out", 500, experiment, algorithm) # save catalog at every 500 steps
+stepsaver = StepSaver(500, experiment, algorithm) # save simulation state at every 500 steps
+catalogsaver = CatalogSaver(500, experiment, algorithm) # save catalog at every 500 steps
 
 # snapshotsaver = SnaptshotSaver("BP4QD_out", 100, plotter, experiment, algorithm) # save a figure at every 500 steps
 # CairoMakie.activate!()
-# samplersaver = SamplerSaver("BP4QD_out", 500, samplers, experiment, algorithm) # save the samplers at every 500 steps
+samplersaver = SamplerSaver(500, samplers, experiment, algorithm) # save the samplers at every 500 steps
 
-savers = [stepsaver, catalogsaver]
+# savers = [stepsaver, catalogsaver]
 # savers = [stepsaver, catalogsaver, snapshotsaver, samplersaver]
 # or
 # savers = [stepsaver, catalogsaver, snapshotsaver]
 #or
-# savers = [stepsaver, catalogsaver, samplersaver]
+savers = [stepsaver, catalogsaver, samplersaver]
 #or ...
 
 
@@ -96,4 +101,9 @@ solver = TimeSolver(tf, savers, detector)
 # HighSeas.solve(experiment, algorithm, solver)
 
 # add plotter to plot
-HighSeas.solve(experiment, algorithm, solver)
+# HighSeas.solve(experiment, algorithm, solver)
+
+HighSeas.benchmarksolve(experiment, algorithm, 100, true)
+
+# b = @benchmark HighSeas.benchmarksolve(experiment, algorithm, 100)
+# display(b)

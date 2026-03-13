@@ -29,5 +29,5 @@ CudaExt = "CUDA"
 MetalExt = "Metal"
 RocExt = "AMDGPU"
 
-[compat]
-PolygonInbounds = "0.2.0"
+[workspace]
+projects = ["docs", "examples/GPU_CUDA", "examples/CPU", "examples/Plots"]

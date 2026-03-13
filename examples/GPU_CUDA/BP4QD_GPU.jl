@@ -1,5 +1,8 @@
 using HighSeas
 using CUDA # Change this to AMDGPU, METAL and so on to use those backends. METAL does not support Float64 so for now it is not supported
+using JLD2
+using GLMakie
+using BenchmarkTools
 
 
 set_GPUbackend() # To use UnifiedMemory add "unified" as the method argument. Default is DeviceMemory. AMDGPU ony supports DeviceMemory
@@ -22,7 +25,8 @@ material = SimpleMaterial(input_dict)
 
 # Define the experiment
 
-experiment = BP4QDExp(input_dict, material, domain, 12)
+experiment = BP4QDExp(input_dict, material, domain, 10, "BP4QD_out")
+# experiment = BP4QDExp(input_dict, material, domain, 5, "BP4QD_out", saved_step)
 
 # Define the Govenring equations
 
@@ -40,6 +44,7 @@ governing_equations = GoverningEquations(hybridlaw, stresslaw, statelaw)
 
 errorlaw = DoubleError(experiment)
 stepper  = AdaptiveStepper(input_dict, errorlaw)
+# stepper  = AdaptiveStepper(input_dict, errorlaw, saved_step)
 
 
 
@@ -57,26 +62,28 @@ detector = CatalogDetector(1e-3, 1e-2, experiment, algorithm)
 
 # Additional samplers
 
-# samplers = Array{HighSeas.AbstractSampler, 1}(undef, 15)
-# for sp in 1:14
-#     samplers[sp] = PointSampler("BP4_sample_points.txt", sp, 70000, experiment, algorithm)
-# end
-# samplers[15] = SectionSampler(0.0, "y", 70000, experiment, algorithm)
+samplers = Array{HighSeas.AbstractSampler, 1}(undef, 16)
+for sp in 1:14
+    samplers[sp] = PointSampler("BP4_sample_points.txt", sp, 700000, experiment)
+end
+samplers[15] = SectionSampler(0.0, "y", 700000, experiment)
+samplers[16] = ContourSampler(:V, 1e-3, experiment)
+# samplers = [ContourSampler(:V, 1e-3, experiment)]
 
 # Define savers
 
-stepsaver = StepSaver("BP4QD_out", 500, experiment, algorithm) # save simulation state at every 500 steps
-catalogsaver = CatalogSaver("BP4QD_out", 500, experiment, algorithm) # save catalog at every 500 steps
+stepsaver = StepSaver(500, experiment, algorithm) # save simulation state at every 500 steps
+catalogsaver = CatalogSaver(500, experiment, algorithm) # save catalog at every 500 steps
 
-# snapshotsaver = SnaptshotSaver("BP4QD_out", 100, plotter, experiment, algorithm) # save a figure at every 500 steps
-# samplersaver = SamplerSaver("BP4QD_out", 500, samplers, experiment, algorithm) # save the samplers at every 500 steps
+# # snapshotsaver = SnaptshotSaver("BP4QD_out", 100, plotter, experiment, algorithm) # save a figure at every 500 steps
+samplersaver = SamplerSaver(500, samplers, experiment, algorithm) # save the samplers at every 500 steps
 
 
-savers = [stepsaver, catalogsaver]
+# savers = [stepsaver, catalogsaver]
 # or
 # savers = [stepsaver, catalogsaver, snapshotsaver]
 #or
-# savers = [stepsaver, catalogsaver, samplersaver]
+savers = [stepsaver, catalogsaver, samplersaver]
 #or ...
 
 
@@ -85,7 +92,10 @@ savers = [stepsaver, catalogsaver]
 # Define the solver (i.e. use definite steps or time?)
 tf = input_dict["tf"]*(365*24*60*60)
 
+# solver = TimeSolver(tf, savers, detector)
 solver = TimeSolver(tf, savers, detector, samplers)
 
 # Solve
 HighSeas.solve(experiment, algorithm, solver)
+
+# HighSeas.solve(experiment, algorithm, solver, plotter)
