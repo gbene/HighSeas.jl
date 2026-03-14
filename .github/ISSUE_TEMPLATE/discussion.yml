@@ -1,0 +1,14 @@
+name: Discussion
+description: Discuss here general things that are not a bug or a features
+labels: ["discussion"]
+body:
+
+  - type: textarea
+    id: discussion-details
+    attributes:
+      label: Discuss!
+      description: |
+        Start a discussion by describing something, code is permitted (and encouraged)!
+      placeholder: Tell us your idea!
+    validations:
+      required: true

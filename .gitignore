@@ -1,0 +1,6 @@
+*.fuse*
+Manifest.toml
+LocalPreferences.toml
+*.jld2
+*.log
+docs/build/*

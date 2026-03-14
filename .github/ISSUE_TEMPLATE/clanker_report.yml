@@ -1,0 +1,20 @@
+name: Clanker Report
+description: Post reports made from LLMs analysis
+labels: ["clanker"]
+body:
+- type: textarea
+  id: prompt
+  attributes:
+    label: What was asked to the AI?
+    description: |
+      Describe what was prompted
+    placeholder: Paste here the prompt/a summary of the prompt
+  validations:
+    required: true
+- type: textarea
+  id: report
+  attributes:
+    label: What did the AI say?
+    placeholder: Paste here the answare
+  validations:
+    required: true
