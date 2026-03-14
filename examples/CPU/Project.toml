@@ -1,7 +1,0 @@
-[deps]
-BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
-CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
-Fractalizer = "c0cd90ba-f482-40dc-b865-bff11b43dfb3"
-GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
-HighSeas = "cf55fe6e-1192-45e2-9362-6673aaff05ef"
-JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
