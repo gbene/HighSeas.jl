@@ -4,3 +4,5 @@ LocalPreferences.toml
 *.jld2
 *.log
 docs/build/*
+examples/**/*.svg
+examples/**/*.png
