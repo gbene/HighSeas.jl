@@ -3,7 +3,8 @@ name: Dev documentation
 on:
   push:
     branches: ["main", "dev"]
-  pull_request:
+  workflow_dispatch:
+    branches: ["main", "dev"]
 
 jobs:
   build:
