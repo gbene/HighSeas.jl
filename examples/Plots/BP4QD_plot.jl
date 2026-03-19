@@ -1,13 +1,14 @@
 using HighSeas
 using CairoMakie
 using GLMakie
-using JLD2
 using Peaks
 using Glob
 using CSV
 using GLMakie.Colors
 using Fractalizer
 using Statistics
+using StatsBase
+using EasyFit
 
 function plotInterEventTime(pointSampler, ref_path::String, quantity::String, sampler_quantity::String, scale::Function; display=false)
 
@@ -184,16 +185,14 @@ function plotContour(contourSampler, ref_path::String)
 end
 
 
-function GR(magnitudes, data)
-    N = zeros(length(magnitudes))
+function GR(data)
 
-    for i in eachindex(N)
-        N[i] = sum(data.>=magnitudes[i])
-    end
-    return N
+    data_sort = sort(data,rev=true)
+    N = log10.(1:length(data_sort))
+    return data_sort, N/maximum(N)
 end
 
-input_dict = ReadSheet("BP4input.txt")
+input_dict = ReadSheet("GPU_CUDA/BP4input.txt")
 c_input_dict = copy(input_dict)
 points = [[3e4, 3e4, -3e4, -3e4, 3e4] [1.5e4, -1.5e4, -1.5e4, 1.5e4, 1.5e4]] #RW patch points
 np1 = NoiseParams(0.05:0.01:0.07, 1.0:1:10, -10.0:1:10.0, 100, 4, 10, seeds=[6442887322735277629, -8987213128142308954, -333252884332351366, 8464945807962482870])
@@ -226,14 +225,15 @@ domain = Domain(grid, fault, patch, nucleation)
 sample_point = 8
 # samplers = loadData("temp/2026_03_02T13_19_10.357/CUDA/saved_SamplerSaver.jld2") # frac 2
 # samplers = loadData("temp/2026_03_02T13_15_40.517/CUDA/saved_SamplerSaver.jld2") # frac 3
-samplers = loadData("temp/2026_03_02T13_10_19.489/CUDA/saved_SamplerSaver.jld2") # frac 4
+# samplers = loadData("temp/2026_03_02T13_10_19.489/CUDA/saved_SamplerSaver.jld2") # frac 4
+samplers = loadData("GPU_CUDA/BP4QD_out/2026_03_18T15_15_51.609/CUDA/saved_SamplerSaver.jld2")
 # samplers = loadData("temp/2026_03_02T13_10_19.489/CUDA/saved_SamplerSaver.jld2") # frac 5
 
 
-catalog = loadData("BP4QD_out/2026_02_13T11_40_14.783/CUDA/saved_CatalogSaver.jld2")
+catalog = loadData("GPU_CUDA/BP4QD_out/2026_03_18T15_15_51.609/CUDA/saved_CatalogSaver.jld2")
 
 
-bench8 = loadData("BP4QD_out/2026_02_24T11_36_34.660/CUDA/saved_CatalogSaver.jld2")
+bench8 = catalog
 bench9 = loadSSH(url, username, private_file, public_file, "RateState/BP4QD/Julia/BP4QD_out/2026_02_19T12_50_10.812/CUDA/saved_CatalogSaver.jld2")
 bench10 = loadSSH(url, username, private_file, public_file, "RateState/BP4QD/Julia/BP4QD_out/2026_02_19T14_41_08.325/CUDA/saved_CatalogSaver.jld2")
 bench11 = loadSSH(url, username, private_file, public_file, "RateState/BP4QD/Julia/BP4QD_out/2026_02_21T15_29_51.441/CUDA/saved_CatalogSaver.jld2")
@@ -254,14 +254,18 @@ bench13 = bench13d+bench13e#bench13a+bench13b+bench13c+bench13d
 
 event_dict = Dict(["0.04" => (500, bench8),"0.02" => (250, bench9), "0.01" => (125, bench10), "0.005" => (62.5, bench11), "0.0025" => (31.25, bench12), "0.0007"=>(12.5, bench13)])
 
-k = sort!(collect(keys(event_dict)), rev=true)
+k_ordered = sort!(collect(keys(event_dict)), rev=true)
+k = ["0.04", "0.005", "0.02", "0.0025", "0.01", "0.0007"]# Order is weird to have left to right reading order #sort!(collect(keys(event_dict)), rev=true)
+real_idx = [1, 4, 2, 5, 3, 6]
 
 
-barbot_data = CSV.File(open("/home/gab28/DATA/PhD/GitHub/HighSeas.jl/resources/scec/barbot.6/b6_rupture.csv"))
-cheng_data = CSV.File(open("/home/gab28/DATA/PhD/GitHub/HighSeas.jl/resources/scec/cheng/contour.csv"))
+min_mag = zeros(6)
 
-lambert_data = CSV.File(open("/home/gab28/DATA/PhD/GitHub/HighSeas.jl/resources/scec/lambert/contour.csv"))
-ozawa_data = CSV.File(open("/home/gab28/DATA/PhD/GitHub/HighSeas.jl/resources/scec/ozawa/contour.csv"))
+barbot_data = CSV.File(open("resources/scec/barbot.6/b6_rupture.csv"))
+cheng_data = CSV.File(open("resources/scec/cheng/contour.csv"))
+
+lambert_data = CSV.File(open("resources/scec/lambert/contour.csv"))
+ozawa_data = CSV.File(open("resources/scec/ozawa/contour.csv"))
 
 
 barbot_data.t[barbot_data.t .== 0.] .= 1e9
@@ -275,25 +279,28 @@ catalogfig, catalogax = HighSeas.plotCatalog(catalog, "Moment";ax_kwargs=(), ste
 domainfig, domainax = HighSeas.plotDomain(domain, samplers.samplers[sample_point], samplers.samplers[15])
 
 areaslipfig = Figure(size=(1924,1080))
-areaslipax  = Axis(areaslipfig[1,1], xlabel="Dc", xticks=(1:length(k), k[1:end]))
+areaslipax  = Axis(areaslipfig[1,1], xlabel="Dc", xticks=(1:length(k), k_ordered))
 hideydecorations!(areaslipax, ticks = true)
 hidexdecorations!(areaslipax, ticks = false, ticklabels=false, label=false, grid=true)
 
 
 
 magfullfig = Figure(size=(1924,1080))
-magfullax  = Axis(magfullfig[1,1], xlabel="Dc", ylabel="Magnitudes", xticks=(1:length(k), k[1:end]))
+magfullax  = Axis(magfullfig[1,1], xlabel="Dc", ylabel="Magnitudes", xticks=(1:length(k), k_ordered))
 magpartfig = Figure(size=(1924,1080))
-magpartax  = Axis(magpartfig[1,1], xlabel="Dc", ylabel="Magnitudes", xticks=(1:length(k), k[1:end]))
+magpartax  = Axis(magpartfig[1,1], xlabel="Dc", ylabel="Magnitudes", xticks=(1:length(k), k_ordered))
 eventfig = Figure(size=(1924,1080))
+slipfig = Figure(size=(1924,1080))
 
+grfig = Figure(size=(1924, 1080))
+grax = Axis(grfig[1,1], aspect=DataAspect(), xlabel="Magnitudes")
+
+hideydecorations!(grax)
 
 indices = CartesianIndices(zeros(2,3))
-areathresh = 0.9
+areathresh = 0.8
 
-bench12fig, bench12ax = HighSeas.plotCatalog(bench12,"mag";ax_kwargs=(), stem_kwargs=(markersize=0,))
-
-
+bench12fig, bench12ax = HighSeas.plotCatalog(bench12,"mag";ax_kwargs=(), stem_kwargs=(markersize=0,stemcolor=Makie.wong_colors()[4]))
 
 for i in eachindex(k)
 
@@ -306,6 +313,8 @@ for i in eachindex(k)
     nanmask = .!isnan.(b.mag)
 
     events = b.mag[timemask]
+    min_mag[real_idx[i]] = minimum(events)
+    # min_mag[wang_color_idx[i]] = minimum(x->isnan(x) ? Inf : x,b.Moment)
 
 
     c_input_dict["cellsizex"] = gs
@@ -315,8 +324,8 @@ for i in eachindex(k)
 
     localpatch = RectanglePatch(c_input_dict, localgrid)
 
-    total_area = (sum(localpatch.dRW)+sum(localpatch.dTR))*localgrid.cell_area
-
+    total_area = (sum(localpatch.dRW))*localgrid.cell_area
+    # println("Area: $total_area")
     areas = b.Area/total_area
     full_mask = areas .>= areathresh
     partial_mask = areas .< areathresh
@@ -327,35 +336,62 @@ for i in eachindex(k)
 
     fullevents = events[full_mask[timemask]]
     partialevents = events[partial_mask[timemask]]
-    boxplot!(magfullax, fill(i, length(fullevents)), fullevents)
-    boxplot!(magpartax, fill(i, length(partialevents)), partialevents)
+    boxplot!(magfullax, fill(i, length(fullevents)), fullevents, color=Makie.wong_colors()[i])
+    boxplot!(magpartax, fill(i, length(partialevents)), partialevents, color=Makie.wong_colors()[i])
 
 
 
-    ax = Axis(eventfig[indices[i][1],indices[i][2]], title="Dc: $dc")
+    ax = Axis(eventfig[indices[i][1],indices[i][2]], title="Dc: $dc m")
+    axslip = Axis(slipfig[indices[i][1],indices[i][2]], title="Dc: $dc m")
 
+    if parse(Float64, dc) < 0.01
+        if parse(Float64, dc) == 0.005
+            complete_events = partialevents[partialevents .>= 6]
+        else
+            complete_events=partialevents
+        end
+        fit = fitlinear(GR(complete_events)...)
+        b_val = round(fit.a,digits=2)
+        Rsq = round(fit.R2,digits=2)
+        # display(fit)
+
+        s = scatter!(grax, GR(partialevents)..., color=Makie.wong_colors()[i])
+        l = lines!(grax, fit.x, fit.y, color=Makie.wong_colors()[i], label="$dc")
+        a = annotation!(grax, fit.x[end], fit.y[end], fit.x[end], fit.y[end], text="b = $b_val, R2 = $Rsq",align=(:left, :center))
+
+        # r = rainclouds!(grax, fill(dc, length(partialevents)), partialevents,markersize=5.0, orientation = :horizontal, color=Makie.wong_colors()[wang_color_idx[i]])
+        # display(i)
+        translate!(s, 0, i/2, 0)
+        translate!(l, 0, i/2, 0)
+        translate!(a, 0, i/2, 0)
+
+
+
+    end
     barplot!(areaslipax, [i, i], [mean(full_ruptures), mean(full_slips)], dodge=[1, 2], bar_labels = :y)
 
 
-    HighSeas.plotCatalog(b, "mag", ax; stem_kwargs=(label="Dc: $dc",markersize=0))
+    HighSeas.plotCatalog(b, "mag", ax; stem_kwargs=(label="Dc: $dc",markersize=0, stemcolor=Makie.wong_colors()[i]))
+    HighSeas.plotCatalog(b, "MeanSlip", axslip; stem_kwargs=(label="Dc: $dc",markersize=0, stemcolor=Makie.wong_colors()[i]))
+
     if i > 1
 
-        HighSeas.plotCatalog(event_dict["0.04"][2], "mag", ax; stem_kwargs=(marker=:utriangle, color=(:orange, 0.5),stemcolor=(:orange, 0.5)))
+        HighSeas.plotCatalog(event_dict["0.04"][2], "mag", ax; stem_kwargs=(marker=:utriangle, color=Makie.wong_colors()[1],stemcolor=Makie.wong_colors()[1]))
+        # HighSeas.plotCatalog(event_dict["0.04"][2], "MeanSlip", axslip; stem_kwargs=(marker=:utriangle, color=Makie.wong_colors()[1],stemcolor=Makie.wong_colors()[1]))
+
     end
-    scatter!(ax, b.t[areas .>= areathresh]/(365*24*60*60), b.mag[areas .>= areathresh], marker=:utriangle, color=Makie.wong_colors()[1])
-    scatter!(ax, b.t[areas .< areathresh]/(365*24*60*60), b.mag[areas .< areathresh], marker=:circle, color=Makie.wong_colors()[1])
+    scatter!(ax, b.t[areas .>= areathresh]/(365*24*60*60), b.mag[areas .>= areathresh], marker=:utriangle, color=Makie.wong_colors()[i])
+    scatter!(ax, b.t[areas .< areathresh]/(365*24*60*60), b.mag[areas .< areathresh], marker=:circle, color=Makie.wong_colors()[i])
 
-    if i == 5
+    scatter!(axslip, b.t[areas .>= areathresh]/(365*24*60*60), b.MeanSlip[areas .>= areathresh], marker=:utriangle, color=Makie.wong_colors()[i])
+    scatter!(axslip, b.t[areas .< areathresh]/(365*24*60*60), b.MeanSlip[areas .< areathresh], marker=:circle, color=Makie.wong_colors()[i])
 
-        HighSeas.plotCatalog(event_dict["0.04"][2], "mag", bench12ax; stem_kwargs=(marker=:utriangle, color=(:orange, 0.5),stemcolor=(:orange, 0.5)))
+    if dc == "0.0025"
 
-        scatter!(bench12ax, b.t[areas .>= areathresh]/(365*24*60*60), b.mag[areas .>= areathresh], marker=:utriangle, color=Makie.wong_colors()[1])
-        scatter!(bench12ax, b.t[areas .< areathresh]/(365*24*60*60), b.mag[areas .< areathresh], marker=:circle, color=Makie.wong_colors()[1])
+        HighSeas.plotCatalog(event_dict["0.04"][2], "mag", bench12ax; stem_kwargs=(marker=:utriangle, color=Makie.wong_colors()[1],stemcolor=Makie.wong_colors()[1]))
 
-        bench12fax = Axis(bench12fig[2,1])
-
-        HighSeas.plotCatalog(bench12f,"mag",bench12fax;stem_kwargs=(markersize=0,))
-        HighSeas.plotCatalog(event_dict["0.04"][2], "mag", bench12fax; stem_kwargs=(marker=:utriangle, color=(:orange, 0.5),stemcolor=(:orange, 0.5)))
+        scatter!(bench12ax, b.t[areas .>= areathresh]/(365*24*60*60), b.mag[areas .>= areathresh], marker=:utriangle, color=Makie.wong_colors()[i])
+        scatter!(bench12ax, b.t[areas .< areathresh]/(365*24*60*60), b.mag[areas .< areathresh], marker=:circle, color=Makie.wong_colors()[i])
 
         fractal = fractalize(shape, templates, gs)
 
@@ -363,44 +399,77 @@ for i in eachindex(k)
 
         cdomain = Domain(localgrid, localfault, localcpatch, nucleation)
         total_area = (sum(localcpatch.dRW))*localgrid.cell_area
-        areas12f = bench12f.Area/total_area
 
-        scatter!(bench12fax, bench12f.t[areas12f .>= areathresh]/(365*24*60*60), bench12f.mag[areas12f .>= areathresh], marker=:utriangle, color=Makie.wong_colors()[1])
-        scatter!(bench12fax, bench12f.t[areas12f .< areathresh]/(365*24*60*60), bench12f.mag[areas12f .< areathresh], marker=:circle, color=Makie.wong_colors()[1])
-
-        ylims!(bench12fax, 3, nothing)
-        xlims!(bench12fax, 150, 660.0)
         ylims!(bench12ax, 3, nothing)
         xlims!(bench12ax, 150, 660.0)
+
+        # println("Fract area: $total_area")
+        areas12f = bench12f.Area/total_area
 
         eventsf = bench12f.mag[timemask]
         fulleventsf = eventsf[areas12f[timemask] .>= areathresh]
         partialeventsf = eventsf[areas12f[timemask] .< areathresh]
 
+        bench12fax = Axis(bench12fig[2,1])
 
-        global bench12boxax = Axis(bench12fig[:,2], xlabel="Dc", ylabel="Magnitudes", xticks=(1:3, ["normal", "fractal", "0.0007"]))
+        HighSeas.plotCatalog(bench12f,"mag",bench12fax;stem_kwargs=(markersize=0,stemcolor="#9fc4d8ff"))
+        HighSeas.plotCatalog(event_dict["0.04"][2], "mag", bench12fax; stem_kwargs=(marker=:utriangle, color=Makie.wong_colors()[1],stemcolor=Makie.wong_colors()[1]))
 
 
-        boxplot!(bench12boxax, fill(1, length(partialevents)), partialevents)
-        boxplot!(bench12boxax, fill(2, length(partialeventsf)), partialeventsf)
+        scatter!(bench12fax, bench12f.t[areas12f .>= areathresh]/(365*24*60*60), bench12f.mag[areas12f .>= areathresh], marker=:utriangle, color="#9fc4d8ff")
+        scatter!(bench12fax, bench12f.t[areas12f .< areathresh]/(365*24*60*60), bench12f.mag[areas12f .< areathresh], marker=:circle, color="#9fc4d8ff")
+
+        ylims!(bench12fax, 3, nothing)
+        xlims!(bench12fax, 150, 660.0)
+
+
+        fit = fitlinear(GR(partialeventsf)...)
+        b_val = round(fit.a,digits=2)
+        Rsq = round(fit.R2,digits=2)
+
+        s = scatter!(grax, GR(partialeventsf)..., color="#9fc4d8ff")
+        l = lines!(grax, fit.x, fit.y, color="#9fc4d8ff", label="$dc Rough")
+        a = annotation!(grax, fit.x[end], fit.y[end], fit.x[end], fit.y[end], text="b = $b_val, R2 = $Rsq",align=(:left, :center))
+
+        translate!(s, 0, i/1.5, 0)
+        translate!(l, 0, i/1.5, 0)
+        translate!(a, 0, i/1.5, 0)
+
+
+
+
+        global bench12boxax = Axis(bench12fig[:,2], xlabel="Dc", ylabel="Magnitudes", xticks=([1,3], ["0.0025", "0.0007"]))
+
+
+        boxplot!(bench12boxax, fill(0.5, length(partialevents)), partialevents,color=Makie.wong_colors()[i])
+        boxplot!(bench12boxax, fill(1.5, length(partialeventsf)), partialeventsf, color="#9fc4d8ff")
 
     end
 
     if i == 6
-        boxplot!(bench12boxax, fill(3, length(partialevents)), partialevents)
+        boxplot!(bench12boxax, fill(3, length(partialevents)), partialevents, color=Makie.wong_colors()[i])
     end
 
     ylims!(ax, 4, nothing)
     xlims!(ax, 150, 660.0)
+    xlims!(axslip, 150, 660.0)
 end
+axislegend(grax)
+xlims!(grax, high=7.5)
+
+fitfig = Figure(size=(1924,1080))
+fitax = Axis(fitfig[1,1], xlabel="log10(Dc)", ylabel="Magnitudes")
+
+dc_values = log10.(parse.(Float64, sort(collect(keys(event_dict)),rev=true)))
+dc_pred = fitlinear(dc_values, min_mag)
+
+extr = log10.(0.0001:0.0001:0.0007)
+
+scatter!(fitax, dc_values, min_mag)
 
 
-
-
-
-
-
-
+lines!(fitax, dc_pred.x, dc_pred.y)
+lines!(fitax, extr, dc_pred.(extr), linestyle=:dash)
 
 
 
