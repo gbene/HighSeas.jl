@@ -186,7 +186,15 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
                 write(file, "Experiment start time: $start_time \n")
                 write(file, "================================================================\n")
                 for k in sort!(collect(keys(input_dict)))
-                        write(file, "$k: $(input_dict[k])\n")
+                    value = input_dict[k]
+                    value_string = "$value"
+                    if (k == "W") | (k=="L")
+                        grid_value = getproperty(grid, Symbol(k))
+                        if value != grid_value
+                            value_string = "$grid_value #target was $value"
+                        end
+                    end
+                    write(file, "$k: $value_string\n")
                 end
                 write(file, "================================================================\n")
                 write(file, "$(string(lengthscales))\n")

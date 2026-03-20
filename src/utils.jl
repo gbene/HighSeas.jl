@@ -42,7 +42,7 @@ end
 # end
 
 
-function ReadSheet(path_file::String)
+function ReadSheet(path_file::String; factor::Int=1)
       input_dict = Dict{String, Any}()
       open(path_file) do f
             lines = readlines(f)
@@ -50,8 +50,13 @@ function ReadSheet(path_file::String)
             lines = lines[mask]
             for line in lines
                   key, value = split(line,':')
+                  if key in ["W","L","Wf","Lf","w","l","h","xi","yi","wi","li"]
+                    value = parse(Float64, value)/factor
+                  else
+                    value = parse(Float64, value)
+                  end
                   # display(key)
-                  push!(input_dict,key=>parse(Float64, value))
+                  push!(input_dict,key=>value)
             end
       end
       input_dict
@@ -118,9 +123,9 @@ function CheckLengthScales(material::AbstractMaterial, domain::AbstractDomain, Ï
       ratio = length_dim/Linf
 
       if gridside*3 > Lb
-            error("Cohesive zone may be poorly resolved")
+            error("Cohesive zone may be poorly resolved, $(gridside*3) > $Lb")
       elseif gridside*10 > Linf
-            error("Linf is poorly resolved")
+            error("Linf is poorly resolved,  $(gridside*10) > $Linf")
       elseif ratio < 1
             error("Linf is poorly resolved. H/Linf: $ratio")
       else

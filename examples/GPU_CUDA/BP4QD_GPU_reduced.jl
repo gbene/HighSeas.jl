@@ -6,11 +6,13 @@ using BenchmarkTools
 
 
 set_GPUbackend() # To use UnifiedMemory add "unified" as the method argument. Default is DeviceMemory. AMDGPU ony supports DeviceMemory
-input_dict = ReadSheet("BP4input_reduced.txt")
+input_dict = ReadSheet("BP4input_reduced.txt", factor=14)
 
 # Define the domain
 
 grid = PowerGrid(input_dict)
+display(grid.domain_powerx)
+
 fault = RectangleFault(input_dict, grid)
 
 patch = RectanglePatch(input_dict, grid)
@@ -19,13 +21,13 @@ nucleation = RectangleNucleation(input_dict, grid)
 domain = Domain(grid, fault, patch, nucleation)
 
 
-# plotDomain(domain, figdisplay=true)
+plotDomain(domain, figdisplay=true)
 
-# # Define the material
+# Define the material
 
-# material = SimpleMaterial(input_dict)
+material = SimpleMaterial(input_dict)
 
-
+HighSeas.CheckLengthScales(material, domain, input_dict["si0"])
 # # Define the experiment
 
 # experiment = BP4QDExp(input_dict, material, domain, 10, "BP4QD_out")

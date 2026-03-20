@@ -133,7 +133,8 @@ struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
     x::M # x coordinates mesh
     y::M # y coordinates mesh
 
-
+    Lratio::Float64
+    Wratio::Float64
     function PowerGrid(input_dict::Dict)
 
         cell_sizex     = input_dict["cellsizex"]
@@ -154,6 +155,9 @@ struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
         L_domain = (cell_sizex*n_elementsx)
         W_domain = (cell_sizey*n_elementsy)
 
+        Lratio = L_domain/L
+        Wratio = W_domain/W
+
         L_limits = L_domain/2
         W_limits = W_domain/2
 
@@ -166,11 +170,11 @@ struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
 
         cell_area = cell_sizex*cell_sizey
 
-        new{typeof(x)}(cell_sizex, cell_sizey, cell_area, L_domain, W_domain, domain_powerx, domain_powery, n_elementsx, n_elementsy, X, Y, x, y)
+        new{typeof(x)}(cell_sizex, cell_sizey, cell_area, L_domain, W_domain, domain_powerx, domain_powery, n_elementsx, n_elementsy, X, Y, x, y, Lratio, Wratio)
     end
 
-    function PowerGrid{M}(cell_sizex, cell_sizey, cell_area, L_domain, W_domain, domain_powerx, domain_powery, n_elementsx, n_elementsy, X, Y, x::M, y::M) where M
-        new{M}(cell_sizex, cell_sizey, cell_area, L_domain, W_domain, domain_powerx, domain_powery, n_elementsx, n_elementsy, X, Y, x, y)
+    function PowerGrid{M}(cell_sizex, cell_sizey, cell_area, L_domain, W_domain, domain_powerx, domain_powery, n_elementsx, n_elementsy, X, Y, x::M, y::M, Lratio, Wratio) where M
+        new{M}(cell_sizex, cell_sizey, cell_area, L_domain, W_domain, domain_powerx, domain_powery, n_elementsx, n_elementsy, X, Y, x, y, Lratio, Wratio)
     end
 
 end
