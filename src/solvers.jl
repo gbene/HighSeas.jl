@@ -1,5 +1,9 @@
 
-
+@def basic_solver begin
+    savers::S
+    detector::D
+    samplers::Sa
+end
 
 
 """
@@ -35,9 +39,7 @@ Solve using a pre-defined number of steps
 """
 struct StepSolver{S<:Vector{<:AbstractSaver}, D<:AbstractDetector, Sa<:Vector{<:AbstractSampler}} <: AbstractStepSolver
     NT::Int
-    savers::S
-    detector::D
-    samplers::Sa
+    @basic_solver
 
     function StepSolver(NT::Int, savers::S) where S
         detector = EmptyDetector()
@@ -99,9 +101,7 @@ Solve up to the specified time (in seconds).
 """
 struct TimeSolver{S<:Vector{<:AbstractSaver}, D<:AbstractDetector, Sa<:Vector{<:AbstractSampler}} <: AbstractTimeSolver
     tf::Float64
-    savers::S
-    detector::D
-    samplers::Sa
+    @basic_solver
 
     function TimeSolver(tf::Float64, savers::S) where S
         detector = EmptyDetector()
@@ -172,7 +172,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
         dx, V, theta = algorithm(dx, V, theta)
 
-        sample(samplers, stepper, state)
+        sample(samplers, stepper, state, detector.eventN)
         detect(detector)
         simsave(savers)
 
@@ -199,7 +199,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
         dx, V, theta = algorithm(dx, V, theta)
 
-        sample(samplers, stepper, state)
+        sample(samplers, stepper, state, detector.eventN)
         detect(detector)
         simsave(savers)
         UpdatePlot(plotter)
@@ -262,7 +262,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
         dx, V, theta = algorithm(dx, V, theta)
 
-        sample(samplers, stepper, state)
+        sample(samplers, stepper, state, detector.eventN)
         detect(detector)
         simsave(savers)
         UpdatePlot(plotter)

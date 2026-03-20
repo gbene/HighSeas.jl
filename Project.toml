@@ -1,7 +1,7 @@
 name = "HighSeas"
 uuid = "cf55fe6e-1192-45e2-9362-6673aaff05ef"
-version = "0.3.2"
-authors = ["gbene <gabri.benedetti@gmail.com>"]
+version = "0.4.0"
+authors = ["gbene <mail@gabri.xyz>","Elías Rafn Heimisson <eliasrafn@hi.is>"]
 
 [deps]
 AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
@@ -30,4 +30,4 @@ MetalExt = "Metal"
 RocExt = "AMDGPU"
 
 [workspace]
-projects = ["docs", "examples/GPU_CUDA", "examples/CPU", "examples/Plots"]
+projects = ["docs", "examples/GPU_CUDA", "examples/CPU", "examples/Plots", "tests/prototyping"]
