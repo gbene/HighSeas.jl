@@ -16,8 +16,8 @@ Vi: 1.0e-9
 Vr: 1.0e-6
 Vnu: 1e-3
 fr: 0.6
-cellsizex: 500
-cellsizey: 500
+cellsizex: 12.5
+cellsizey: 12.5
 W: 1.2e5
 L: 1.2e5
 Wf: 4e4

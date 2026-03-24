@@ -168,7 +168,6 @@ Sample simulation using a section
 
 ### Fields
 
-- `grid::AbstractGrid` -- Grid useed in the simulation
 - `temp::AbstractArray{Float64}` -- Temporary matrix used to calculate the section values
 - `mask::AbstractArray{Int8}` -- Temporary mask used to calculate the section values
 - `NT::Int` -- Number of section to sample
@@ -188,9 +187,8 @@ Sample simulation using a section
 
 -- `SectionSampler("dx", coord=0.0, axis="y", NT::Int, experiment::AbstractExperiment; gpu_id::Int=0)` -- Sample slip at all points where y=0.0
 """
-struct SectionSampler{G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractSampler
+struct SectionSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}} <: AbstractSampler
 
-    grid::G
     temp::M
     mask::B
 
@@ -203,10 +201,6 @@ struct SectionSampler{G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArr
 
 
     function SectionSampler(quantity::String, coord::Float64, axis::String, NT::Int, experiment::AbstractExperiment; gpu_id::Int=0)
-
-        # state = experiment.state
-        # stepper = algorithm.stepper
-
 
         grid = experiment.domain.grid
 
@@ -232,11 +226,11 @@ struct SectionSampler{G<:AbstractGrid, M<:AbstractArray{Float64}, B<:AbstractArr
 
         end
 
-        new{typeof(grid), typeof(temp), typeof(mask)}(grid, temp, mask, NT, Symbol(quantity), section, coord, axis)
+        new{typeof(temp), typeof(mask)}(temp, mask, NT, Symbol(quantity), section, coord, axis)
     end
 
-    function SectionSampler{G, M, B}(grid::G, temp::M, mask::B, NT, quantity, section, coord, axis) where {G,M,B}
-        new{G, M, B}(grid, temp, mask, NT, quantity, section, coord, axis)
+    function SectionSampler{M, B}(temp::M, mask::B, NT, quantity, section, coord, axis) where {M,B}
+        new{M, B}(temp, mask, NT, quantity, section, coord, axis)
     end
 
 

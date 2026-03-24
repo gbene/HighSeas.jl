@@ -227,11 +227,11 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
 
 end
 
-function plotSection(sectionSampler::SectionSampler, s_slip_freq=50, as_slip_freq=50, figdisplay=false)
+function plotSection(sectionSampler::SectionSampler, grid::AbstractGrid, s_slip_freq=50, as_slip_freq=50, figdisplay=false)
 
 
-    X = sectionSampler.grid.X
-    Y = sectionSampler.grid.Y
+    X = grid.X
+    Y = grid.Y
     section = sectionSampler.section
     seismic_slips = section[section[:,1] .> 1e-2, 2:end]
     aseismic_slips = section[section[:,1] .<= 1e-7, 2:end]

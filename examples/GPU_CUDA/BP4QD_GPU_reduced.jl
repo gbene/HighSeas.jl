@@ -27,10 +27,10 @@ plotDomain(domain, figdisplay=true)
 
 material = SimpleMaterial(input_dict)
 
-HighSeas.CheckLengthScales(material, domain, input_dict["si0"])
-# # Define the experiment
+# HighSeas.CheckLengthScales(material, domain, input_dict["si0"])
+# Define the experiment
 
-# experiment = BP4QDExp(input_dict, material, domain, 10, "BP4QD_out")
+experiment = BP4QDExp(input_dict, material, domain, 10, "BP4QD_out")
 # # experiment = BP4QDExp(input_dict, material, domain, 5, "BP4QD_out", saved_step)
 
 # # Define the Govenring equations
