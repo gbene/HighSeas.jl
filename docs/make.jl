@@ -1,4 +1,4 @@
-using Documenter, HighSeas, CairoMakie
+using Documenter, HighSeas
 
 pages = ["Home" => "index.md",
          "Basic function and Objects" => "basic.md",
