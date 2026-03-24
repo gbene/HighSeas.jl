@@ -45,10 +45,10 @@ export global_settings
 export State, Catalog
 export SimpleMaterial
 export Grid, PowerGrid, RectangleFault, RectanglePatch, CustomPatch, RectangleNucleation, Domain
-export ReadSheet, RandomState, get_backend, get_available_platforms, get_available_GPUplatforms, set_CPUbackend, set_GPUbackend
+export readSheet, RandomState, get_backend, get_available_platforms, get_available_GPUplatforms, set_CPUbackend, set_GPUbackend
 
 export BP4QDExp
-export StressFFT, AgeingLaw, ExplicitRate, LinearizedRate, HybridRate, GoverningEquations, DoubleError
+export StressFFT, AgeingLaw, SlipLaw, ExplicitRate, LinearizedRate, HybridRate, GoverningEquations, DoubleError
 export AdaptiveStepper
 export CustomNewtonSolver
 export EmptyDetector, SimpleDetector, CatalogDetector
@@ -56,7 +56,7 @@ export PointSampler, SectionSampler, ContourSampler, SamplerSaver
 export RSPlotter
 export StepSaver, CatalogSaver, SnaptshotSaver
 export loadData, loadSSH
-export TimeSolver, StepSolver
+export TimeSolver, StepSolver, solve
 
 
 

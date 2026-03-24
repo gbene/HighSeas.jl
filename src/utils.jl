@@ -1,16 +1,23 @@
 """
-memcopy(A::AbstractGPUArray)
-memcopy(A::AbstractArray, dev=0)
+      memcopy(A::AbstractGPUArray)
+      memcopy(A::AbstractArray, dev=0)
 
 Copy an array to and from GPU/CPU depending on the output data type.
 
-Overload this method with GPU specific Arrays using extensions
 
-# Examples
+### Examples
+
+```julia
 
 A = rand(256, 256)
 memcopy(A) # Copy A to the default device of an available backend
 memcopy(A, 1) # Copy A to device 1 of the available backend
+
+```
+### Note
+
+- Overload this method with GPU specific Arrays using extensions
+
 """
 memcopy(A::AbstractGPUArray{T,N}, dev_id::Int=0) where {T, N} = Array{T, N}(A)
 
@@ -41,8 +48,57 @@ end
 #       return T(v...)
 # end
 
+"""
+      readSheet(path_file::String)
 
-function ReadSheet(path_file::String)
+Read the input sheet
+
+### Inputs
+
+- `path_file::String` -- Path to the input sheet file to read
+
+### Outputs
+
+- Dictionary of values
+
+### Notes
+
+To use this function the input file must contain the following
+
+```markdown
++ fract             : increase for higher precisions (higher=slower)
++ tollo             : lower threashold for the error calculations
++ tollup            : upper threashold for the error calculations
++ cs                : shear wave velocity [m/s]
++ rho               : density [kg/m³]
++ nu                : poisson ratio
++ a                 : rate and state constant
++ b                 : rate and state constant
++ aRS               : "a" value for Rate Strengtening (RS)
++ si0               : value of constant (or initial) normal stress
++ Dc                : Characteristic length [m]
++ Vpl               : Velocity of the plate [m/s]
++ Vi                : Initial velocity [m/s]
++ Vr                : Reference velocity [m/s]
++ Vnu               : Nucleation velocity [m/s]
++ fr                : Reference friction
++ cellsize          : size of the cell (cell is always square) 
++ W                 : Width of the simulation domain
++ L                 : Length of the simulation domain
++ Wf                : Half-width of the fault
++ Lf                : Half-length of the fault
++ w                 : Half-width of the Rate Weakening (RW) patch
++ l                 : Half-length of the Rate Weakening (RW) patch
++ h                 : Buffer size between RW and RS (can be zero)
++ xi                : x center of the nucleation patch
++ yi                : y center of the nucleation patch
++ wi                : Half-width of the nucleation patch (can be zero)
++ li                : Half-length of the nucleation patch (can be zero)
++ tf                : final time to reach
+```
+
+"""
+function readSheet(path_file::String)
       input_dict = Dict{String, Any}()
       open(path_file) do f
             lines = readlines(f)
@@ -166,11 +222,11 @@ end
 
 """
 
-get_backend()
+      get_backend()
 
 Return the current backend used to perform the calculations.
 
-# Example
+### Example
 
 ```julia
 get_backend()
@@ -184,9 +240,10 @@ end
 
 
 """
+      get_available_platforms()
 Get the list of supported platforms that can be used for running the simulations
 
-# Example
+### Example
 
 ```julia
 get_available_platforms()
@@ -196,10 +253,12 @@ get_available_platforms()
 """
 get_available_platforms() = display(supported_platforms)
 
+
 """
+      get_available_GPUplatforms()
 Get the list of supported GPU platforms that can be used for running the simulations
 
-# Example
+### Example
 
 ```julia
 get_available_GPUplatforms()
@@ -211,11 +270,11 @@ get_available_GPUplatforms() = display(supported_GPU_platforms)
 
 
 """
-set_CPUbackend()
+      set_CPUbackend()
 
 Set the backend to CPU
 
-# Example
+### Example
 
 ```julia
 set_CPUbackend()
@@ -225,31 +284,49 @@ set_CPUbackend()
 """
 set_CPUbackend() = set_backend(CPUBackend())
 
+
+
 """
-set_GPUbackend()
+      set_GPUbackend()
 
 Set the backend to the available GPU. This is decided by the installed packages, i.e. if CUDA.jl is
 installed (and imported) then CUDA will be used. Only import one JuliaGPU package per script.
 **If no JuliaGPU package is loaded, this method will return a LoadError.**
 
-See the available GPU platforms by running get_available_GPUplatforms().
+See the available GPU platforms by running `get_available_GPUplatforms()`.
 
-# Example
+### Example
 
 ```julia
+using HighSeas
+using CUDA
+
 set_GPUbackend()
 
 >>> CUDA with CUDA.DeviceMemory will now be used
 ```
 
-# Notes
+```julia
+using HighSeas
+using AMDGPU
 
-Some GPU backends support UnifiedMemory (e.g. CUDA, ROCm, Metal). The default will always be DeviceMemory but
-users can choose UnifiedMemory by running ```set_GPUbackend("unified")```
+set_GPUbackend()
+
+>>> AMDGPU with AMDGPU.Runtime.Mem.HIPBuffer will now be used
+```
+
+
+### Notes
+
+Some GPU backends support UnifiedMemory (e.g. CUDA, Metal). The default will always be DeviceMemory but
+users can choose UnifiedMemory by running `set_GPUbackend("unified")`
 """
 function set_GPUbackend end
 
 
+"""
+Utility function to format and make the simulation output directory
+"""
 function make_outdir(start_time, output_dir)
 
     start_time = replace(start_time, ":"=>"_", "-"=>"_")

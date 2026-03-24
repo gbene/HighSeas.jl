@@ -38,21 +38,21 @@ Create the experiment object for the BP4QD benchmark. N_events sets the size of 
 
 ### Fields
 
-+ material::AbstractMaterial -- Material of the experiment
-+ domain::AbstractDomain -- Domain of the experiment
-+ start_time::String -- Start time of the experiment
-+ outpath::String -- Where to save the output of the simulations
-+ Vpl::Float64 -- Velocity of the plate (m/s)
-+ Vr::Float64 -- Reference velocity (m/s)
-+ Vi::Float64 -- Initial velocity (m/s)
-+ Vnu::Float64 -- Nucleation patch velocity (m/s)
-+ lengthscales::NamedTuple -- Calculated lengthscales (Lb, Linf, L/Linf)
-+ a::AbstractArray{Float64} -- Matrix of a values for rate and state
-+ b::AbstractArray{Float64} -- Matrix of b values for rate and state
-+ tau0::AbstractArray{Float64} -- Matrix of initial tau values for rate and state (Pa)
-+ si0::AbstractArray{Float64} -- Matrix of initial si for rate and state (Pa)
-+ state::AbstractState -- State of the simulation (this is not θ of the rate and state!!)
-+ catalog::AbstractCatalog -- Catalog of the simulation
++ `material::AbstractMaterial` -- Material of the experiment
++ `domain::AbstractDomain` -- Domain of the experiment
++ `start_time::String` -- Start time of the experiment
++ `outpath::String` -- Where to save the output of the simulations
++ `Vpl::Float64` -- Velocity of the plate (m/s)
++ `Vr::Float64` -- Reference velocity (m/s)
++ `Vi::Float64` -- Initial velocity (m/s)
++ `Vnu::Float64` -- Nucleation patch velocity (m/s)
++ `lengthscales::NamedTuple` -- Calculated lengthscales (Lb, Linf, L/Linf)
++ `a::AbstractArray{Float64}` -- Matrix of a values for rate and state
++ `b::AbstractArray{Float64}` -- Matrix of b values for rate and state
++ `tau0::AbstractArray{Float64}` -- Matrix of initial tau values for rate and state (Pa)
++ `si0::AbstractArray{Float64}` -- Matrix of initial si for rate and state (Pa)
++ `state::AbstractState` -- State of the simulation (this is not θ of the rate and state!!)
++ `catalog::AbstractCatalog` -- Catalog of the simulation
 
 
 ### Notes

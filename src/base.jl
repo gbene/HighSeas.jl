@@ -97,18 +97,18 @@ This object contains all the event information calculated during the simulation
 
 ### Fields
 
-- catalog::Matrix{Float64} -- Matrix representation of the catalog
-- max_events::Int -- Maximum number of catalog events (i.e. number of rows)
-- t::SubArray -- Time of rupter (in seconds)
-- interevent_time::SubArray -- Interevent time between (in seconds)
-- Moment::SubArray -- Moment released (in N⋅m)
-- mag::SubArray -- Magnitude using Hanks and Kanamori 1979
-- Area::SubArray -- Rupture area (m²)
-- MeanSlip::SubArray -- Mean slip in the rupture area (m)
-- MeanStress::SubArray -- Mean stress drop in the rupture area (Pa)
-- hypo_x::SubArray -- x coordinate of the event (m)
-- hypo_y::SubArray -- y coordinate of the event (m)
-- n_events::Int -- Numbe of recorded events
+- `catalog::Matrix{Float64}` -- Matrix representation of the catalog
+- `max_events::Int` -- Maximum number of catalog events (i.e. number of rows)
+- `t::SubArray` -- Time of rupter (in seconds)
+- `interevent_time::SubArray` -- Interevent time between (in seconds)
+- `Moment::SubArray` -- Moment released (in N⋅m)
+- `mag::SubArray` -- Magnitude using Hanks and Kanamori 1979
+- `Area::SubArray` -- Rupture area (m²)
+- `MeanSlip::SubArray` -- Mean slip in the rupture area (m)
+- `MeanStress::SubArray` -- Mean stress drop in the rupture area (Pa)
+- `hypo_x::SubArray` -- x coordinate of the event (m)
+- `hypo_y::SubArray` -- y coordinate of the event (m)
+- `n_events::Int` -- Numbe of recorded events
 
 
 

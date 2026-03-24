@@ -1,4 +1,27 @@
+"""
+    AdaptiveStepper <: AbstractAdaptiveStepper
 
+Adaptive dt stepping using double error metric.
+
+### Fields
+
+- `errorlaw::AbstractErrorLaw` -- Error law used to calculate the errors
+- `err::Float64` -- Current local error
+- `erra::Float64` -- Current absolute error
+- `tollo::Float64` -- Lower error tolerance
+- `tolup::Float64` -- Upper error tolerance
+- `mindt::Float64` -- Minimum dt 
+- `mintries::Int` -- Minimum number of tries for the Newton-Raphson step
+- `step::Int` -- Current step of the simulation
+- `dt::Float64` -- Current dt (s)
+- `time::Float64` -- Current time (s)
+- `breakcode::Bool` -- Breakcode for the Newton-Raphson step
+
+
+### Example
+
+- `AdaptiveStepper(input_dict::Dict, errorlaw::AbstractErrorLaw, mintries::Int=2)`
+"""
 mutable struct AdaptiveStepper{EL<:AbstractErrorLaw} <: AbstractAdaptiveStepper
 
     errorlaw::EL

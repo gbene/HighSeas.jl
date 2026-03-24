@@ -14,7 +14,7 @@ Create an ExplicitRate object to calculate explicitly the rate from the Rate and
 
 ### Notes
 
-- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+- When using GPUs, it is possible to decide where `V_mem` resides using `gpu_id`
 
 
 
@@ -64,7 +64,7 @@ expansion.
 
 ### Notes
 
-- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+- When using GPUs, it is possible to decide where `V_mem` reside using `gpu_id`
 
 ### Examples
 
