@@ -16,10 +16,10 @@ Analytical stress-slip relationship in the Fourier/wavenumber domain.
 
 ### Notes
 
-- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
-- We use rfft (https://juliamath.github.io/AbstractFFTs.jl/stable/api/#AbstractFFTs.rfft)
+- When using GPUs, it is possible to decide where the arrays reside using `gpu_id`
+- rfft (https://juliamath.github.io/AbstractFFTs.jl/stable/api/#AbstractFFTs.rfft) is used
 to be more memory efficient since we deal only with real numbers (i.e. slip can't be complex).
-Also we don't specify the strategy for finding a plan in FFTW because cuFFT ignores it so it is useless.
+- The FFTW strategy for finding a plan is not defined since cuFFT ignores it so it is useless.
 
 ### Examples
 

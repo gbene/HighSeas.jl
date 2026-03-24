@@ -10,16 +10,16 @@ Sample simulation at a given point
 
 ### Fields
 
-- mask::AbstractArray{Int8} -- Preallocated array used to define the point in the domain (1 only at the coordinate)
-- NT::Int -- Number of samples
-- dxs::Vector{Float64} -- Sampled values of slip (m)
-- Vs::Vector{Float64} -- Sampled values of slip rate (m/s)
-- thetas::Vector{Float64} -- Sampled values of θ
-- taus::Vector{Float64} -- Sampled values of τ (Pa)
-- times::Vector{Float64} -- Sampled times
-- sample_point_id::Int -- Id of the sample point
-- sample_point_x::Float64 -- x coord of the sample point (m)
-- sample_point_y::Float64 -- y coord of the sample point (m)
+- `mask::AbstractArray{Int8}` -- Preallocated array used to define the point in the domain (1 only at the coordinate)
+- `NT::Int` -- Number of samples
+- `dxs::Vector{Float64}` -- Sampled values of slip (m)
+- `Vs::Vector{Float64}` -- Sampled values of slip rate (m/s)
+- `thetas::Vector{Float64}` -- Sampled values of θ
+- `taus::Vector{Float64}` -- Sampled values of τ (Pa)
+- `times::Vector{Float64}` -- Sampled times
+- `sample_point_id::Int` -- Id of the sample point
+- `sample_point_x::Float64` -- x coord of the sample point (m)
+- `sample_point_y::Float64` -- y coord of the sample point (m)
 
 ### Notes
 

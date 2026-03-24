@@ -6,12 +6,12 @@ Create an AgeingLaw object to use the ageing law for calculating the state in th
 
 ### Fields
 
-+ Dc::Float64 -- Dc value
-+ theta_mem::AbstractArray{Float64} -- This is the memory matrix in which the result is saved
++ `Dc::Float64` -- Dc value
++ `theta_mem::AbstractArray{Float64}` -- This is the memory matrix in which the result is saved
 
 ### Notes
 
-- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+- When using GPUs, it is possible to decide where `theta_mem` resides using `gpu_id`
 
 ### Examples
 
@@ -59,7 +59,7 @@ Create an SlipLaw object to use the slip law for calculating the state in the ra
 
 ### Notes
 
-- When using GPUs, it is possible to decide where the masks reside using `gpu_id`
+- When using GPUs, it is possible to decide where `theta_mem` resides using `gpu_id`
 
 ### Examples
 

@@ -138,8 +138,7 @@ end
     solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver, plotter::LivePlotter)
 
 
-Solve the problem in a limited number of steps or time with optional live plotting
-
+Solve the problem controlling either the number of steps or time.
 ### Arguments
 
 - `experiment::AbstractExperiment` -- Experimental setup to solve
@@ -149,6 +148,7 @@ Solve the problem in a limited number of steps or time with optional live plotti
 
 ### Notes
 
+- There is the possibility of live plotting by passing a LivePlotter object to the function
 - When using GPUs live plotting is supported only with set_GPUbackend("unified")
 
 

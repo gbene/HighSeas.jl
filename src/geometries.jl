@@ -5,17 +5,17 @@ Create a grid object.
 
 ### Fields
 
-+ cell_sizex::Float64 -- Size of the cell along x (m)
-+ cell_sizey::Float64 -- Size of the cell along y (m)
-+ cell_area::Float64 -- Area of the cell
-+ W::Float64 -- length of the entire domain
-+ L::Float64 -- width of the entire domain
-+ n_elementsx::Int -- number of elements on the x dimension
-+ n_elementsy::Int -- number of elements on the y dimension
-+ X::StepRangeLen -- X range
-+ Y::StepRangeLen -- Y range
-+ x::M -- x coordinates mesh
-+ y::M -- y coordinates mesh
++ `cell_sizex::Float64` -- Size of the cell along x (m)
++ `cell_sizey::Float64` -- Size of the cell along y (m)
++ `cell_area::Float64` -- Area of the cell
++ `W::Float64` -- width of the entire domain
++ `L::Float64` -- length of the entire domain
++ `n_elementsx::Int` -- number of elements on the x dimension
++ `n_elementsy::Int` -- number of elements on the y dimension
++ `X::StepRangeLen` -- X range
++ `Y::StepRangeLen` -- Y range
++ `x::AbstractArray{Float64}` -- x coordinates array
++ `y::AbstractArray{Float64}` -- y coordinates array
 
 
 ### Examples
@@ -29,8 +29,8 @@ struct Grid{M<:AbstractArray{Float64}} <: AbstractGrid
     cell_sizey::Float64
 
     cell_area::Float64
-    W::Float64    # length of the entire domain
-    L::Float64    # width of the entire domain
+    W::Float64    # width of the entire domain
+    L::Float64    # length of the entire domain
 
     n_elementsx::Int # number of elements on the x dimension
     n_elementsy::Int # number of elements on the y dimension
@@ -86,19 +86,19 @@ Create a grid object in which cells are square and the number of elements in the
 
 ### Fields
 
-+ cell_sizex::Float64
-+ cell_sizey::Float64
-+ cell_area::Float64
-+ W::Float64                # length of the entire domain
-+ L::Float64                # width of the entire domain
-+ domain_powerx::Int        #Power of 2 along the x dimension
-+ domain_powery::Int        #Power of 2 along the y dimension
-+ n_elementsx::Int          # number of elements on the x dimension
-+ n_elementsy::Int          # number of elements on the y dimension
-+ X::StepRangeLen           # X range
-+ Y::StepRangeLen           # Y range
-+ x::M                      # x coordinates mesh
-+ y::M                      # y coordinates mesh
++ `cell_sizex::Float64` -- Size of the cell along x (m)
++ `cell_sizey::Float64` -- Size of the cell along y (m)
++ `cell_area::Float64`  -- Area of the cell (m2)
++ `W::Float64` -- width of the entire domain
++ `L::Float64` -- length of the entire domain
++ `domain_powerx::Int` -- Power of 2 along the x dimension
++ `domain_powery::Int` -- Power of 2 along the y dimension
++ `n_elementsx::Int` -- number of elements on the x dimension
++ `n_elementsy::Int` -- number of elements on the y dimension
++ `X::StepRangeLen` -- X range
++ `Y::StepRangeLen` -- Y range
++ `x::AbstractArray{Float64}` -- x coordinates array
++ `y::AbstractArray{Float64}` -- y coordinates array
 
 ### Notes
 
@@ -116,8 +116,8 @@ struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
 
     cell_area::Float64
 
-    W::Float64    # length of the entire domain
-    L::Float64    # width of the entire domain
+    W::Float64    # width of the entire domain
+    L::Float64    # length of the entire domain
 
 
     domain_powerx::Int #Power of 2 along the x dimension
@@ -186,10 +186,10 @@ Create a rectangular fault
 
 ### Fields
 
-+ Wf::Float64 -- half width of the fault
-+ Lf::Float64 -- half length of the fault
-+ dLO::AbstractArray{Int8} --  Mask indicating the loading area
-+ dCR::AbstractArray{Int8} -- Mask indicating the creeping region
++ `Wf::Float64` -- half width of the fault
++ `Lf::Float64` -- half length of the fault
++ `dLO::AbstractArray{Int8}` --  Mask indicating the loading area
++ `dCR::AbstractArray{Int8}` -- Mask indicating the creeping region
 
 ### Notes
 
@@ -244,12 +244,12 @@ Create a rectangular slip patch
 
 # Attributes
 
-+ w::Float64 -- half width of the rate weakening zone
-+ l::Float64 -- half length of the rate weakening zone
-+ h::Float64 -- Buffer between RW and RS
-+ dRW::AbstractArray{Int8} -- Mask indicating the rate weakening zone
-+ dRS::AbstractArray{Int8} -- Mask indicating the rate strengthening zone
-+ dTR::AbstractArray{Int8} -- Mask indicating the transition between RS and RW
++ `w::Float64` -- half width of the rate weakening zone
++ `l::Float64` -- half length of the rate weakening zone
++ `h::Float64` -- Buffer between RW and RS
++ `dRW::AbstractArray{Int8}` -- Mask indicating the rate weakening zone
++ `dRS::AbstractArray{Int8}` -- Mask indicating the rate strengthening zone
++ `dTR::AbstractArray{Int8}` -- Mask indicating the transition between RS and RW
 
 ### Notes
 
@@ -311,12 +311,12 @@ Create a custom slip patch object using coordinates of a polygon.
 
 ### Fields
 
-+ w::Float64  # half width of the rate weakening zone
-+ l::Float64  # half length of the rate weakening zone
-+ h::Float64  # Buffer between RW and RS
-+ dRW::AbstractArray{Int8} # Mask indicating the rate weakening zone
-+ dRS::AbstractArray{Int8} # Mask indicating the rate strengthening zone
-+ dTR::AbstractArray{Int8} # Mask indicating the transition between RS and RW
++ `w::Float64` -- half width of the rate weakening zone
++ `l::Float64` -- half length of the rate weakening zone
++ `h::Float64` -- Buffer between RW and RS
++ `dRW::AbstractArray{Int8}` -- Mask indicating the rate weakening zone
++ `dRS::AbstractArray{Int8}` -- Mask indicating the rate strengthening zone
++ `dTR::AbstractArray{Int8}` -- Mask indicating the transition between RS and RW
 
 ### Notes
 
@@ -574,10 +574,10 @@ Create the domain object.
 ### Attributes
 
 
-- grid::AbstractGrid
-- fault::AbstractFault
-- patch::AbstractPatch
-- nucleation::AbstractNucleation
+- `grid::AbstractGrid` -- Grid object
+- `fault::AbstractFault` -- Fault object
+- `patch::AbstractPatch` -- Rate weakening patch object
+- `nucleation::AbstractNucleation` -- Nucleation patch object
 
 ### Notes
 

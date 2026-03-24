@@ -8,16 +8,16 @@ Create a simple material
 ### Fields
 
 
-+ cs::Float64 -- Shear wave speed
-+ rho::Float64 -- Density
-+ nu::Float64 -- Poissons ratio
-+ a::Float64 -- a value of the rate weakening part
-+ aRs::Float64 -- a value of the rate strengthening part
-+ b::Float64 -- b value of rate and state
-+ fr::Float64 -- Reference friction coefficient
-+ G::Float64 -- Youngs modulus
-+ eta::Float64 -- Radiation damping coefficient
-+ Dc::Float64 -- Characteristic state evolution distance
++ `cs::Float64` -- Shear wave speed
++ `rho::Float64` -- Density
++ `nu::Float64` -- Poissons ratio
++ `a::Float64` -- a value of the rate weakening part
++ `aRs::Float64` -- a value of the rate strengthening part
++ `b::Float64` -- b value of rate and state
++ `fr::Float64` -- Reference friction coefficient
++ `G::Float64` -- Youngs modulus
++ `eta::Float64` -- Radiation damping coefficient
++ `Dc::Float64` -- Characteristic state evolution distance
 
 
 ### Examples

@@ -7,9 +7,9 @@ Commodity function used by the detectors to print an start event message
 
 ### Input
 
-- eventN -- Number of the event
-- time -- time of the event (in s)
-- file -- Output file of where to append the message
+- `eventN` -- Number of the event
+- `time` -- time of the event (in s)
+- `file` -- Output file of where to append the message
 """
 function start_event_message(eventN, time, file)
     msg = "$(string(now())) event $eventN has started, time: $(time/(365*24*60*60))"
@@ -30,8 +30,8 @@ Commodity function used by the detectors to print an end event message, optional
 
 ### Input
 
-- mag -- Magnitude of the event
-- file -- Output file of where to append the message
+- `mag` -- Magnitude of the event
+- `file` -- Output file of where to append the message
 """
 function end_event_message(mag, file)
     msg = "$(string(now())) Event has ended, mag: $mag"
@@ -72,13 +72,13 @@ Simple detector that just prints a message and logs the event in the simulation.
 
 ### Fields
 
-- eventStart::Bool -- Flag used to define if the event has started or not
-- eventN::Int -- Event number
-- minVThresh::Float64 -- Minimum slip rate threshold to define the **END** of the event
-- maxVThresh::Float64 -- Maximum slip rate threshold to define the **START** of the event
-- state::AbstractState -- State of the simulation
-- stepper::AbstractStepper -- Stepper used in the simulation
-- log_file::String -- Path of where to log possible console outputs
+- `eventStart::Bool` -- Flag used to define if the event has started or not
+- `eventN::Int` -- Event number
+- `minVThresh::Float64` -- Minimum slip rate threshold to define the **END** of the event
+- `maxVThresh::Float64` -- Maximum slip rate threshold to define the **START** of the event
+- `state::AbstractState` -- State of the simulation
+- `stepper::AbstractStepper` -- Stepper used in the simulation
+- `log_file::String` -- Path of where to log possible console outputs
 
 ### Notes
 
