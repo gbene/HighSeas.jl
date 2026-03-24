@@ -89,34 +89,13 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
     Vr::Float64
     Vi::Float64
     Vnu::Float64
-    # si::Float64
 
     lengthscales::NamedTuple
 
-    # template::M # not sure if this is necessary or not
     a::F
     b::F
     tau0::F
     si0::F
-
-
-    # These are the values that are then updated at every step
-    # I have put it here but I am still not super sure if it is the right place.
-    # I was thinking on the lines of "imagine that we have an experimental setup that can measure these quantities"
-    # i.e. here in AbstractExperiments
-
-    # As of now I have added two init possibilities. The first that calculates the initial values
-    # the second that gets the initial values. This will help I think in the future for resuming the simulation at a give step
-    # Maybe intead of passing the single arrays we could pass a struct? Need to think about it
-
-    # Update: Seems to be nice and clean. We can reference the single variables in the state struct as soft copies (pointing to the same memory)
-    # Thus we can use them no problem in the different laws and it updates the values in the state struct.
-
-    # dx::AbstractArray{Float64}
-    # V::AbstractArray{Float64}
-    # theta::AbstractArray{Float64}
-    # tau::AbstractArray{Float64}
-    # dt::Float64
 
     state::S
     catalog::C
@@ -207,7 +186,15 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
                 write(file, "Experiment start time: $start_time \n")
                 write(file, "================================================================\n")
                 for k in sort!(collect(keys(input_dict)))
-                        write(file, "$k: $(input_dict[k])\n")
+                    value = input_dict[k]
+                    value_string = "$value"
+                    if (k == "W") | (k=="L")
+                        grid_value = getproperty(grid, Symbol(k))
+                        if value != grid_value
+                            value_string = "$grid_value #target was $value"
+                        end
+                    end
+                    write(file, "$k: $value_string\n")
                 end
                 write(file, "================================================================\n")
                 write(file, "$(string(lengthscales))\n")
@@ -234,8 +221,6 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
         Vr                = input_dict["Vr"]
         Vnu               = input_dict["Vnu"]
         si                = input_dict["si0"]
-        Dc                = input_dict["Dc"]
-
 
         grid = domain.grid
         patch = domain.patch

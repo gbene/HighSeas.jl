@@ -17,6 +17,7 @@ using Fractalizer
 
 
 include("abstracttypes.jl")
+include("macros.jl")
 include("base.jl")
 include("backends.jl")
 include("materials.jl")
@@ -53,7 +54,7 @@ export AdaptiveStepper
 export CustomNewtonSolver
 export EmptyDetector, SimpleDetector, CatalogDetector
 export PointSampler, SectionSampler, ContourSampler, SamplerSaver
-export RSPlotter
+export RSPlotter, plotDomain
 export StepSaver, CatalogSaver, SnaptshotSaver
 export loadData, loadSSH
 export TimeSolver, StepSolver, solve

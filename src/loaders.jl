@@ -155,5 +155,5 @@ function loadSSH(url, username, private_file, public_file, path)
 
 
     data  = load(SFTPClient.download(sftp, path))["data"]
-    return loadData(data)
+    return data
 end

@@ -326,7 +326,7 @@ mutable struct ContourSampler{M<:AbstractArray{Float64}, B<:AbstractArray{Int8}}
             # temp    = memcopy(temp)
         end
 
-        quantity = Sumbol(quantity)
+        quantity = Symbol(quantity)
 
         new{typeof(contour), typeof(mask)}(contour, mask, thresh, first_contour, t_fc, quantity)
     end
@@ -369,7 +369,7 @@ end
 
 
 
-function sample(sampler::AbstractSampler, stepper, state)
+function sample(sampler::AbstractSampler, stepper, state, eventN::Int)
 
     if typeof(sampler) != EmptySampler
         sampler(stepper, state)

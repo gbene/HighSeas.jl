@@ -1,0 +1,32 @@
+# ==================== input variables sheet ====================
+
+fract: 2
+tollo: 0.5e-3
+tolup: 5.0e-3
+cs: 3464
+rho: 2670
+nu: 0.25
+a: 0.0065
+aRS: 0.025
+b: 0.013
+si0: 5e7
+Dc: 0.0001
+Vpl: 1.0e-9
+Vi: 1.0e-9
+Vr: 1.0e-6
+Vnu: 1e-3
+fr: 0.6
+cellsizex: 1.5
+cellsizey: 1.5
+W: 1.2e5
+L: 1.2e5
+Wf: 4e4
+Lf: 6.4e4
+w: 1.5e4
+l: 3e4
+h: 3e3
+xi: -2.25e4
+yi: -7.5e3
+wi: 1.2e4
+li: 1.2e4
+tf: 1500
