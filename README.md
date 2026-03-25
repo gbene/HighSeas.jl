@@ -19,24 +19,25 @@ Users are encouraged to use environments but it is not necessary.
 
 Look at the examples folder for a complete example on how to use the library. Crude docs will eventually come. 
 
-To run the examples, cd in the examples directory and do either
+To run the examples, cd in the examples/CPU or GPU_CUDA directory and do either
 
 ```bash
-julia --project=CPU --threads auto BP4QD.jl
+julia --project=. --threads auto BP4QD.jl
 ```
 to run on CPU
 
 or
 ```bash
-julia --project=Cuda --threads auto BP4QD_GPU.jl
+julia --project=. --threads auto BP4QD_GPU.jl
 ```
 to run on GPU (CUDA)
 
 Before trying both it is suggested to look at the code to understand what is being saved.
 
-Then to plot the results, run ```BP4QD_plot.jl``` in an active REPL.
+Then to plot the results, cd in examples/Plots and run an active REPL.
+
 ```bash
-julia --project=CPU --threads auto 
+julia --project=. --threads auto 
 ```
 then
 
@@ -47,7 +48,7 @@ include("BP4QD_plot.jl")
 To display the figure run
 
 ```julia
-display(sampfig) # or the other var names 
+eventfig # or the other var names 
 ```
 
 # How to cite
@@ -56,7 +57,7 @@ If you use this code please cite our work!
 
 [add eventual citation here]
 
-# Who to thank
+# Acknowledgments
 
 + JuliaGPU: https://juliagpu.org/
 + FFTW: 
@@ -65,4 +66,3 @@ If you use this code please cite our work!
     + https://github.com/JuliaMath/FFTW.jl
 + FastBroadcast.jl: https://github.com/YingboMa/FastBroadcast.jl
 + Ylse Anna de Vries for the name of the package: https://github.com/ylseanna
-+ Others?
