@@ -51,6 +51,8 @@ To display the figure run
 eventfig # or the other var names 
 ```
 
+You can also find a MATLAB script version in `examples/resources/MATLAB`
+
 # References
 
 If you use this code please cite our work!

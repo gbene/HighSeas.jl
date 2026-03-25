@@ -1,0 +1,29 @@
+# ==================== input variables sheet ====================
+
+AL: 1
+fract: 4
+miniter: 1
+tollo: 0.5e-3
+tolup: 5.0e-3
+
+rho: 2670
+cs: 3464
+nu: 0.25
+a: 0.0065
+aRS: 0.025
+b: 0.013
+si0: 5e7
+Dc: 0.04
+Vp: 1.0e-9
+Vi: 1.0e-9
+Vr: 1.0e-6
+fr: 0.6
+H: 1.5e4
+L: 3e4
+h: 3e3
+Wf: 4e4
+gridside: 500
+tf: 1500
+wi: 1.2e4
+hi: 1.5e3
+
