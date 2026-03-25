@@ -57,7 +57,7 @@ If you use this code please cite our work!
 
 [add eventual citation here]
 
-# Acknowledgments
+# Acknowledgement
 
 + JuliaGPU: https://juliagpu.org/
 + FFTW: 
