@@ -2,7 +2,7 @@ name: Dev documentation
 
 on:
   workflow_dispatch:
-    branches: ["main", "dev"]
+    branches: ["dev"]
 
 jobs:
   build:
