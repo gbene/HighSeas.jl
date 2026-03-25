@@ -19,18 +19,18 @@ Users are encouraged to use environments but it is not necessary.
 
 Look at the examples folder for a complete example on how to use the library. Crude docs will eventually come. 
 
-To run the examples, cd in the examples/CPU or GPU_CUDA directory and do either
+To run the examples, cd in examples/CPU and do
 
 ```bash
 julia --project=. --threads auto BP4QD.jl
 ```
 to run on CPU
 
-or
+or cd in examples/GPU_CUDA and do 
 ```bash
 julia --project=. --threads auto BP4QD_GPU.jl
 ```
-to run on GPU (CUDA)
+to run on GPU (CUDA).
 
 Before trying both it is suggested to look at the code to understand what is being saved.
 
@@ -57,7 +57,7 @@ If you use this code please cite our work!
 
 [add eventual citation here]
 
-# Acknowledgments
+# Acknowledgement
 
 + JuliaGPU: https://juliagpu.org/
 + FFTW: 
