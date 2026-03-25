@@ -51,13 +51,19 @@ To display the figure run
 eventfig # or the other var names 
 ```
 
-# How to cite
+# References
 
 If you use this code please cite our work!
 
-[add eventual citation here]
+Benedetti, G., Heimisson, E. R. (2026, in preparation). _HighSeas.jl Accelerating rate and state simulations with GPUs_
 
 # Acknowledgments
+
+## Funding
+This work was supported by Rannís IRF grant no. 2410397-051
+
+## Libraries
+We use many libraries of the Julia ecosystem and we thank all of them! These are the main ones that made this project possible
 
 + JuliaGPU: [https://juliagpu.org/](https://juliagpu.org/)
 + FFTW: 
@@ -65,4 +71,8 @@ If you use this code please cite our work!
     + [https://github.com/JuliaMath/AbstractFFTs.jl](https://github.com/JuliaMath/AbstractFFTs.jl)
     + [https://github.com/JuliaMath/FFTW.jl](https://github.com/JuliaMath/FFTW.jl])
 + FastBroadcast.jl: [https://github.com/YingboMa/FastBroadcast.jl](https://github.com/YingboMa/FastBroadcast.jl)
+
+## People
++ Elías Rafn Heimisson for desining the solver and providing constant support:  [https://github.com/eliasrh](https://github.com/eliasrh)
 + Ylse Anna de Vries for the name of the package: [https://github.com/ylseanna](https://github.com/ylseanna)
+
