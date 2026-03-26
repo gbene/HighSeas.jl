@@ -66,35 +66,35 @@ Read the input sheet
 To use this function the input file must contain the following
 
 ```markdown
-+ fract             : increase for higher precisions (higher=slower)
-+ tollo             : lower threashold for the error calculations
-+ tollup            : upper threashold for the error calculations
-+ cs                : shear wave velocity [m/s]
-+ rho               : density [kg/m³]
-+ nu                : poisson ratio
-+ a                 : rate and state constant
-+ b                 : rate and state constant
-+ aRS               : "a" value for Rate Strengtening (RS)
-+ si0               : value of constant (or initial) normal stress
-+ Dc                : Characteristic length [m]
-+ Vpl               : Velocity of the plate [m/s]
-+ Vi                : Initial velocity [m/s]
-+ Vr                : Reference velocity [m/s]
-+ Vnu               : Nucleation velocity [m/s]
-+ fr                : Reference friction
-+ cellsize          : size of the cell (cell is always square) 
-+ W                 : Width of the simulation domain
-+ L                 : Length of the simulation domain
-+ Wf                : Half-width of the fault
-+ Lf                : Half-length of the fault
-+ w                 : Half-width of the Rate Weakening (RW) patch
-+ l                 : Half-length of the Rate Weakening (RW) patch
-+ h                 : Buffer size between RW and RS (can be zero)
-+ xi                : x center of the nucleation patch
-+ yi                : y center of the nucleation patch
-+ wi                : Half-width of the nucleation patch (can be zero)
-+ li                : Half-length of the nucleation patch (can be zero)
-+ tf                : final time to reach
++ fract                            : increase for higher precisions (higher=slower)
++ tollo                            : lower threashold for the error calculations
++ tollup                           : upper threashold for the error calculations
++ cs                               : shear wave velocity [m/s]
++ rho                              : density [kg/m³]
++ nu                               : poisson ratio
++ a                                : rate and state constant
++ b                                : rate and state constant
++ aRS                              : "a" value for Rate Strengtening (RS)
++ si0                              : value of constant (or initial) normal stress
++ Dc                               : Characteristic length [m]
++ Vpl                              : Velocity of the plate [m/s]
++ Vi                               : Initial velocity [m/s]
++ Vr                               : Reference velocity [m/s]
++ Vnu                              : Nucleation velocity [m/s]
++ fr                               : Reference friction
++ n_nodes/dp                       : Number of nodes along x and y. When using PowerGrid use dp (domainpower), i.e. 12 for 2^12 nodes. 
++ W                                : Width of the simulation domain
++ L                                : Length of the simulation domain
++ Wf                               : Half-width of the fault
++ Lf                               : Half-length of the fault
++ w                                : Half-width of the Rate Weakening (RW) patch
++ l                                : Half-length of the Rate Weakening (RW) patch
++ h                                : Buffer size between RW and RS (can be zero)
++ xi                               : x center of the nucleation patch
++ yi                               : y center of the nucleation patch
++ wi                               : Half-width of the nucleation patch (can be zero)
++ li                               : Half-length of the nucleation patch (can be zero)
++ tf                               : final time to reach
 ```
 
 """

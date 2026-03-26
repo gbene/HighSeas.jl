@@ -137,20 +137,41 @@ struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
     Wratio::Float64
     function PowerGrid(input_dict::Dict)
 
-        cell_sizex     = input_dict["cellsizex"]
-        cell_sizey     = input_dict["cellsizey"]
-
-        @assert cell_sizex === cell_sizey "Cell is not square!"
-
         L             = input_dict["L"]
         W             = input_dict["W"]
 
+        cell_sizex = 0.
+        cell_sizey = 0.
+        domain_powerx = 0
+        domain_powery = 0
 
-        domain_powerx  = round(Int, log2(L/cell_sizex))
-        domain_powery  = round(Int, log2(W/cell_sizey))
+        if "dpx" in keys(input_dict)
+            domain_powerx = Int(input_dict["dpx"])
+            domain_powery = Int(input_dict["dpy"])
+
+            cell_sizex = L/2^domain_powerx
+            cell_sizey = W/2^domain_powery
+
+            input_dict["cellsizex"] = cell_sizex
+            input_dict["cellsizey"] = cell_sizey
+        elseif "cellsizex" in keys(input_dict)
+            cell_sizex     = input_dict["cellsizex"]
+            cell_sizey     = input_dict["cellsizey"]
+
+            domain_powerx  = round(Int, log2(L/cell_sizex))
+            domain_powery  = round(Int, log2(W/cell_sizey))
+            
+            input_dict["dpx"] = domain_powerx
+            input_dict["dpy"] = domain_powery
+            println("Fixed cell size will return a different domain size: $(cell_sizex*2^domain_powerx) x $(cell_sizey*2^domain_powery)")
+
+        end
 
         n_elementsx   = 2^domain_powerx
         n_elementsy   = 2^domain_powery
+
+
+        @assert cell_sizex === cell_sizey "Cell is not square!"
 
         L_domain = (cell_sizex*n_elementsx)
         W_domain = (cell_sizey*n_elementsy)
