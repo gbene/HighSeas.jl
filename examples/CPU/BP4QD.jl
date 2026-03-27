@@ -4,7 +4,7 @@ using BenchmarkTools
 # using CairoMakie
 # using GLMakie
 
-input_dict = ReadSheet("BP4input.txt")
+input_dict = readSheet("BP4input.txt")
 # saved_state, step, time = load("BP4QD_out/2026-02-12T11:16:16.270/CPU/saved_StepSaver.jld2")["data"]
 
 # Define the domain

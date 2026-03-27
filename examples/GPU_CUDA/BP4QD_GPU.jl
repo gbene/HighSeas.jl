@@ -6,7 +6,7 @@ using BenchmarkTools
 
 
 set_GPUbackend() # To use UnifiedMemory add "unified" as the method argument. Default is DeviceMemory. AMDGPU ony supports DeviceMemory
-input_dict = ReadSheet("BP4input.txt")
+input_dict = readSheet("BP4input.txt")
 
 # Define the domain
 
