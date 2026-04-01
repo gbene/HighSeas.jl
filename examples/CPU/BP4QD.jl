@@ -98,12 +98,5 @@ tf = input_dict["tf"]*(365*24*60*60)
 solver = TimeSolver(tf, savers, detector)
 
 # Solve
-# HighSeas.solve(experiment, algorithm, solver)
-
-# add plotter to plot
-# HighSeas.solve(experiment, algorithm, solver)
-
-HighSeas.benchmarksolve(experiment, algorithm, 100, true)
-
-# b = @benchmark HighSeas.benchmarksolve(experiment, algorithm, 100)
-# display(b)
+HighSeas.solve(experiment, algorithm, solver)
+# HighSeas.solve(experiment, algorithm, solver, plotter)

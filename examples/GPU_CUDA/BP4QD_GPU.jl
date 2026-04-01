@@ -92,7 +92,7 @@ savers = [stepsaver, catalogsaver, samplersaver]
 # Define the solver (i.e. use definite steps or time?)
 tf = input_dict["tf"]*(365*24*60*60)
 
-# solver = TimeSolver(tf, savers, detector)
+# solver = StepSolver(1, savers, detector)
 solver = TimeSolver(tf, savers, detector, samplers)
 
 # Solve

@@ -193,8 +193,8 @@ function GR(data)
     return data_sort, N/maximum(N)
 end
 
-input_dict = ReadSheet("GPU_CUDA/BP4input.txt")
-reduced_input_dict = ReadSheet("GPU_CUDA/BP4input_reduced.txt", factor=14)
+input_dict = readSheet("../GPU_CUDA/BP4input.txt")
+reduced_input_dict = readSheet("../GPU_CUDA/BP4input_reduced.txt", factor=14)
 c_input_dict = copy(input_dict)
 points = [[3e4, 3e4, -3e4, -3e4, 3e4] [1.5e4, -1.5e4, -1.5e4, 1.5e4, 1.5e4]] #RW patch points
 np1 = NoiseParams(0.05:0.01:0.07, 1.0:1:10, -10.0:1:10.0, 100, 4, 10, seeds=[6442887322735277629, -8987213128142308954, -333252884332351366, 8464945807962482870])
@@ -229,10 +229,19 @@ sample_point = 8
 # samplers = loadData("temp/2026_03_02T13_15_40.517/CUDA/saved_SamplerSaver.jld2") # frac 3
 # samplers = loadData("temp/2026_03_02T13_10_19.489/CUDA/saved_SamplerSaver.jld2") # frac 4
 # samplers = loadData("temp/2026_03_02T13_10_19.489/CUDA/saved_SamplerSaver.jld2") # frac 5
-samplers = loadData("GPU_CUDA/BP4QD_out/2026_03_23T10_19_03.434/CUDA/saved_SamplerSaver.jld2")
+# samplers = loadData("../GPU_CUDA/BP4QD_out/2026_03_23T10_19_03.434/CUDA/saved_SamplerSaver.jld2")
+
+# # samplers = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T14_31_03.940/CUDA/saved_SamplerSaver.jld2")
+# # samplers = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T14_50_55.616/CUDA/saved_SamplerSaver.jld2")
+# samplers = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T15_00_26.360/CUDA/saved_SamplerSaver.jld2")
+
+samplers = loadData("../GPU_CUDA/BP4QD_out/2026_03_31T16_06_16.866/CUDA/saved_SamplerSaver.jld2")
 
 
-catalog = loadData("GPU_CUDA/BP4QD_out/2026_03_18T15_15_51.609/CUDA/saved_CatalogSaver.jld2")
+# catalog = loadData("../GPU_CUDA/BP4QD_out/2026_03_18T15_15_51.609/CUDA/saved_CatalogSaver.jld2")
+# catalog = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T14_31_03.940/CUDA/saved_CatalogSaver.jld2")
+# catalog = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T14_50_55.616/CUDA/saved_CatalogSaver.jld2")
+catalog = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T15_00_26.360/CUDA/saved_CatalogSaver.jld2")
 
 
 bench8 = catalog
@@ -268,16 +277,16 @@ real_idx = [1, 4, 2, 5, 3, 6, 7]
 
 min_mag = zeros(6)
 
-barbot_data = CSV.File(open("resources/scec/barbot.6/b6_rupture.csv"))
-cheng_data = CSV.File(open("resources/scec/cheng/contour.csv"))
+barbot_data = CSV.File(open("../resources/scec/barbot.6/b6_rupture.csv"))
+cheng_data = CSV.File(open("../resources/scec/cheng/contour.csv"))
 
-lambert_data = CSV.File(open("resources/scec/lambert/contour.csv"))
-ozawa_data = CSV.File(open("resources/scec/ozawa/contour.csv"))
+lambert_data = CSV.File(open("../resources/scec/lambert/contour.csv"))
+ozawa_data = CSV.File(open("../resources/scec/ozawa/contour.csv"))
 
 
 barbot_data.t[barbot_data.t .== 0.] .= 1e9
 
-sampfig, sampax = HighSeas.plotPointSample(samplers.samplers[sample_point], "resources/scec/", "slip_rate_2", "Vs", log10)
+sampfig, sampax = HighSeas.plotPointSample(samplers.samplers[sample_point], "../resources/scec/", "slip_rate_2", "Vs", log10)
 
 secfig, secax = HighSeas.plotSection(samplers.samplers[15], grid, 50, 150)
 
@@ -300,7 +309,7 @@ eventfig = Figure(size=(1924,1080))
 slipfig = Figure(size=(1924,1080))
 
 grfig = Figure(size=(1924, 1080))
-grax = Axis(grfig[1,1], aspect=DataAspect(), title="GR distribution for partial ruptures", ylabel="Magnitudes", xlabel="Dc [m]", xticks=([1, 2.5, 4], ["0.005", "0.0025", "0.0007"]))
+grax = Axis(grfig[1,1], aspect=DataAspect(), title="GR distribution for partial ruptures", ylabel="Dc [m]", xlabel="Magnitudes", yticks=([1, 2.5, 4], ["0.005", "0.0025", "0.0007"]))
 
 # hideydecorations!(grax)
 
@@ -352,22 +361,44 @@ for i in eachindex(k)
         axslip = Axis(slipfig[indices[i][1],indices[i][2]], title="Dc: $dc m")
 
         if parse(Float64, dc) < 0.01
-            if parse(Float64, dc) == 0.005
-                complete_events = partialevents[partialevents .>= 6]
-            else
-                complete_events=partialevents
+            mags, norm_vals = GR(partialevents)
+
+            fig_mags = copy(mags)
+            fit_norm_vals = copy(norm_vals)
+            mask_mags = mags .>= minimum(mags)
+            if parse(Float64, dc) == 0.0007
+                mask_mags = 5.25 .< mags .< 6.35
+            elseif parse(Float64, dc) == 0.0025
+                mask_mags = 5.5 .< mags
+            elseif parse(Float64, dc) == 0.005
+                mask_mags = 6 .< mags
             end
 
-            mags, norm_vals = GR(partialevents)
-            fit = fitlinear(mags, norm_vals)
+            fit_norm_vals = norm_vals[mask_mags]
+            fig_mags = mags[mask_mags]
+            fit = fitlinear(fig_mags, fit_norm_vals)
             b_val = round(fit.a,digits=2)
             Rsq = round(fit.R2,digits=2)
             # display(fit)
 
 
             s = scatter!(grax, mags, norm_vals, color=Makie.wong_colors()[i])
-            l = lines!(grax, fit.x, fit.y, color=Makie.wong_colors()[i], label="$dc")
-            a = annotation!(grax, fit.x[end], fit.y[end], fit.x[end], fit.y[end], text="b = $b_val, R² = $Rsq",align=(:left, :center))
+            l = lines!(grax, fit.x, fit.y, color=Makie.wong_colors()[i], label="$dc", linestyle=:dash)
+            a = annotation!(grax, fit.x[end], fit.y[end], fit.x[end], fit.y[end], text="b = $(-1*b_val), R² = $Rsq",align=(:left, :center))
+            if parse(Float64, dc) == 0.0007
+                mask_mags = 6.35 .< mags
+                fit_norm_vals = norm_vals[mask_mags]
+                fig_mags = mags[mask_mags]
+
+                fit = fitlinear(fig_mags, fit_norm_vals)
+                b_val = round(fit.a,digits=2)
+                Rsq = round(fit.R2,digits=2)
+                l2 = lines!(grax, fit.x, fit.y, color=Makie.wong_colors()[i], linestyle=:dash)
+                a2 = annotation!(grax, fit.x[end], fit.y[end], fit.x[end], fit.y[end], text="b = $(-1*b_val), R² = $Rsq",align=(:left, :center))
+                translate!(l2, 0, 3.5, 0)
+                translate!(a2, 0, 3.5, 0)
+            end
+
 
             # r = rainclouds!(grax, fill(dc, length(partialevents)), partialevents,markersize=5.0, orientation = :horizontal, color=Makie.wong_colors()[wang_color_idx[i]])
             # display(i)
@@ -375,17 +406,17 @@ for i in eachindex(k)
             # translate!(l, 0, i/2, 0)
             # translate!(a, 0, i/2, 0)
             if dc ==  "0.005"
-                translate!(s, 0.3, 0, 0)
-                translate!(l, 0.3, 0, 0)
-                translate!(a, 0.3, 0, 0)
+                translate!(s, 0, 0.3, 0)
+                translate!(l, 0, 0.5, 0)
+                translate!(a, 0, 0.5, 0)
             elseif dc == "0.0025"
-                translate!(s, 1.3, 0, 0)
-                translate!(l, 1.3, 0, 0)
-                translate!(a, 1.3, 0, 0)
+                translate!(s, 0, 1.3, 0)
+                translate!(l, 0, 1.5, 0)
+                translate!(a, 0, 1.5, 0)
             else
-                translate!(s, 3.3, 0, 0)
-                translate!(l, 3.3, 0, 0)
-                translate!(a, 3.3, 0, 0)
+                translate!(s, 0, 3.3, 0)
+                translate!(l, 0, 3.5, 0)
+                translate!(a, 0, 3.5, 0)
             end
 
 
@@ -438,6 +469,7 @@ for i in eachindex(k)
             eventsf = bench12f.mag[timemaskf]
             fulleventsf = eventsf[areas12f[timemaskf] .>= areathresh]
             partialeventsf = eventsf[areas12f[timemaskf] .< areathresh]
+            nanmaskf = .!isnan.(bench12f.mag)
 
             bench12fax = Axis(bench12fig[2,1])
 
@@ -452,18 +484,26 @@ for i in eachindex(k)
             ylims!(bench12fax, 3, nothing)
             xlims!(bench12fax, 150, 660.0)
 
+            mags, norm_vals = GR(partialeventsf)
 
-            fit = fitlinear(GR(partialeventsf)...)
+            fig_mags = copy(mags)
+            fit_norm_vals = copy(norm_vals)
+            mask_mags = 7 .> mags .>= 5
+
+            fit_norm_vals = fit_norm_vals[mask_mags]
+            fig_mags = mags[mask_mags]
+
+            fit = fitlinear(fig_mags, fit_norm_vals)
             b_val = round(fit.a,digits=2)
             Rsq = round(fit.R2,digits=2)
 
-            s = scatter!(grax, GR(partialeventsf)..., color="#9fc4d8ff")
-            l = lines!(grax, fit.x, fit.y, color="#9fc4d8ff", label="$dc Rough")
-            a = annotation!(grax, fit.x[end], fit.y[end], fit.x[end], fit.y[end], text="b = $b_val, R² = $Rsq",align=(:left, :center))
+            s = scatter!(grax, mags, norm_vals, color="#9fc4d8ff")
+            l = lines!(grax, fit.x, fit.y, color="#9fc4d8ff", label="$dc Rough", linestyle=:dash)
+            a = annotation!(grax, fit.x[end], fit.y[end], fit.x[end], fit.y[end], text="b = $(-1*b_val), R² = $Rsq",align=(:left, :center))
 
-            translate!(s, 2.3, 0, 0)
-            translate!(l, 2.3, 0, 0)
-            translate!(a, 2.3, 0, 0)
+            translate!(s, 0, 2.3, 0)
+            translate!(l, 0, 2.5, 0)
+            translate!(a, 0, 2.5, 0)
 
 
 
@@ -512,13 +552,14 @@ dc_values = log10.(parse.(Float64, k_ordered[1:end-1]))
 dc_pred = fitlinear(dc_values, min_mag)
 
 Rsq_dc = round(dc_pred.R2,digits=2)
+m_dc = round(dc_pred.a,digits=2)
 
 extr = log10.(0.0001:0.0001:0.0007)
 
 scatter!(fitax, dc_values, min_mag, label="Run models")
 
 scatter!(fitax, log10(0.0001), minimum(bench12r.mag[bench12r.t/(360*24*60*60) .>20]), color=:red, marker=:utriangle, label="Reduced")
-annotation!(fitax, dc_pred.x[end], dc_pred.y[end], dc_pred.x[end], dc_pred.y[end], text="R² = $Rsq_dc",align=(:left, :center))
+annotation!(fitax, dc_pred.x[end], dc_pred.y[end], dc_pred.x[end], dc_pred.y[end], text="m= $m_dc, R² = $Rsq_dc",align=(:left, :center))
 
 lines!(fitax, dc_pred.x, dc_pred.y)
 lines!(fitax, extr, dc_pred.(extr), linestyle=:dash)
@@ -529,7 +570,7 @@ axislegend(fitax)
 contourfig, contourax = HighSeas.plotDomain(domain)
 contour_data = Matrix(samplers.samplers[16].contour)
 contour_data[isnan.(contour_data)] .= 1e9
-contour!(contourax, grid.X, grid.Y, contour_data', labels=true,levels=30:10:60, color=:black, label="Ours")
+contour!(contourax, grid.X, grid.Y, contour_data', labels=false,levels=30:10:60, color=:black, label="Ours")
 contour!(contourax, barbot_data.x2, (barbot_data.x3.*-1), barbot_data.t, labels=false, levels=30:10:60, label="barbot.6", color=colorant"#0072b2ff")
 contour!(contourax, cheng_data.x2, (cheng_data.x3.*-1), cheng_data.t, labels=false, levels=10:10:30, label="cheng", color=colorant"#e69f00ff")
 contour!(contourax, lambert_data.x2, (lambert_data.x3.*-1).-500, lambert_data.t, labels=false, levels=30:10:60, label="lambert", color=colorant"#009e73ff" )
@@ -537,6 +578,6 @@ contour!(contourax, ozawa_data.x2, (ozawa_data.x3.*-1), ozawa_data.t, labels=fal
 xlims!(contourax, -35000, 35000)
 ylims!(contourax, -20000, 20000)
 
-interfig, interax = plotInterEventTime(samplers.samplers[sample_point], "resources/scec/", "slip_rate_2", "Vs", log10)
+interfig, interax = plotInterEventTime(samplers.samplers[sample_point], "../resources/scec/", "slip_rate_2", "Vs", log10)
 
-peakfig, peakax = plotEventComparison(samplers.samplers[sample_point], "resources/scec/", "slip_rate_2", "Vs", log10, ref_sim=3)
+peakfig, peakax = plotEventComparison(samplers.samplers[sample_point], "../resources/scec/", "slip_rate_2", "Vs", log10, ref_sim=3)
