@@ -160,7 +160,7 @@ struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
 
             domain_powerx  = round(Int, log2(L/cell_sizex))
             domain_powery  = round(Int, log2(W/cell_sizey))
-            
+
             input_dict["dpx"] = domain_powerx
             input_dict["dpy"] = domain_powery
             println("Fixed cell size will return a different domain size: $(cell_sizex*2^domain_powerx) x $(cell_sizey*2^domain_powery)")
@@ -565,7 +565,7 @@ struct RectangleNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
         y_llim = yi-wi/2
 
 
-        dNU = @. Int8((x_llim < x < x_rlim)*(y_llim < y < y_ulim)) # To be exact it should be <= but I am debugging
+        dNU = @. Int8((x_llim <= x <= x_rlim)*(y_llim <= y <= y_ulim))
 
         dFD = @. Int8(dNU==0)
 
