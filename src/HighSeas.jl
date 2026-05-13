@@ -16,6 +16,7 @@ using PolygonInbounds
 using Fractalizer
 using Random
 using Statistics
+using Polyester
 
 include("abstracttypes.jl")
 include("macros.jl")
