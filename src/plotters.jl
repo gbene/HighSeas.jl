@@ -12,18 +12,20 @@ mutable struct RSPlotter <: LivePlotter
     obs::Vector{Observable}
     label::Label
     outpath::String
+    save_fig::Bool
 
-    function RSPlotter(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, plot_every::Int)
-        fig = Figure(size=(1920,1080),fontsize = 24)
+    function RSPlotter(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, plot_every::Int, save_fig::Bool=false)
+        fig = Figure(size=(1080,1080),fontsize = 24)
         ax1  = Axis(fig[1,1], title="Slip", aspect=DataAspect())
         ax2  = Axis(fig[1,3], title="Log10(τ)", aspect=DataAspect())
         ax3  = Axis(fig[2,1], title="Log10(V)", aspect=DataAspect())
         ax4  = Axis(fig[2,3], title="Log10(θ)", aspect=DataAspect())
-        ax5  = Axis(fig[1,3], title="Catalog", xlabel = "Time [yrs]", ylabel="Magnitude")
+        ax5  = Axis(fig[3,:], title="Catalog", xlabel = "Time [yrs]", ylabel="Magnitude")
+
 
         outpath = "$(experiment.outpath)/movie_figures/"
 
-        if ~isdir(outpath)
+        if save_fig && ~isdir(outpath)
             mkpath(outpath)
         end
 
@@ -71,15 +73,17 @@ mutable struct RSPlotter <: LivePlotter
 
 
         Colorbar(fig[1,2], hm1)
-        colsize!(fig.layout, 1, Aspect(1, 1.0))
         Colorbar(fig[1,4], hm2)
         Colorbar(fig[2,2], hm3)
         Colorbar(fig[2,4], hm4)
+        colsize!(fig.layout, 1, Aspect(1, 1.0))
+        colsize!(fig.layout, 3, Aspect(1, 1.0))
+
         resize_to_layout!(fig)
         display(fig)
 
 
-        new(state, catalog, stepper, plot_every, 0, fig, axs, obs, L, outpath)
+        new(state, catalog, stepper, plot_every, 0, fig, axs, obs, L, outpath, save_fig)
     end
 
 
@@ -106,17 +110,20 @@ function UpdatePlot(rsPlotter)
         if event_n > nevents
             time = catalog.t[catalog.n_events]/(365*24*60*60)
             mag = catalog.mag[catalog.n_events]
-            rsPlotter.obs[2][] = push!(rsPlotter.obs[2][], time)
-            rsPlotter.obs[3][] = push!(rsPlotter.obs[3][], mag)
-            xlims!(rsPlotter.axs[2], -5, time+10)
+            rsPlotter.obs[5][] = push!(rsPlotter.obs[5][], time)
+            rsPlotter.obs[6][] = push!(rsPlotter.obs[6][], mag)
+            xlims!(rsPlotter.axs[5], -5, time+10)
             rsPlotter.eventn +=1
         end
-        start_time = string(now())
-        start_time = replace(start_time, ":"=>"_", "-"=>"_")
+
         stepper_time = round(rsPlotter.stepper.time, digits=2)/(365*24*60*60)
         rsPlotter.label.text = "Simulation time: $stepper_time years\n Step: $step"
 
-        save("$(rsPlotter.outpath)/$start_time.png", rsPlotter.fig)
+        if rsPlotter.save_fig
+            start_time = string(now())
+            start_time = replace(start_time, ":"=>"_", "-"=>"_")
+            save("$(rsPlotter.outpath)/$start_time.png", rsPlotter.fig)
+        end
 
         yield()
     end
