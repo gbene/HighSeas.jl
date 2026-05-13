@@ -1,24 +1,36 @@
 
 
-struct RSPlotter <: LivePlotter
+mutable struct RSPlotter <: LivePlotter
 
     state::AbstractState
+    catalog::AbstractCatalog
     stepper::AbstractStepper
     plot_every::Int
+    eventn::Int
     fig::Figure
     axs::Vector{Axis}
     obs::Vector{Observable}
     label::Label
+    outpath::String
 
     function RSPlotter(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, plot_every::Int)
-        fig = Figure()
+        fig = Figure(size=(1920,1080),fontsize = 24)
         ax1  = Axis(fig[1,1], title="Slip", aspect=DataAspect())
         ax2  = Axis(fig[1,3], title="Log10(τ)", aspect=DataAspect())
         ax3  = Axis(fig[2,1], title="Log10(V)", aspect=DataAspect())
         ax4  = Axis(fig[2,3], title="Log10(θ)", aspect=DataAspect())
+        ax5  = Axis(fig[1,3], title="Catalog", xlabel = "Time [yrs]", ylabel="Magnitude")
+
+        outpath = "$(experiment.outpath)/movie_figures/"
+
+        if ~isdir(outpath)
+            mkpath(outpath)
+        end
+
 
 
         state = experiment.state
+        catalog = experiment.catalog
         stepper = algorithm.stepper
         x = experiment.domain.grid.X
         y = experiment.domain.grid.Y
@@ -43,26 +55,31 @@ struct RSPlotter <: LivePlotter
         obs3[] = log10.(V')
         obs4 = Observable(theta)
         obs4[] = log10.(theta')
-        L = Label(fig[0,:], "Simulation time: 0.0sec\n Step: 0", fontsize=15)
+        obs5 = Observable([NaN])
+        obs6 = Observable([NaN])
 
-        axs = [ax1,ax2,ax3,ax4]
-        obs = [obs1,obs2,obs3,obs4]
+        L = Label(fig[0,:], "Simulation time: 0.0sec\n Step: 0", fontsize=26)
+
+        axs = [ax1,ax2,ax3,ax4,ax5]
+        obs = [obs1,obs2,obs3,obs4,obs5,obs6]
 
         hm1 = heatmap!(ax1, x, y, obs1, rasterize=10)
         hm2 = heatmap!(ax2, x, y, obs2, rasterize=10)
         hm3 = heatmap!(ax3, x, y, obs3, rasterize=10)
         hm4 = heatmap!(ax4, x, y, obs4, rasterize=10)
+        stem!(ax5, obs5, obs6)
 
 
         Colorbar(fig[1,2], hm1)
+        colsize!(fig.layout, 1, Aspect(1, 1.0))
         Colorbar(fig[1,4], hm2)
         Colorbar(fig[2,2], hm3)
         Colorbar(fig[2,4], hm4)
-
+        resize_to_layout!(fig)
         display(fig)
 
 
-        new(state, stepper, plot_every, fig, axs, obs, L)
+        new(state, catalog, stepper, plot_every, 0, fig, axs, obs, L, outpath)
     end
 
 
@@ -76,6 +93,9 @@ function UpdatePlot(rsPlotter)
     tau = rsPlotter.state.tau
     V = rsPlotter.state.V
     theta = rsPlotter.state.theta
+    catalog = rsPlotter.catalog
+    nevents = rsPlotter.eventn
+    event_n = catalog.n_events
 
     if step % rsPlotter.plot_every == 0
 
@@ -83,7 +103,20 @@ function UpdatePlot(rsPlotter)
         rsPlotter.obs[2][] = log10.(tau')
         rsPlotter.obs[3][] = log10.(V')
         rsPlotter.obs[4][] = log10.(theta)'
-        rsPlotter.label.text = "Simulation time: $(round(rsPlotter.stepper.time, digits=2))sec\n Step: $step"
+        if event_n > nevents
+            time = catalog.t[catalog.n_events]/(365*24*60*60)
+            mag = catalog.mag[catalog.n_events]
+            rsPlotter.obs[2][] = push!(rsPlotter.obs[2][], time)
+            rsPlotter.obs[3][] = push!(rsPlotter.obs[3][], mag)
+            xlims!(rsPlotter.axs[2], -5, time+10)
+            rsPlotter.eventn +=1
+        end
+        start_time = string(now())
+        start_time = replace(start_time, ":"=>"_", "-"=>"_")
+        stepper_time = round(rsPlotter.stepper.time, digits=2)/(365*24*60*60)
+        rsPlotter.label.text = "Simulation time: $stepper_time years\n Step: $step"
+
+        save("$(rsPlotter.outpath)/$start_time.png", rsPlotter.fig)
 
         yield()
     end

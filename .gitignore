@@ -6,3 +6,5 @@ LocalPreferences.toml
 docs/build/*
 examples/**/*.svg
 examples/**/*.png
+examples/**/*.mp4
+examples/**/*.gif
