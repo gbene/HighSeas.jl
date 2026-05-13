@@ -14,7 +14,8 @@ using Glob
 using SFTPClient
 using PolygonInbounds
 using Fractalizer
-
+using Random
+using Statistics
 
 include("abstracttypes.jl")
 include("macros.jl")

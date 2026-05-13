@@ -1,3 +1,65 @@
+function fractalsurface(n, H, seed)
+    rand_gen = Xoshiro(seed)
+
+    N = 2^n
+
+    L = zeros(N+1,N+1)
+
+    R = randn(rand_gen, 3,3)
+
+    initial = [1,2^(n-1),2^n+1]
+
+    for i in 1:3
+        for j in 1:3
+            L[initial[i], initial[j]]=R[i,j]
+        end
+    end
+
+    idx = findall(!iszero, L)
+    r = Int(sqrt(length(idx)))
+
+
+    for l=1:n-1
+        mid = zeros(Int, r-1)
+        for i=1:r-1
+            mid[i]=Int((idx[i][1]+idx[i+1][1])÷2);
+            for j=1:r
+                L[mid[i],idx[j][1]] = mean([L[idx[i][1],idx[j][1]], L[idx[i+1][1], idx[j][1]]]) + randn(rand_gen)*2^(-H*(l+1));
+                L[idx[j][1], mid[i]] = mean([L[idx[j][1], idx[i][1]], L[idx[j][1], idx[i+1][1]]]) + randn(rand_gen)*2^(-H*(l+1));
+            end
+        end
+        for i=1:r-1
+            for j=1:r-1
+                L[mid[i],mid[j]] = mean([L[idx[i][1],idx[j][1]], L[idx[i][1], idx[j+1][1]], L[idx[i+1][1], idx[j][1]], L[idx[i+1][1], idx[j+1][1]]])+randn(rand_gen)*2^(-H*(l+1));
+            end
+        end
+
+        idx = findall(!iszero, L)
+
+        r = Int(sqrt(length(idx)));
+
+    end
+
+    R = zeros(r,r)
+
+    for i=1:r
+        for j=1:r
+            R[i,j] = L[idx[i][1],idx[j][1]];
+        end
+    end
+
+    return R
+end
+
+function fractalasperity(n, H, seed)
+
+    surf = fractalsurface(n, H, seed)
+    fractal = Int8.(surf .< -1)
+    return fractal
+end
+
+
+
 """
     Grid <: AbstractGrid
 
@@ -741,6 +803,87 @@ struct RectangleNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
 
 end
 
+
+
+
+struct FractalAsperity{M<:AbstractArray{Int8}} <:AbstractPatch
+
+    w::Float64  # half width of the rate weakening zone
+    l::Float64  # half length of the rate weakening zone
+    h::Float64  # Buffer between RW and RS
+
+
+    dRW::M # Mask indicating inside the rate weakening zone
+    dRS::M # Mask indicating inside the rate strengthening zone
+    dTR::M
+
+    n::Integer
+    H::Float64
+    seed::Integer
+
+    function FractalAsperity(input_dict::Dict, grid::AbstractGrid, ratio::Float64, H::Float64, seed::Integer; gpu_id::Int=0)
+
+        w             = input_dict["Wf"] * ratio
+        l             = input_dict["Lf"] * ratio
+
+        @assert w == l "Width and length of patch are not the same!!"
+
+        input_dict["w"] = w
+        input_dict["l"] = l
+
+
+
+        x = grid.x
+        y = grid.y
+
+        dRW_circle = @. Int8(sqrt(x^2+y^2) < w); #inside rate/velocity weakening area
+
+        n = grid.domain_powerx
+        dRW = fractalasperity(n, H, seed) .* dRW_circle
+        dRS = @. Int8(dRW==0)
+        dTR = zeros(Int8, grid.n_elementsx, grid.n_elementsy); #Transition zone between RS and RW
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            dRW = memcopy(dRW, gpu_id)
+            dRS = memcopy(dRS, gpu_id)
+            dTR = memcopy(dTR, gpu_id)
+
+        end
+
+        h = 0.0
+
+        new{typeof(dRW)}(w, l, h, dRW, dRS, dTR, n, H, seed)
+
+    end
+
+    function FractalAsperity(grid::AbstractGrid, H::Float64; gpu_id::Int=0)
+
+        seed = rand(Int16)
+        n = grid.domain_powerx
+        dRW = fractalasperity(n, H, seed)
+        dRS = @. Int8(dRW==0)
+        dTR = zeros(Int8, grid.n_elementsx, grid.n_elementsy); #Transition zone between RS and RW
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            dRW = memcopy(dRW, gpu_id)
+            dRS = memcopy(dRS, gpu_id)
+            dTR = memcopy(dTR, gpu_id)
+
+        end
+
+        h = 0.0
+
+        new{typeof(dRW)}(w, l, h, dRW, dRS, dTR, n, H, seed)
+    end
+
+
+    function FractalAsperity{M}(w::Float64, l::Float64, h::Float64, dRW::M, dRS::M, dTR::M, n::Integer, H::Float64, seed::Integer) where M
+        new{M}(w, l, h, dRW, dRS, dTR, n, H, seed)
+    end
+
+
+
+end
 
 """
 
