@@ -5,9 +5,9 @@ using GLMakie
 using BenchmarkTools
 
 
-set_GPUbackend("unified") # To use UnifiedMemory add "unified" as the method argument. Default is DeviceMemory. AMDGPU ony supports DeviceMemory
+set_GPUbackend() # To use UnifiedMemory add "unified" as the method argument. Default is DeviceMemory. AMDGPU ony supports DeviceMemory
 input_dict = readSheet("circular_input.txt")
-
+# saved_step = loadData("/home/gab28/DATA/PhD/GitHub/HighSeas.jl/examples/GPU_CUDA/Asperity_out/2026_05_15T13_03_01.128/CUDA/saved_StepSaver.jld2")
 # Define the domain
 
 grid = PowerGrid(input_dict)
@@ -22,6 +22,8 @@ material = SimpleMaterial(input_dict)
 # Define the experiment
 
 experiment = HighSeas.Experiment(input_dict, material, domain, 100000, "Asperity_out")
+# experiment = HighSeas.Experiment(input_dict, material, domain, 100000, "Asperity_out", saved_step)
+
 
 
 stresslaw = StressFFT(experiment)
@@ -38,7 +40,7 @@ governing_equations = GoverningEquations(hybridlaw, stresslaw, statelaw)
 
 errorlaw = DoubleError(experiment)
 stepper  = AdaptiveStepper(input_dict, errorlaw)
-# stepper  = AdaptiveStepper(input_dict, errorlaw, saved_step)
+# stepper  = AdaptiveStepper(input_dict, errorlaw, saved_step)<
 
 
 
@@ -52,7 +54,7 @@ detector = CatalogDetector(1e-3, 1e-2, experiment, algorithm)
 
 # Additional live plotting. This works only with CUDA.UnifiedMemory
 
-plotter = RSPlotter(experiment, algorithm, 30)
+# plotter = RSPlotter(experiment, algorithm, 30)
 
 # Define savers
 
@@ -71,4 +73,4 @@ tf = input_dict["tf"]*(365*24*60*60)
 solver = TimeSolver(tf, savers, detector)
 
 # Solve
-HighSeas.solve(experiment, algorithm, solver, plotter)
+HighSeas.solve(experiment, algorithm, solver)

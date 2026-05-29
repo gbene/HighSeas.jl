@@ -1,6 +1,6 @@
 # ==================== input variables sheet ====================
 
-fract: 3
+fract: 2
 tollo: 0.5e-3
 tolup: 5.0e-3
 cs: 3464
@@ -15,8 +15,8 @@ Vpl: 1.0e-9
 Vi: 1.0e-9
 Vr: 1.0e-9
 fr: 0.6
-dpx: 12
-dpy: 12
+dpx: 6
+dpy: 6
 cellsizex: 1
 cellsizey: 1
 h: 0
