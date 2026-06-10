@@ -1,6 +1,5 @@
 using HighSeas
 using HighSeas.TimeZones
-using CUDA # Change this to AMDGPU, METAL and so on to use those backends. METAL does not support Float64 so for now it is not supported
 using JLD2
 using GLMakie
 using BenchmarkTools
@@ -245,7 +244,6 @@ struct BP4QDExpGradient{F<:AbstractArray{Float64},
 end
 
 
-set_GPUbackend() # To use UnifiedMemory add "unified" as the method argument. Default is DeviceMemory. AMDGPU ony supports DeviceMemory
 input_dict = readSheet("BP4input.txt")
 
 # Define the domain
@@ -266,7 +264,7 @@ material = SimpleMaterial(input_dict)
 
 # Define the experiment
 si = input_dict["si0"]
-gradient = @. si + 1e3 * abs(grid.y) # simple gradient along x. 
+gradient = @. si + 1e3 * abs(grid.x) # simple gradient along x. 
 
 HighSeas.plotGradient(domain, gradient, 0.3, figdisplay=true)
 
