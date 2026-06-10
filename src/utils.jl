@@ -179,11 +179,11 @@ function CheckLengthScales(material::AbstractMaterial, domain::AbstractDomain, �
       ratio = length_dim/Linf
 
       if gridside*3 > Lb
-            error("Cohesive zone may be poorly resolved, $(gridside*3) > $Lb")
+            error("Cohesive zone may be poorly resolved, Δx*3 = $(gridside*3) > Lb = $Lb")
       elseif gridside*10 > Linf
-            error("Linf is poorly resolved,  $(gridside*10) > $Linf")
+            error("Linf is poorly resolved, Δx*10 = $(gridside*10) > Linf = $Linf")
       elseif ratio < 1
-            error("Linf is poorly resolved. H/Linf: $ratio")
+            error("Linf is poorly resolved. L/Linf: L=$length_dim, Linf=$Linf, ratio=$ratio")
       else
             return (Lb=Lb, Linf=Linf, ratio=ratio)
       end

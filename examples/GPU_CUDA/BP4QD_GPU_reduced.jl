@@ -98,7 +98,11 @@ savers = [stepsaver, catalogsaver, samplersaver]
 tf = input_dict["tf"]*(365*24*60*60)
 
 # solver = TimeSolver(tf, savers, detector)
+
+# or add samplers
+
 solver = TimeSolver(tf, savers, detector, samplers)
+
 
 # Solve
 HighSeas.solve(experiment, algorithm, solver)

@@ -65,10 +65,10 @@ detector = CatalogDetector(1e-3, 1e-2, experiment, algorithm)
 
 samplers = Array{HighSeas.AbstractSampler, 1}(undef, 16)
 for sp in 1:14
-    samplers[sp] = PointSampler("BP4_sample_points.txt", sp, 700000, experiment)
+    samplers[sp] = PointSampler("../BP4_sample_points.txt", sp, 700000, experiment)
 end
-samplers[15] = SectionSampler(0.0, "y", 700000, experiment)
-samplers[16] = ContourSampler(:V, 1e-3, experiment)
+samplers[15] = SectionSampler("dx", 0.0, "y", 700000, experiment)
+samplers[16] = ContourSampler("V", 1e-3, experiment)
 
 # # Define savers
 
@@ -95,7 +95,7 @@ tf = input_dict["tf"]*(365*24*60*60)
 
 # solver = TimeSolver(tf, savers, detector)
 # or add samplers
-solver = TimeSolver(tf, savers, detector)
+solver = TimeSolver(tf, savers, detector, samplers)
 
 # Solve
 HighSeas.solve(experiment, algorithm, solver)

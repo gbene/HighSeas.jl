@@ -6,7 +6,13 @@ using GLMakie
 
 # set_GPUbackend() # To use UnifiedMemory add "unified" as the method argument. Default is DeviceMemory. AMDGPU ony supports DeviceMemory
 
-input_dict = ReadSheet("BP4input.txt")
+input_dict = readSheet("BP4input.txt")
+
+# Define the domain
+
+grid = PowerGrid(input_dict)
+fault = RectangleFault(input_dict, grid)
+
 points = [[3e4, 3e4, -3e4, -3e4, 3e4] [1.5e4, -1.5e4, -1.5e4, 1.5e4, 1.5e4]] #RW patch points
 np1 = NoiseParams(0.05:0.01:0.07, 1.0:1:10, -10.0:1:10.0, 100, 4, 10, seeds=[6442887322735277629, -8987213128142308954, -333252884332351366, 8464945807962482870])
 np2 = NoiseParams(0.05:0.01:0.07, 1.0:1:10, -10.0:1:10.0, 100, 4, 10, seeds=[8513830690257299402, 5301462472252722888, 3588050925270478459, 3787793271851686014])
@@ -21,11 +27,6 @@ s = [1+2*input_dict["h"]/shape.l, 1+2*input_dict["h"]/shape.w]
 buffer = shape * s
 
 fractal = fractalize(shape, templates, input_dict["cellsizex"])
-
-# Define the domain
-
-grid = PowerGrid(input_dict)
-fault = RectangleFault(input_dict, grid)
 
 # patch = RectanglePatch(input_dict, grid)
 patch = CustomPatch(fractal.points, grid)
@@ -42,7 +43,7 @@ material = SimpleMaterial(input_dict)
 
 # Define the experiment
 
-experiment = BP4QDExp(input_dict, material, domain, 1000)
+experiment = BP4QDExp(input_dict, material, domain, 1000, "BP4QD_out_custom")
 
 # Define the Govenring equations
 
@@ -80,10 +81,10 @@ detector = CatalogDetector(1e-3, 1e-2, experiment, algorithm)
 
 samplers = Array{HighSeas.AbstractSampler, 1}(undef, 16)
 for sp in 1:14
-    samplers[sp] = PointSampler("BP4_sample_points.txt", sp, 700000, experiment)
+    samplers[sp] = PointSampler("../BP4_sample_points.txt", sp, 700000, experiment)
 end
-samplers[15] = SectionSampler(0.0, "y", 700000, experiment)
-samplers[16] = ContourSampler(:V, 1e-3, experiment)
+samplers[15] = SectionSampler("dx", 0.0, "y", 700000, experiment)
+samplers[16] = ContourSampler("V", 1e-3, experiment)
 
 # # Define savers
 

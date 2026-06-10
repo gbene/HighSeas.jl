@@ -444,3 +444,17 @@ function plotCatalog(catalog::AbstractCatalog, quantity::String, ax::Axis; stem_
 
     return ax
 end
+
+
+function plotGradient(domain::AbstractDomain, gradient::AbstractArray, alpha=0.5; figdisplay::Bool=false)
+
+    fig, ax = plotDomain(domain)
+
+    heatmap!(ax, domain.grid.X, domain.grid.Y, gradient', alpha=alpha)
+
+    if figdisplay
+        display(fig)
+    end
+
+    return fig, ax
+end
