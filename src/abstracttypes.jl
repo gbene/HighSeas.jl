@@ -42,6 +42,21 @@ abstract type AbstractCatalog end
 
 """
 
+Abstract type used to encapsulate simulaton logs
+
+"""
+abstract type AbstractLog end
+
+
+"""
+
+Abstract type used to encapsulate simulaton events
+
+"""
+abstract type AbstractEvent end
+
+"""
+
 Abstract type used to define a Detector used to detect events
 
 """

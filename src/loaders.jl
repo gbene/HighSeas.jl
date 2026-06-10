@@ -132,6 +132,11 @@ function loadData(input::String, n_events::Int)
 end
 
 
+function loadLog(input::String)
+    log = SimulationLog(input)
+    return log
+end
+
 """
     loadSSH(url::String, username::String, private_file::String, public_file::String, path::String)
 
@@ -153,7 +158,16 @@ function loadSSH(url, username, private_file, public_file, path)
     # public_file = ENV["elja_pub"]
     sftp = SFTP(url, username, public_file, private_file)
 
+    ssh_data = SFTPClient.download(sftp, path)
 
-    data  = load(SFTPClient.download(sftp, path))["data"]
-    return data
+    if occursin(".log", path)
+        data = loadLog(ssh_data)
+        return data
+
+    else
+        data  = load(ssh_data)["data"]
+        return data
+
+    end
+
 end

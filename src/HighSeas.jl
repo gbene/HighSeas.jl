@@ -10,6 +10,7 @@ using JLD2
 using TimeZones
 using StyledStrings
 using CSV
+using Tables
 using Glob
 using SFTPClient
 using PolygonInbounds
@@ -57,7 +58,7 @@ export CustomNewtonSolver
 export EmptyDetector, SimpleDetector, CatalogDetector
 export PointSampler, SectionSampler, ContourSampler, SamplerSaver
 export RSPlotter, plotDomain
-export StepSaver, CatalogSaver, SnaptshotSaver
+export StepSaver, CatalogSaver, SnaptshotSaver, to_csv
 export loadData, loadSSH
 export TimeSolver, StepSolver, solve
 

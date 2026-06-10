@@ -15,9 +15,9 @@ Vpl: 1.0e-9
 Vi: 1.0e-9
 Vr: 1.0e-9
 fr: 0.6
-dpx: 6
-dpy: 6
+dpx: 7
+dpy: 7
 cellsizex: 1
 cellsizey: 1
 h: 0
-tf: 1500
+tf: 10

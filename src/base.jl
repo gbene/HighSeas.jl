@@ -178,3 +178,64 @@ mutable struct Catalog{S<:SubArray} <: AbstractCatalog
         new{S}(catalog, max_events, t, interevent_time, Moment, mag, Area, MeanSlip, MeanStress, hypo_x, hypo_y, n_events)
     end
 end
+
+struct EventLog <: AbstractEvent
+    event_n::Int
+    event_time::Float64
+    event_mag::Float64
+    starttimestamp::String
+    endtimestamp::String
+
+end
+
+struct SimulationLog <: AbstractLog
+    exp_starttime:: String
+    input_dict::Dict
+    length_scales::String
+    events::Vector{<:EventLog}
+    nevents::Int
+
+
+    function SimulationLog(exp_starttime::String, input_dict::Dict, length_scales::String, events::Vector{<:EventLog}, n_events::Int)
+        new(exp_starttime, input_dict, length_scales, events, n_events)
+    end
+
+
+    function SimulationLog(log_file_path::String)
+        lines = readlines(log_file_path)
+
+        exp_starttime = split(lines[1], ": ")[2]
+        input_values = split.(lines[3:29],": ")
+        input_dict = Dict{String, Float64}(k=>parse(Float64, v) for (k,v) in input_values)
+
+        length_scales = lines[31]
+
+        n_lines_events = length(lines)
+        if isodd(n_lines_events) # if it's odd it means that the simulation stopped while the event was going on
+            n_lines_events -= 1
+        end
+
+        event_lines = 33:2:n_lines_events
+        events = Vector{EventLog}(undef, length(event_lines))
+
+        for (a,i) in enumerate(event_lines)
+            vals = split(lines[i], " ")
+            vals2 = split(lines[i+1], " ")
+            starttimestamp = vals[1]
+            event_n = parse(Int, vals[3])
+            event_time=parse(Float64, vals[end])
+            event_mag=parse(Float64, vals2[end])
+            endtimestamp = vals[1]
+            event = EventLog(event_n, event_time, event_mag, starttimestamp, endtimestamp)
+
+            events[a] = event
+
+
+        end
+        n_events = length(events)
+        new(exp_starttime, input_dict, length_scales, events, n_events)
+    end
+
+
+
+end
