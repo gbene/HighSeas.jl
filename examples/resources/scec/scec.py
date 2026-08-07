@@ -199,31 +199,31 @@ args = parser.parse_args()
 
 scraper = SCEC(headless=False)
 
-scraper.login()
+scraper.login(os.environ["scec_user"], os.environ["scec_pass"])
 
-# if args.n: 
-#     scraper.select_benchmark(args.n)
-# else:
-#     scraper.select_benchmark("bp7-fd-a")
+if args.n: 
+    scraper.select_benchmark(args.n)
+else:
+    scraper.select_benchmark("bp7-fd-a")
 
-# if args.r:
-#     scraper.select_run(args.r)
-# else:
-#     scraper.select_run("lambert")
+if args.r:
+    scraper.select_run(args.r)
+else:
+    scraper.select_run("lambert")
 
-# if args.a:
-#     data_names = scraper.current_table_names
-# else:
-#     if args.d:
-#         data_names = args.d
-#     else:
-#         data_names = ["fltststrk+000dp+000"]
+if args.a:
+    data_names = scraper.current_table_names
+else:
+    if args.d:
+        data_names = args.d
+    else:
+        data_names = ["fltststrk+000dp+000"]
 
-# for name in data_names:
-#     scraper.select_data(name)
-#     scraper.parse_data()
-#     scraper.save_data(args.s)
-#     scraper.go_back_file()
+for name in data_names:
+    scraper.select_data(name)
+    scraper.parse_data()
+    scraper.save_data(args.s)
+    scraper.go_back_file()
 
 
 
