@@ -55,7 +55,7 @@ eventfig # or the other var names
 
 If you use this code please cite our work!
 
-Benedetti, G., Heimisson, E. R. (2026, in preparation). _HighSeas.jl Accelerating rate and state simulations with GPUs_
+Benedetti, G., Heimisson, E. R. (2026, in review). _HighSeas.jl Accelerating rate and state simulations with GPUs_
 
 # Acknowledgments
 
