@@ -11,6 +11,28 @@ using StatsBase
 using EasyFit
 using CUDA
 
+"""
+
+List of figures
+
+sampfig     - Figure of a simulated variable on a sample point
+secfig      - Figure of a simulated variable on a section
+contourfig  - Figure of the first rupture contour plots
+domainfig   - Figure of the domain + sample point + sample section
+catalogfig  - Figure of the produced catalog
+areaslipfig - Figure comparing amount of area and slip during a full rupture
+magfullfig  - Full rupture magnitudes box plots
+magpartfig  - Partial rupture magnitudes box plots
+eventfig    - Stem plot comparing catalogs at different Dc
+slipfig     - Stem plot comparing slips at different Dc
+grfig       - GR plots for different Dc
+bench12fig  - Plot comaprison between smooth and rough boundary ad Dc = 0.0007m
+fitfig      - Linear regression of Dc - magnitudes
+interfig    - Intertime event comparisons
+peakfig     - Peak time difference comparisons
+
+"""
+
 function plotInterEventTime(pointSampler, ref_path::String, quantity::String, sampler_quantity::String, scale::Function; display=false)
 
     function calcInter(property, time)
@@ -193,8 +215,8 @@ function GR(data)
     return data_sort, N/maximum(N)
 end
 
-input_dict = readSheet("../GPU_CUDA/BP4input.txt")
-reduced_input_dict = readSheet("../GPU_CUDA/BP4input_reduced.txt", factor=14)
+input_dict = readSheet("BP4input.txt")
+reduced_input_dict = readSheet("../GPU_CUDA/BP4input_reduced.txt")
 c_input_dict = copy(input_dict)
 points = [[3e4, 3e4, -3e4, -3e4, 3e4] [1.5e4, -1.5e4, -1.5e4, 1.5e4, 1.5e4]] #RW patch points
 np1 = NoiseParams(0.05:0.01:0.07, 1.0:1:10, -10.0:1:10.0, 100, 4, 10, seeds=[6442887322735277629, -8987213128142308954, -333252884332351366, 8464945807962482870])
@@ -214,7 +236,7 @@ username = ENV["elja_user"]
 private_file = ENV["elja_private"]
 public_file = ENV["elja_pub"]
 
-grid = PowerGrid(input_dict)
+grid = PowerGrid(copy(c_input_dict))
 fault = RectangleFault(input_dict, grid)
 
 
@@ -235,13 +257,13 @@ sample_point = 8
 # # samplers = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T14_50_55.616/CUDA/saved_SamplerSaver.jld2")
 # samplers = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T15_00_26.360/CUDA/saved_SamplerSaver.jld2")
 
-samplers = loadData("../GPU_CUDA/BP4QD_out/2026_03_31T16_06_16.866/CUDA/saved_SamplerSaver.jld2")
+samplers = loadData("../GPU_CUDA/BP4QD_out/2026_08_10T13_48_14.271/CUDA/saved_SamplerSaver.jld2")
 
 
 # catalog = loadData("../GPU_CUDA/BP4QD_out/2026_03_18T15_15_51.609/CUDA/saved_CatalogSaver.jld2")
 # catalog = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T14_31_03.940/CUDA/saved_CatalogSaver.jld2")
 # catalog = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T14_50_55.616/CUDA/saved_CatalogSaver.jld2")
-catalog = loadData("../GPU_CUDA/BP4QD_out/2026_03_27T15_00_26.360/CUDA/saved_CatalogSaver.jld2")
+catalog = loadData("../GPU_CUDA/BP4QD_out/2026_08_10T13_48_14.271/CUDA/saved_CatalogSaver.jld2")
 
 
 bench8 = catalog
@@ -277,16 +299,16 @@ real_idx = [1, 4, 2, 5, 3, 6, 7]
 
 min_mag = zeros(6)
 
-barbot_data = CSV.File(open("../resources/scec/barbot.6/b6_rupture.csv"))
-cheng_data = CSV.File(open("../resources/scec/cheng/contour.csv"))
+barbot_data = CSV.File(open("../resources/scec/bp4-qd/barbot.6/b6_rupture.csv"))
+cheng_data = CSV.File(open("../resources/scec/bp4-qd/cheng/contour.csv"))
 
-lambert_data = CSV.File(open("../resources/scec/lambert/contour.csv"))
-ozawa_data = CSV.File(open("../resources/scec/ozawa/contour.csv"))
+lambert_data = CSV.File(open("../resources/scec/bp4-qd/lambert/contour.csv"))
+ozawa_data = CSV.File(open("../resources/scec/bp4-qd/ozawa/contour.csv"))
 
 
 barbot_data.t[barbot_data.t .== 0.] .= 1e9
 
-sampfig, sampax = HighSeas.plotPointSample(samplers.samplers[sample_point], "../resources/scec/", "slip_rate_2", "Vs", log10)
+sampfig, sampax = HighSeas.plotPointSample(samplers.samplers[sample_point], "../resources/scec/bp4-qd/", "slip_rate_2", "Vs", log10)
 
 secfig, secax = HighSeas.plotSection(samplers.samplers[15], grid, 50, 150)
 
@@ -327,7 +349,9 @@ for i in eachindex(k)
 
         c_input_dict["cellsizex"] = gs
         c_input_dict["cellsizey"] = gs
-        localgrid = PowerGrid(c_input_dict)
+        localgrid = PowerGrid(copy(c_input_dict))
+        # display(c_input_dict["dpx"])
+
         localfault = RectangleFault(c_input_dict, localgrid)
 
         localpatch = RectanglePatch(c_input_dict, localgrid)
@@ -335,6 +359,7 @@ for i in eachindex(k)
         total_area = (sum(localpatch.dRW))*localgrid.cell_area
         # println("Area: $total_area")
         areas = b.Area/total_area
+        display(total_area)
         times = b.t/(365*24*60*60)
         timemask = 158 .< times .< 652.0
         nanmask = .!isnan.(b.mag)
@@ -363,6 +388,7 @@ for i in eachindex(k)
         if parse(Float64, dc) < 0.01
             mags, norm_vals = GR(partialevents)
 
+
             fig_mags = copy(mags)
             fit_norm_vals = copy(norm_vals)
             mask_mags = mags .>= minimum(mags)
@@ -374,9 +400,10 @@ for i in eachindex(k)
                 mask_mags = 6 .< mags
             end
 
-            fit_norm_vals = norm_vals[mask_mags]
-            fig_mags = mags[mask_mags]
-            fit = fitlinear(fig_mags, fit_norm_vals)
+            # fit_norm_vals = norm_vals[mask_mags]
+            # fig_mags = mags[mask_mags]
+
+            fit = fitlinear(fig_mags[mask_mags], fit_norm_vals[mask_mags])
             b_val = round(fit.a,digits=2)
             Rsq = round(fit.R2,digits=2)
             # display(fit)
@@ -387,10 +414,10 @@ for i in eachindex(k)
             a = annotation!(grax, fit.x[end], fit.y[end], fit.x[end], fit.y[end], text="b = $(-1*b_val), R² = $Rsq",align=(:left, :center))
             if parse(Float64, dc) == 0.0007
                 mask_mags = 6.35 .< mags
-                fit_norm_vals = norm_vals[mask_mags]
-                fig_mags = mags[mask_mags]
+                # fit_norm_vals = norm_vals[mask_mags]
+                # fig_mags = mags[mask_mags]
 
-                fit = fitlinear(fig_mags, fit_norm_vals)
+                fit = fitlinear(fig_mags[mask_mags], fit_norm_vals[mask_mags])
                 b_val = round(fit.a,digits=2)
                 Rsq = round(fit.R2,digits=2)
                 l2 = lines!(grax, fit.x, fit.y, color=Makie.wong_colors()[i], linestyle=:dash)
@@ -525,7 +552,7 @@ for i in eachindex(k)
         xlims!(ax, 150, 660.0)
         xlims!(axslip, 150, 660.0)
     else
-        localgrid = PowerGrid(reduced_input_dict)
+        localgrid = PowerGrid(copy(reduced_input_dict))
         localfault = RectangleFault(reduced_input_dict, localgrid)
 
         localpatch = RectanglePatch(reduced_input_dict, localgrid)
@@ -578,6 +605,6 @@ contour!(contourax, ozawa_data.x2, (ozawa_data.x3.*-1), ozawa_data.t, labels=fal
 xlims!(contourax, -35000, 35000)
 ylims!(contourax, -20000, 20000)
 
-interfig, interax = plotInterEventTime(samplers.samplers[sample_point], "../resources/scec/", "slip_rate_2", "Vs", log10)
+interfig, interax = plotInterEventTime(samplers.samplers[sample_point], "../resources/scec/bp4-qd/", "slip_rate_2", "Vs", log10)
 
-peakfig, peakax = plotEventComparison(samplers.samplers[sample_point], "../resources/scec/", "slip_rate_2", "Vs", log10, ref_sim=3)
+peakfig, peakax = plotEventComparison(samplers.samplers[sample_point], "../resources/scec/bp4-qd/", "slip_rate_2", "Vs", log10, ref_sim=3)
