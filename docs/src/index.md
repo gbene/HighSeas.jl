@@ -28,7 +28,7 @@ to run on CPU
 
 or
 ```bash
-julia --project=. --threads auto BP4QD_GPU.jl
+julia --project=. BP4QD_GPU.jl
 ```
 to run on GPU (CUDA)
 
