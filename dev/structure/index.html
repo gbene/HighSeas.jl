@@ -1,316 +1,35 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Code design · HighSeas.jl</title><meta name="title" content="Code design · HighSeas.jl"/><meta property="og:title" content="Code design · HighSeas.jl"/><meta property="twitter:title" content="Code design · HighSeas.jl"/><meta name="description" content="Documentation for HighSeas.jl."/><meta property="og:description" content="Documentation for HighSeas.jl."/><meta property="twitter:description" content="Documentation for HighSeas.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HighSeas.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../basic/">Basic function and Objects</a></li><li><a class="tocitem" href="../materials/">Materials</a></li><li><a class="tocitem" href="../geometries/">Grids, Geometries and Domains</a></li><li><a class="tocitem" href="../laws/">Laws</a></li><li><a class="tocitem" href="../algorithms/">Algorithm objects</a></li><li><a class="tocitem" href="../detectors/">Detector objects</a></li><li><a class="tocitem" href="../experiments/">Experiments</a></li><li><a class="tocitem" href="../samplers/">Samplers</a></li><li><a class="tocitem" href="../solvers/">Solving</a></li><li><a class="tocitem" href="../io/">Saving and Reading</a></li><li><a class="tocitem" href="../backends/">Backends</a></li><li class="is-active"><a class="tocitem" href>Code design</a><ul class="internal"><li><a class="tocitem" href="#Base-structs"><span>Base  structs</span></a></li><li><a class="tocitem" href="#Constructed-structs"><span>Constructed structs</span></a></li><li><a class="tocitem" href="#Depending-structs"><span>Depending structs</span></a></li><li><a class="tocitem" href="#Laws"><span>Laws</span></a></li><li><a class="tocitem" href="#What-is-missing?"><span>What is missing?</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Code design</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Code design</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/gbene/HighSeas.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/gbene/HighSeas.jl/blob/main/docs/src/structure.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Code-structure-and-design"><a class="docs-heading-anchor" href="#Code-structure-and-design">Code structure and design</a><a id="Code-structure-and-design-1"></a><a class="docs-heading-anchor-permalink" href="#Code-structure-and-design" title="Permalink"></a></h1><p>In this page the code structure and design are explained</p><p>I&#39;m writing this mainly for myself so I don&#39;t get lost. I will describe how the package is structured at the moment. I am trying to follow a composition based approach so that It is easier to customize the different solvers and problems but have a unified interface to solve/save/plot the results. </p><h2 id="Base-structs"><a class="docs-heading-anchor" href="#Base-structs">Base  structs</a><a id="Base-structs-1"></a><a class="docs-heading-anchor-permalink" href="#Base-structs" title="Permalink"></a></h2><p>The following are structs that do not depend on anything:</p><h3 id="1.-AbstractMaterial"><a class="docs-heading-anchor" href="#1.-AbstractMaterial">1. AbstractMaterial</a><a id="1.-AbstractMaterial-1"></a><a class="docs-heading-anchor-permalink" href="#1.-AbstractMaterial" title="Permalink"></a></h3><p>The structs that inherit from this type define the material of the experiment.  For example a simple material would be:</p><pre><code class="language-julia hljs">struct SimpleMaterial &lt;: AbstractMaterial 
-    cs::Float64
-    rho::Float64
-    nu::Float64
-    a::Float64
-    aRs::Float64
-    b::Float64
-    fr::Float64
-    G::Float64
-    eta::Float64
-    Dc::Float64
-end</code></pre><h3 id="2.-AbstractGrid"><a class="docs-heading-anchor" href="#2.-AbstractGrid">2. AbstractGrid</a><a id="2.-AbstractGrid-1"></a><a class="docs-heading-anchor-permalink" href="#2.-AbstractGrid" title="Permalink"></a></h3><p>The structs that inherit from this type define the base grid of the experiment.  For example a simple grid would be</p><pre><code class="language-julia hljs">struct Grid &lt;: AbstractGrid
-    cell_size::Float64
-    W::Float64    # length of the entire domain
-    L::Float64    # width of the entire domain
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Code design · HighSeas.jl</title><meta name="title" content="Code design · HighSeas.jl"/><meta property="og:title" content="Code design · HighSeas.jl"/><meta property="twitter:title" content="Code design · HighSeas.jl"/><meta name="description" content="Documentation for HighSeas.jl."/><meta property="og:description" content="Documentation for HighSeas.jl."/><meta property="twitter:description" content="Documentation for HighSeas.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HighSeas.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../basic/">Basic function and Objects</a></li><li><a class="tocitem" href="../materials/">Materials</a></li><li><a class="tocitem" href="../geometries/">Grids, Geometries and Domains</a></li><li><a class="tocitem" href="../laws/">Laws</a></li><li><a class="tocitem" href="../algorithms/">Algorithm objects</a></li><li><a class="tocitem" href="../detectors/">Detector objects</a></li><li><a class="tocitem" href="../experiments/">Experiments</a></li><li><a class="tocitem" href="../samplers/">Samplers</a></li><li><a class="tocitem" href="../solvers/">Solving</a></li><li><a class="tocitem" href="../io/">Saving and Reading</a></li><li><a class="tocitem" href="../backends/">Backends</a></li><li class="is-active"><a class="tocitem" href>Code design</a><ul class="internal"><li class="toplevel"><a class="tocitem" href="#Available-components"><span>Available components</span></a></li><li><a class="tocitem" href="#Algorithms"><span>Algorithms</span></a></li><li><a class="tocitem" href="#Experiments"><span>Experiments</span></a></li><li><a class="tocitem" href="#Geometries"><span>Geometries</span></a></li><li><a class="tocitem" href="#Grids"><span>Grids</span></a></li><li><a class="tocitem" href="#Laws"><span>Laws</span></a></li><li><a class="tocitem" href="#Materials"><span>Materials</span></a></li><li><a class="tocitem" href="#Solvers"><span>Solvers</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Code design</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Code design</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/gbene/HighSeas.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/gbene/HighSeas.jl/blob/main/docs/src/structure.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Code-structure-and-design"><a class="docs-heading-anchor" href="#Code-structure-and-design">Code structure and design</a><a id="Code-structure-and-design-1"></a><a class="docs-heading-anchor-permalink" href="#Code-structure-and-design" title="Permalink"></a></h1><p>The package is designed to follow a composition based approach so that it is easier to customize the different solvers and problems but have a unified interface to solve/save/plot the results. The idea is to divide the different parts used in a simulation in independent components that can be swapped depending on what is necessary. In Julia these &quot;components&quot; are AbstractTypes, i.e. a general type that then can be used to define sub types or specific structs (concrete types). This is a simple UML class diagram that shows the general structure of the package and how the different components can be combined together. </p><p><img src="../assets/uml-HighSEAS.svg" alt="uml"/></p><p>In general:</p><ol><li>Experiments are defined as a combination of Domains and Material. Experiments also depend on AbstractState and AbstractCatalog (think of it as &quot;i am measuring/recording the quantities during my experiment&quot;).</li><li>Algorithms are defined as a combination of Steppers and Governing equations</li><li>Solvers are defined as a combination of one or more AbstractSavers (what to save during a simulation), AbstractDetectors (is an event happening?) and AbstractSamplers (how does this quantity vary on this point/section?).</li></ol><p>Solving is then just a loop that runs combinations of these three main components. </p><pre><code class="language-julia hljs">function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver)
 
-    n_elementsx::Int # number of elements on the x dimension
-    n_elementsy::Int # number of elements on the y dimension
+    state = experiment.state
+    stepper = algorithm.stepper
+    dx = state.dx
+    V  = state.V
+    theta  = state.theta
 
-    X::StepRangeLen  # X range
-    Y::StepRangeLen  # Y range
+    tf = solver.tf
 
-    x::AbstractArray{Float64} # x coordinates mesh
-    y::AbstractArray{Float64} # y coordinates mesh
-
-end</code></pre><p>We can also make subtypes of AbstractGrid, for example a  <code>AbstractPowerGrid</code> that has specific needs (i.e. grid nodes <strong>must</strong> be a power of 2)</p><pre><code class="language-julia hljs">struct PowerGrid &lt;: AbstractPowerGrid 
-    
-    cell_size::Float64
-    W::Float64    # length of the entire domain
-    L::Float64    # width of the entire domain
+    detector = solver.detector
+    savers = solver.savers
+    samplers = solver.samplers
 
 
-    domain_powerx::Int
-    domain_powery::Int
-
-    n_elementsx::Int # number of elements on the x dimension
-    n_elementsy::Int # number of elements on the y dimension
 
 
-    X::StepRangeLen  # X range
-    Y::StepRangeLen  # Y range
+    while stepper.time &lt;= tf
 
-    x::AbstractArray{Float64} # x coordinates mesh
-    y::AbstractArray{Float64} # y coordinates mesh
-end</code></pre><h3 id="3.-AbstractState"><a class="docs-heading-anchor" href="#3.-AbstractState">3. AbstractState</a><a id="3.-AbstractState-1"></a><a class="docs-heading-anchor-permalink" href="#3.-AbstractState" title="Permalink"></a></h3><p>The structs that inherit from this type define the state of the simulation (i.e. the variables that are being simulated).  For example a simple state would be:</p><pre><code class="language-julia hljs">struct State &lt;: AbstractState
-    
-    dx::AbstractArray{Float64}
-    V::AbstractArray{Float64}
-    theta::AbstractArray{Float64}
-    tau::AbstractArray{Float64}
-end</code></pre><h2 id="Constructed-structs"><a class="docs-heading-anchor" href="#Constructed-structs">Constructed structs</a><a id="Constructed-structs-1"></a><a class="docs-heading-anchor-permalink" href="#Constructed-structs" title="Permalink"></a></h2><p>These structs are constructed from base structs (i.e. use a struct to get info but don&#39;t have it as a field)</p><h3 id="1.-AbstractFault"><a class="docs-heading-anchor" href="#1.-AbstractFault">1. AbstractFault</a><a id="1.-AbstractFault-1"></a><a class="docs-heading-anchor-permalink" href="#1.-AbstractFault" title="Permalink"></a></h3><p>The structs that inherit from this type define the geometry of the fault using the grid as reference. For example a rectangular fault would be</p><pre><code class="language-julia hljs">struct RectangleFault &lt;: AbstractFault
+        dx, V, theta = algorithm(dx, V, theta) #Find the next step using the algorithm
 
-    Wf::Float64 # half width of the fault
-    Lf::Float64 # half length of the fault
-
-    dLO::AbstractArray{Int8} # Mask indicating inside the fault
-    dCR::AbstractArray{Int8} # Mask indicating outside the fault
-
-    function RectangleFault(Wf::Float64, Lf::Float64, grid::AbstractGrid)
-
-        x = grid.x
-        y = grid.y
-        
-
-        dLO = @. Int8( (-Lf &lt;= x &lt;= Lf)*(-Wf &lt;= y &lt;= Wf));
-
-        dCR = @. Int8(dLO == 0); 
-
-        new(Wf, Lf, dLO, dCR)
-    end
-
-end</code></pre><h3 id="2.-AbstractPatch"><a class="docs-heading-anchor" href="#2.-AbstractPatch">2. AbstractPatch</a><a id="2.-AbstractPatch-1"></a><a class="docs-heading-anchor-permalink" href="#2.-AbstractPatch" title="Permalink"></a></h3><p>The structs that inherit from this type define the geometry of the slip patch (= rate weakening patch) on the fault using the grid as reference. For example a rectangular patch would be.</p><pre><code class="language-julia hljs">struct RectanglePatch &lt;: AbstractPatch
-    w::Float64  # half width of the rate weakening zone
-    l::Float64  # half length of the rate weakening zone
-    h::Float64  # Buffer between RW and RS
-
-    dRW::AbstractArray{Int8} # Mask indicating inside the rate weakening zone
-    dRS::AbstractArray{Int8} # Mask indicating inside the rate strengthening zone
-    dTR::AbstractArray{Int8} # Mask indicating the transition between RS and RW
-
-    function RectanglePatch(w::Float64, l::Float64, h::Float64, grid::AbstractGrid)
-        x = grid.x
-        y = grid.y
-
-        dRW = @. Int8((abs(x) &lt; l) * (abs(y) &lt; w)); #inside rate/velocity weakening area
-        dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
-        dTR = @. Int8(((( l &lt;= abs(x) &lt;= l+h)*(abs(y)&lt;=w+h))+(( w &lt;= abs(y) &lt;= w+h)*(abs(x)&lt;=l+h)))&gt;=1); #Transition zone between RS and RW
+        sample(samplers, stepper, state, detector.eventN) # Sample 
+        if typeof(detector) != EmptyDetector
+            detect(detector, savers) # Detect (when an event is detected we save)
+        else
+            simsave(savers, stepper.step) # Save every nth step (if detectors are not used)
+        end
 
 
-        new(w, l, h, dRW, dRS, dTR)
-
-    end
-    
-end</code></pre><h3 id="3.-AbstractNucleation"><a class="docs-heading-anchor" href="#3.-AbstractNucleation">3. AbstractNucleation</a><a id="3.-AbstractNucleation-1"></a><a class="docs-heading-anchor-permalink" href="#3.-AbstractNucleation" title="Permalink"></a></h3><p>The structs that inherit from this type define a nucleation zone on the fault using the grid as reference. For example a rectangular nucleation would be</p><pre><code class="language-julia hljs">struct RectangleNucleation &lt;: AbstractNucleation
-
-    xi::Float64 # x center of the nucleation zone
-    yi::Float64 # y center of the nucleation zone
-
-    wi::Float64 # width of the nucleation zone
-    li::Float64 # length of the nucleation zone
-
-    dNU::AbstractArray{Int8} # Mask indicating inside the nucleation zone
-    dFD::AbstractArray{Int8} # Mask indicationg everything outside the nucleation zone
-
-
-    function RectangleNucleation(xi::Float64, yi::Float64, wi::Float64, li::Float64, grid::AbstractGrid)
-        x = grid.x
-        y = grid.y
-
-        x_rlim = xi+li/2
-        x_llim = xi-li/2
-
-        y_ulim = yi+wi/2
-        y_llim = yi-wi/2
-
-
-        dNU = @. Int8((x_llim &lt;= x &lt; x_rlim)*(y_llim &lt;= y &lt; y_ulim))
-
-        dFD = @. Int8(dNU==0)
-
-
-        new(xi, yi, wi, li, dNU, dFD)
 
     end
 
-end</code></pre><h2 id="Depending-structs"><a class="docs-heading-anchor" href="#Depending-structs">Depending structs</a><a id="Depending-structs-1"></a><a class="docs-heading-anchor-permalink" href="#Depending-structs" title="Permalink"></a></h2><p>These structs have in the field other structs (either constructed and/or base). They are intended more as a means to group things together. </p><h3 id="1.-AbstractDomain"><a class="docs-heading-anchor" href="#1.-AbstractDomain">1. AbstractDomain</a><a id="1.-AbstractDomain-1"></a><a class="docs-heading-anchor-permalink" href="#1.-AbstractDomain" title="Permalink"></a></h3><p>The structs that inherit from this type define the entire domain that is being simulated. </p><pre><code class="language-julia hljs">struct Domain &lt;:AbstractDomain
-
-
-    grid::AbstractGrid
-    fault::AbstractFault
-    patch::AbstractPatch
-    nucleation::AbstractNucleation
-
-    function Domain(grid::AbstractGrid, fault::AbstractFault, patch::AbstractPatch)
-
-        nucleation = EmptyNucleation(grid)
-
-        new(grid, fault, patch, nucleation)
-    end
-
-    function Domain(grid::AbstractGrid, fault::AbstractFault, patch::AbstractPatch, nucleation::AbstractNucleation)
-        new(grid, fault, patch, nucleation)
-    end
-
-end
-</code></pre><p>For example a pseudo code for a rectangular fault and patch build on a power grid would be </p><pre><code class="language-julia hljs">
-grid = PowerGrid()
-
-fault = RectangleFault()
-
-patch = RectanglePatch()
-
-domain = Domain(grid, fault, patch)</code></pre><h3 id="2.-AbstractExperiment"><a class="docs-heading-anchor" href="#2.-AbstractExperiment">2. AbstractExperiment</a><a id="2.-AbstractExperiment-1"></a><a class="docs-heading-anchor-permalink" href="#2.-AbstractExperiment" title="Permalink"></a></h3><p>The structs that inherit from this type define the experiment that we want to carry. This is where we do the setup of the experiment i.e. set initial values, a-b values, prestresses, check for the length scales etc etc. For example the BP4QD experiment is as follows:</p><p>&lt;details&gt;   &lt;summary&gt;Spoiler warning&lt;/summary&gt;</p><pre><code class="language-julia hljs">struct BP4QDExp &lt;: AbstractBenchExperiment
-
-    material::AbstractMaterial
-    domain::AbstractDomain
-
-    AL::Int # not sure if this goes here
-    Vpl::Float64
-    Vr::Float64
-    Vi::Float64
-    Vnu::Float64
-    si::Float64
-
-    lengthscales::NamedTuple
-
-    template::AbstractArray{Float64} # not sure if this is necessary or not
-    a::AbstractArray{Float64}
-    b::AbstractArray{Float64}
-    tau0::AbstractArray{Float64}
-
-    state::AbstractState
-
-
-    function BP4QDExp(input_dict::Dict, material::AbstractMaterial, domain::AbstractDomain)
-        AL                = Int(input_dict[&quot;AL&quot;])
-
-        Vpl               = input_dict[&quot;Vpl&quot;]
-        Vi                = input_dict[&quot;Vi&quot;]
-        Vr                = input_dict[&quot;Vr&quot;]
-        Vnu               = input_dict[&quot;Vnu&quot;]
-        si                = input_dict[&quot;si0&quot;]
-        Dc                = input_dict[&quot;Dc&quot;]
-
-
-        grid = domain.grid
-        patch = domain.patch
-        nucleation = domain.nucleation
-
-        aRSₛ = get_aRS(material)
-        aₛ   = get_a(material)
-        bₛ   = get_b(material)
-        eta  = get_eta(material)
-        fr   = get_fr(material)
-
-
-        lengthscales = CheckLengthScales(material, domain, Dc, si)
-
-        println(lengthscales)
-
-        x = grid.x
-        y = grid.y
-        dRS = patch.dRS .== 1
-        dTR = patch.dTR .== 1
-        dNU = nucleation.dNU .== 1
-        L = patch.l
-        H = patch.w
-        h = patch.h
-
-        x_buffer = x[dTR]
-        y_buffer = y[dTR]
-
-
-        r = maximum([(abs.(x_buffer).- L);; (abs.(y_buffer).- H)],dims=2)./h;
-
-        template = zeros(size(x))
-
-        a_buffer = @. aₛ + r*(aRSₛ-aₛ);
-        a = aₛ .+ template;
-        a[dRS] .= aRSₛ;
-        a[dTR] .= a_buffer;
-        b = bₛ .+ template;
-
-        tau0 = @. si*a*asinh((Vi/(2*Vr))*exp((fr+bₛ*log(Vr/Vi))/a))+eta*Vi;
-        @. tau0[dNU] = si*aₛ*asinh((Vnu/(2*Vr))*exp((fr+bₛ*log(Vr/Vi))/aₛ))+eta*Vnu;
-
-        dx_init = copy(template)
-        V_init  = Vi.+dx_init
-        V_init[dNU] .= Vnu
-        theta_init  = Dc/Vi.+dx_init
-
-        tau_init = copy(tau0)
-
-        state_init = State(dx_init, V_init, theta_init, tau_init)
-
-        new(material, domain, AL, Vpl, Vi, Vr, Vnu, si, lengthscales, template, a, b, tau0, state_init)
-
-    end
-
-    function BP4QDExp(input_dict::Dict, material::AbstractMaterial, domain::AbstractDomain, state::AbstractState)
-
-        Vpl               = input_dict[&quot;Vpl&quot;]
-        Vi                = input_dict[&quot;Vi&quot;]
-        Vr                = input_dict[&quot;Vr&quot;]
-        Vnu               = input_dict[&quot;Vnu&quot;]
-        si                = input_dict[&quot;si0&quot;]
-
-
-        grid = domain.grid
-        patch = domain.patch
-        nucleation = domain.nucleation
-
-        aRSₛ = get_aRS(material)
-        aₛ   = get_a(material)
-        bₛ   = get_b(material)
-        eta  = get_eta(material)
-        fr   = get_fr(material)
-
-        x = grid.x
-        y = grid.y
-        dRS = patch.dRS .== 1
-        dTR = patch.dTR .== 1
-        dNU = nucleation.dNU .== 1
-        L = patch.l
-        H = patch.w
-        h = patch.h
-
-        x_buffer = x[dTR]
-        y_buffer = y[dTR]
-
-
-        r = maximum([(abs.(x_buffer).- L);; (abs.(y_buffer).- H)],dims=2)./h;
-
-
-
-        template = zeros(size(x))
-
-        a_buffer = @. aₛ + r*(aRSₛ-aₛ);
-        a = aₛ .+ template;
-        a[dRS] .= aRSₛ;
-        a[dTR] .= a_buffer;
-        b = bₛ .+ template;
-
-        tau0 = @. si*a*asinh((Vi/(2*Vr))*exp((fr+bₛ*log(Vr/Vi))/a))+eta*Vi;
-        @. tau0[dNU] = si*aₛ*asinh((Vnu/(2*Vr))*exp((fr+bₛ*log(Vr/Vi))/aₛ))+eta*Vnu;
-
-
-        new(material, domain, Vpl, Vi, Vr, Vnu, si, template, a, b, tau0, state)
-
-    end
-
-end </code></pre><p>&lt;/details&gt;</p><h2 id="Laws"><a class="docs-heading-anchor" href="#Laws">Laws</a><a id="Laws-1"></a><a class="docs-heading-anchor-permalink" href="#Laws" title="Permalink"></a></h2><p>These type of structs are special because they are intended to be used as <em>functors</em>. This is because most of the laws require to pre allocate arrays for temporary or final results or for other things (such as FFT). Using the functor approach we can define a law as a struct and then use the object itself as a function without the need to pass the temporary matrices as input! This makes the code much more clean and general as each law will have references to the arrays/variables that are only necessary for their own calculations.</p><h3 id="AbstractLaw"><a class="docs-heading-anchor" href="#AbstractLaw">AbstractLaw</a><a id="AbstractLaw-1"></a><a class="docs-heading-anchor-permalink" href="#AbstractLaw" title="Permalink"></a></h3><p>The structs that inherit from this type define the laws that the experiment will obey. Each law will need to have a subtype defined so that in case we need a more granular control we can impose it. </p><p>For example the AgeingLaw is a of type AbstractStateLaw that is a subtype ofAbstractLaw:</p><pre><code class="language-julia hljs">struct AgeingLaw &lt;: AbstractStateLaw
-
-    Dc::Float64
-    theta:: AbstractArray{Float64}
-
-    function AgeingLaw(experiment::AbstractExperiment)
-
-        Dc = experiment.material.Dc
-        theta = experiment.state.theta
-
-        new(Dc, theta)
-    end
-
-end
-
-# Define the functor. Only one per struct!!!
-function (ageingLaw::AgeingLaw)(theta, V, dt)
-    Dc = ageingLaw.Dc
-    theta_res = ageingLaw.theta
-
-    @. theta_res = theta * exp(-V * dt / Dc) + Dc / V * (1. - exp(-V * dt / Dc))
-
-    return theta_res # this is optional but is nice to also have an output 
-end</code></pre><h2 id="What-is-missing?"><a class="docs-heading-anchor" href="#What-is-missing?">What is missing?</a><a id="What-is-missing?-1"></a><a class="docs-heading-anchor-permalink" href="#What-is-missing?" title="Permalink"></a></h2><ul><li>The final part is to put all these things together and define a type that is used to solve the problem. </li><li>Have a saver option</li><li>We already have a stepper type that takes care of the time stepping, I did not describe it because the structure could change since it is tightly knit to the solver/algorithm part</li><li></li></ul></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../backends/">« Backends</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 25 March 2026 11:23">Wednesday 25 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><p>By using this approach then it is easy to expand. For example, if we want to add a fully elasto-dynamic solver for computing the stress then we just need to write the new component as a AbstractStressLaw and use that when defining the AbstractAlgorithm object.</p><h1 id="Available-components"><a class="docs-heading-anchor" href="#Available-components">Available components</a><a id="Available-components-1"></a><a class="docs-heading-anchor-permalink" href="#Available-components" title="Permalink"></a></h1><h2 id="Algorithms"><a class="docs-heading-anchor" href="#Algorithms">Algorithms</a><a id="Algorithms-1"></a><a class="docs-heading-anchor-permalink" href="#Algorithms" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="HighSeas.AbstractAlgorithm"><a class="docstring-binding" href="#HighSeas.AbstractAlgorithm"><code>HighSeas.AbstractAlgorithm</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used for all algorithms used to solve an experiment</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L1-L5">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractNewton"><a class="docstring-binding" href="#HighSeas.AbstractNewton"><code>HighSeas.AbstractNewton</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtype used for Newton algorithm</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L8-L12">source</a></section></details></article><h2 id="Experiments"><a class="docs-heading-anchor" href="#Experiments">Experiments</a><a id="Experiments-1"></a><a class="docs-heading-anchor-permalink" href="#Experiments" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="HighSeas.AbstractExperiment"><a class="docstring-binding" href="#HighSeas.AbstractExperiment"><code>HighSeas.AbstractExperiment</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used to define an experiment</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L65-L69">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractBenchExperiment"><a class="docstring-binding" href="#HighSeas.AbstractBenchExperiment"><code>HighSeas.AbstractBenchExperiment</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtype used to define an benchmark experiment</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L72-L76">source</a></section></details></article><h2 id="Geometries"><a class="docs-heading-anchor" href="#Geometries">Geometries</a><a id="Geometries-1"></a><a class="docs-heading-anchor-permalink" href="#Geometries" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="HighSeas.AbstractFault"><a class="docstring-binding" href="#HighSeas.AbstractFault"><code>HighSeas.AbstractFault</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used to define a fault element in the simulation</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L93-L97">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractPatch"><a class="docstring-binding" href="#HighSeas.AbstractPatch"><code>HighSeas.AbstractPatch</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used to define a rate weakening element in the simulation</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L100-L104">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractNucleation"><a class="docstring-binding" href="#HighSeas.AbstractNucleation"><code>HighSeas.AbstractNucleation</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used to define a nucleation patch element in the simulation</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L108-L112">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractDomain"><a class="docstring-binding" href="#HighSeas.AbstractDomain"><code>HighSeas.AbstractDomain</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used to group all elements of the simulated geometry (i.e. fault, rate weakening patch etcetc).</p><p><strong>Notes</strong></p><p>For now only one fault, patch and nucleation can be defined per domain. Also only one domain per experiment can be used.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L116-L124">source</a></section></details></article><h2 id="Grids"><a class="docs-heading-anchor" href="#Grids">Grids</a><a id="Grids-1"></a><a class="docs-heading-anchor-permalink" href="#Grids" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="HighSeas.AbstractGrid"><a class="docstring-binding" href="#HighSeas.AbstractGrid"><code>HighSeas.AbstractGrid</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used to define the underlying grids of the simulations</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L79-L83">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractPowerGrid"><a class="docstring-binding" href="#HighSeas.AbstractPowerGrid"><code>HighSeas.AbstractPowerGrid</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtypetype used to define a grid with power 2 elements and square cells</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L86-L90">source</a></section></details></article><h2 id="Laws"><a class="docs-heading-anchor" href="#Laws">Laws</a><a id="Laws-1"></a><a class="docs-heading-anchor-permalink" href="#Laws" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="HighSeas.AbstractLaw"><a class="docstring-binding" href="#HighSeas.AbstractLaw"><code>HighSeas.AbstractLaw</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used to define laws that govern the simulation</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L212-L216">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractRateLaw"><a class="docstring-binding" href="#HighSeas.AbstractRateLaw"><code>HighSeas.AbstractRateLaw</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtype used to define Rate laws (i.e. linearized or explicit)</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L232-L236">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractStateLaw"><a class="docstring-binding" href="#HighSeas.AbstractStateLaw"><code>HighSeas.AbstractStateLaw</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtype used to define State laws (i.e. aging or slip law)</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L226-L230">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractHybridRateLaw"><a class="docstring-binding" href="#HighSeas.AbstractHybridRateLaw"><code>HighSeas.AbstractHybridRateLaw</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtype used to define a hybrid law (use different laws depending on a threshold)</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L239-L243">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractStressLaw"><a class="docstring-binding" href="#HighSeas.AbstractStressLaw"><code>HighSeas.AbstractStressLaw</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtype used to define Stress laws</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L246-L250">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractErrorLaw"><a class="docstring-binding" href="#HighSeas.AbstractErrorLaw"><code>HighSeas.AbstractErrorLaw</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtype used to define Error laws used in AbstractAdaptiveSteppers</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L253-L257">source</a></section></details></article><h2 id="Materials"><a class="docs-heading-anchor" href="#Materials">Materials</a><a id="Materials-1"></a><a class="docs-heading-anchor-permalink" href="#Materials" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="HighSeas.AbstractMaterial"><a class="docstring-binding" href="#HighSeas.AbstractMaterial"><code>HighSeas.AbstractMaterial</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used to define a material used in the simulation</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L136-L140">source</a></section></details></article><h2 id="Solvers"><a class="docs-heading-anchor" href="#Solvers">Solvers</a><a id="Solvers-1"></a><a class="docs-heading-anchor-permalink" href="#Solvers" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="HighSeas.AbstractSolver"><a class="docstring-binding" href="#HighSeas.AbstractSolver"><code>HighSeas.AbstractSolver</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract type used to define a solver, i.e. how the AstractAlgorithm is managed</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L175-L179">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractStepSolver"><a class="docstring-binding" href="#HighSeas.AbstractStepSolver"><code>HighSeas.AbstractStepSolver</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtype used to define solvers that run in a predefined number of steps</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L183-L187">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HighSeas.AbstractTimeSolver"><a class="docstring-binding" href="#HighSeas.AbstractTimeSolver"><code>HighSeas.AbstractTimeSolver</code></a> — <span class="docstring-category">Type</span></summary><section><div><p>Abstract subtype used to define solvers that run in a predefined time</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/gbene/HighSeas.jl/blob/41f64a46cd05b6345fe8e096a49f6adeddb2e86f/src/abstracttypes.jl#L190-L194">source</a></section></details></article><p>@docs HighSeas.AbstractStepper</p><pre><code class="nohighlight hljs"></code></pre><p>@docs HighSeas.AbstractAdaptiveStepper</p><pre><code class="nohighlight hljs">
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../backends/">« Backends</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 10 August 2026 15:59">Monday 10 August 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
