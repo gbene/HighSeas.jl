@@ -16,7 +16,7 @@
 + Vr                : Reference velocity [m/s]
 + Vnu               : Nucleation velocity [m/s]
 + fr                : Reference friction
-+ cellsize          : size of the cell (cell is always square) 
++ cellsize          : size of the cell (cell is always square)
 + W                 : Width of the simulation domain
 + L                 : Length of the simulation domain
 + Wf                : Half-width of the fault

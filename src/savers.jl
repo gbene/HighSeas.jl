@@ -285,3 +285,16 @@ function simsave(savers::Vector{<:AbstractSaver})
         simsave(saver)
     end
 end
+
+
+function to_csv(catalog::AbstractCatalog, path::String; delim=";")
+
+    mat = catalog.catalog
+
+    header = ["time", "interevent", "moment", "mag", "Area", "MeanSlip", "MeanStress", "hypo_x", "hypo_y"]
+
+    table = Tables.table(mat, header=header)
+
+    CSV.write(path, table, delim=delim)
+
+end

@@ -13,7 +13,7 @@ if not Path(input_folder).is_dir():
     sys.exit() 
     
 
-start_line = int(input("Data start line: "))-1
+start_line = int(input("Data start line (one indexed): "))-1
 mode = int(input('Header type (1: onfault, 2: global, 3: rupture): '))
 
 if mode == 1:

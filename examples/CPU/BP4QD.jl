@@ -4,7 +4,7 @@ using BenchmarkTools
 # using CairoMakie
 # using GLMakie
 
-input_dict = ReadSheet("BP4input.txt")
+input_dict = readSheet("BP4input.txt")
 # saved_state, step, time = load("BP4QD_out/2026-02-12T11:16:16.270/CPU/saved_StepSaver.jld2")["data"]
 
 # Define the domain
@@ -65,10 +65,10 @@ detector = CatalogDetector(1e-3, 1e-2, experiment, algorithm)
 
 samplers = Array{HighSeas.AbstractSampler, 1}(undef, 16)
 for sp in 1:14
-    samplers[sp] = PointSampler("BP4_sample_points.txt", sp, 700000, experiment)
+    samplers[sp] = PointSampler("../BP4_sample_points.txt", sp, 700000, experiment)
 end
-samplers[15] = SectionSampler(0.0, "y", 700000, experiment)
-samplers[16] = ContourSampler(:V, 1e-3, experiment)
+samplers[15] = SectionSampler("dx", 0.0, "y", 700000, experiment)
+samplers[16] = ContourSampler("V", 1e-3, experiment)
 
 # # Define savers
 
@@ -95,15 +95,8 @@ tf = input_dict["tf"]*(365*24*60*60)
 
 # solver = TimeSolver(tf, savers, detector)
 # or add samplers
-solver = TimeSolver(tf, savers, detector)
+solver = TimeSolver(tf, savers, detector, samplers)
 
 # Solve
-# HighSeas.solve(experiment, algorithm, solver)
-
-# add plotter to plot
-# HighSeas.solve(experiment, algorithm, solver)
-
-HighSeas.benchmarksolve(experiment, algorithm, 100, true)
-
-# b = @benchmark HighSeas.benchmarksolve(experiment, algorithm, 100)
-# display(b)
+HighSeas.solve(experiment, algorithm, solver)
+# HighSeas.solve(experiment, algorithm, solver, plotter)

@@ -1,2 +1,9 @@
 [deps]
+AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+Gumbo = "708ec375-b3d6-5a57-a7ce-8257bf98657a"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 Lazy = "50d2b5c4-7a5e-59d5-8109-a42b560f39c0"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+PCHIPInterpolation = "afe20452-48d1-4729-9a8b-50fb251f06cd"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"

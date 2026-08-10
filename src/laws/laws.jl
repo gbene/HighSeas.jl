@@ -1,12 +1,3 @@
-abstract type AbstractLaw end
-abstract type AbstractGoverningEquations end
-abstract type AbstractStateLaw <: AbstractLaw end
-abstract type AbstractRateLaw <: AbstractLaw end
-abstract type AbstractHybridRateLaw <: AbstractRateLaw end
-abstract type AbstractStressLaw <: AbstractLaw end
-abstract type AbstractErrorLaw <: AbstractLaw end
-
-
 include("rate.jl")
 include("state.jl")
 include("stress.jl")

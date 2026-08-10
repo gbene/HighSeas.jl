@@ -6,29 +6,25 @@ using BenchmarkTools
 
 
 set_GPUbackend() # To use UnifiedMemory add "unified" as the method argument. Default is DeviceMemory. AMDGPU ony supports DeviceMemory
-input_dict = readSheet("BP4input.txt")
-
+input_dict = readSheet("circular_input.txt")
+# saved_step = loadData("/home/gab28/DATA/PhD/GitHub/HighSeas.jl/examples/GPU_CUDA/Asperity_out/2026_05_15T13_03_01.128/CUDA/saved_StepSaver.jld2")
 # Define the domain
 
 grid = PowerGrid(input_dict)
-fault = RectangleFault(input_dict, grid)
+fault = HighSeas.CircularFault(input_dict, grid, 0.8)
+patch = HighSeas.FractalAsperity(input_dict, grid, 0.9, 0.35,16)
 
-patch = RectanglePatch(input_dict, grid)
-nucleation = RectangleNucleation(input_dict, grid)
-
-domain = Domain(grid, fault, patch, nucleation)
-
-# Define the material
+domain = Domain(grid, fault, patch)
 
 material = SimpleMaterial(input_dict)
 
 
 # Define the experiment
 
-experiment = BP4QDExp(input_dict, material, domain, 10, "BP4QD_out")
-# experiment = BP4QDExp(input_dict, material, domain, 5, "BP4QD_out", saved_step)
+experiment = HighSeas.Experiment(input_dict, material, domain, 100000, "Asperity_out")
+# experiment = HighSeas.Experiment(input_dict, material, domain, 100000, "Asperity_out", saved_step)
 
-# Define the Govenring equations
+
 
 stresslaw = StressFFT(experiment)
 statelaw = AgeingLaw(experiment)
@@ -44,7 +40,7 @@ governing_equations = GoverningEquations(hybridlaw, stresslaw, statelaw)
 
 errorlaw = DoubleError(experiment)
 stepper  = AdaptiveStepper(input_dict, errorlaw)
-# stepper  = AdaptiveStepper(input_dict, errorlaw, saved_step)
+# stepper  = AdaptiveStepper(input_dict, errorlaw, saved_step)<
 
 
 
@@ -58,34 +54,15 @@ detector = CatalogDetector(1e-3, 1e-2, experiment, algorithm)
 
 # Additional live plotting. This works only with CUDA.UnifiedMemory
 
-# plotter = RSPlotter(experiment, algorithm, 10)
-
-# Additional samplers
-
-samplers = Array{HighSeas.AbstractSampler, 1}(undef, 16)
-for sp in 1:14
-    samplers[sp] = PointSampler("../resources/scec/bp4-qd/BP4_sample_points.txt", sp, 700000, experiment)
-end
-samplers[15] = SectionSampler("dx", 0.0, "y", 700000, experiment)
-samplers[16] = ContourSampler("V", 1e-3, experiment)
-# samplers = [ContourSampler(:V, 1e-3, experiment)]
+# plotter = RSPlotter(experiment, algorithm, 30)
 
 # Define savers
 
 stepsaver = StepSaver(500, experiment, algorithm) # save simulation state at every 500 steps
 catalogsaver = CatalogSaver(500, experiment, algorithm) # save catalog at every 500 steps
 
-# # snapshotsaver = SnaptshotSaver("BP4QD_out", 100, plotter, experiment, algorithm) # save a figure at every 500 steps
-samplersaver = SamplerSaver(500, samplers, experiment, algorithm) # save the samplers at every 500 steps
 
-
-# savers = [stepsaver, catalogsaver]
-# or
-# savers = [stepsaver, catalogsaver, snapshotsaver]
-#or
-savers = [stepsaver, catalogsaver, samplersaver]
-#or ...
-
+savers = [stepsaver, catalogsaver]
 
 
 
@@ -93,14 +70,7 @@ savers = [stepsaver, catalogsaver, samplersaver]
 tf = input_dict["tf"]*(365*24*60*60)
 
 # solver = StepSolver(1, savers, detector)
-
-# solver = TimeSolver(tf, savers, detector)
-
-# or add samplers
-solver = TimeSolver(tf, savers, detector, samplers)
-
+solver = TimeSolver(tf, savers, detector)
 
 # Solve
 HighSeas.solve(experiment, algorithm, solver)
-
-# HighSeas.solve(experiment, algorithm, solver, plotter)

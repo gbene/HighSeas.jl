@@ -1,3 +1,65 @@
+function fractalsurface(n, H, seed)
+    rand_gen = Xoshiro(seed)
+
+    N = 2^n
+
+    L = zeros(N+1,N+1)
+
+    R = randn(rand_gen, 3,3)
+
+    initial = [1,2^(n-1),2^n+1]
+
+    for i in 1:3
+        for j in 1:3
+            L[initial[i], initial[j]]=R[i,j]
+        end
+    end
+
+    idx = findall(!iszero, L)
+    r = Int(sqrt(length(idx)))
+
+
+    for l=1:n-1
+        mid = zeros(Int, r-1)
+        for i=1:r-1
+            mid[i]=Int((idx[i][1]+idx[i+1][1])÷2);
+            for j=1:r
+                L[mid[i],idx[j][1]] = mean([L[idx[i][1],idx[j][1]], L[idx[i+1][1], idx[j][1]]]) + randn(rand_gen)*2^(-H*(l+1));
+                L[idx[j][1], mid[i]] = mean([L[idx[j][1], idx[i][1]], L[idx[j][1], idx[i+1][1]]]) + randn(rand_gen)*2^(-H*(l+1));
+            end
+        end
+        for i=1:r-1
+            for j=1:r-1
+                L[mid[i],mid[j]] = mean([L[idx[i][1],idx[j][1]], L[idx[i][1], idx[j+1][1]], L[idx[i+1][1], idx[j][1]], L[idx[i+1][1], idx[j+1][1]]])+randn(rand_gen)*2^(-H*(l+1));
+            end
+        end
+
+        idx = findall(!iszero, L)
+
+        r = Int(sqrt(length(idx)));
+
+    end
+
+    R = zeros(r,r)
+
+    for i=1:r
+        for j=1:r
+            R[i,j] = L[idx[i][1],idx[j][1]];
+        end
+    end
+
+    return R
+end
+
+function fractalasperity(n, H, seed)
+
+    surf = fractalsurface(n, H, seed)
+    fractal = Int8.(surf .< -1)
+    return fractal
+end
+
+
+
 """
     Grid <: AbstractGrid
 
@@ -137,20 +199,57 @@ struct PowerGrid{M<:AbstractArray{Float64}} <: AbstractPowerGrid
     Wratio::Float64
     function PowerGrid(input_dict::Dict)
 
-        cell_sizex     = input_dict["cellsizex"]
-        cell_sizey     = input_dict["cellsizey"]
+        L = 0.
+        W = 0.
+        cell_sizex = 0.
+        cell_sizey = 0.
+        domain_powerx = 0
+        domain_powery = 0
 
-        @assert cell_sizex === cell_sizey "Cell is not square!"
+        if "dpx" in keys(input_dict) && "cellsizex" in keys(input_dict)
+            domain_powerx = Int(input_dict["dpx"])
+            domain_powery = Int(input_dict["dpy"])
+            cell_sizex     = input_dict["cellsizex"]
+            cell_sizey     = input_dict["cellsizey"]
 
-        L             = input_dict["L"]
-        W             = input_dict["W"]
+            L = cell_sizex*2^domain_powerx
+            W = cell_sizey*2^domain_powery
+
+            input_dict["L"] = L
+            input_dict["W"] = W
+
+            println("Fixed cell size and domain power will return a different domain size: $(cell_sizex*2^domain_powerx) x $(cell_sizey*2^domain_powery)")
+        elseif "dpx" in keys(input_dict)
+            domain_powerx = Int(input_dict["dpx"])
+            domain_powery = Int(input_dict["dpy"])
+
+            cell_sizex = input_dict["L"]/2^domain_powerx
+            cell_sizey = input_dict["W"]/2^domain_powery
+
+            input_dict["cellsizex"] = cell_sizex
+            input_dict["cellsizey"] = cell_sizey
+
+            println("Fixed domain power and domain size will return a different cellsize: $cell_sizex x $cell_sizey")
+
+        elseif "cellsizex" in keys(input_dict)
+            cell_sizex     = input_dict["cellsizex"]
+            cell_sizey     = input_dict["cellsizey"]
+
+            domain_powerx  = round(Int, log2(input_dict["L"]/cell_sizex))
+            domain_powery  = round(Int, log2(input_dict["W"]/cell_sizey))
+
+            input_dict["dpx"] = domain_powerx
+            input_dict["dpy"] = domain_powery
+            println("Fixed cell size will return a different domain size: $(cell_sizex*2^domain_powerx) x $(cell_sizey*2^domain_powery)")
 
 
-        domain_powerx  = round(Int, log2(L/cell_sizex))
-        domain_powery  = round(Int, log2(W/cell_sizey))
+        end
 
         n_elementsx   = 2^domain_powerx
         n_elementsy   = 2^domain_powery
+
+
+        @assert cell_sizex === cell_sizey "Cell is not square!"
 
         L_domain = (cell_sizex*n_elementsx)
         W_domain = (cell_sizey*n_elementsy)
@@ -237,6 +336,72 @@ struct RectangleFault{M<:AbstractArray{Int8}} <: AbstractFault # Try if Abstract
 end
 
 
+struct CircularFault{M<:AbstractArray{Int8}} <: AbstractFault # Try if AbstractArray{Bool} works with FastBroadcasting
+
+    Wf::Float64 # half width of the fault
+    Lf::Float64 # half length of the fault
+
+    dLO::M # Mask indicating inside the loading area
+    dCR::M # Mask indicating the creeping region
+
+
+    function CircularFault(input_dict::Dict, grid::AbstractGrid; gpu_id::Int=0)
+
+        Wf            = input_dict["Wf"]
+        Lf            = input_dict["Lf"]
+
+        @assert Wf == Lf "Width and length are not the same!"
+
+
+        x = grid.x
+        y = grid.y
+
+
+        dLO = @. Int8( sqrt(x^2+y^2) < Wf);
+        dCR = @. Int8(dLO == 0);
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            dLO = memcopy(dLO, gpu_id)
+            dCR = memcopy(dCR, gpu_id)
+        end
+
+        new{typeof(dLO)}(Wf, Lf, dLO, dCR)
+    end
+
+    function CircularFault(input_dict::Dict, grid::AbstractGrid, ratio::Float64; gpu_id::Int=0)
+
+        Lf = (input_dict["L"]*ratio)/2
+        Wf = (input_dict["W"]*ratio)/2
+
+        @assert Wf == Lf "Width and length are not the same!"
+
+        input_dict["Wf"] = Wf
+        input_dict["Lf"] = Lf
+
+
+
+        x = grid.x
+        y = grid.y
+
+
+        dLO = @. Int8( sqrt(x^2+y^2) < Wf);
+        dCR = @. Int8(dLO == 0);
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            dLO = memcopy(dLO, gpu_id)
+            dCR = memcopy(dCR, gpu_id)
+        end
+
+        new{typeof(dLO)}(Wf, Lf, dLO, dCR)
+    end
+
+    function CircularFault{M}(Wf, Lf, dLO::M, dCR::M) where M
+        new{M}(Wf, Lf, dLO, dCR)
+    end
+
+end
+
+
 """
     RectanglePatch(input_dict, grid) <: AbstractPatch
 
@@ -296,6 +461,80 @@ struct RectanglePatch{M<:AbstractArray{Int8}} <: AbstractPatch
     end
 
     function RectanglePatch{M}(w, l, h, dRW::M, dRS::M, dTR::M) where M
+        new{typeof(dRW)}(w, l, h, dRW, dRS, dTR)
+    end
+
+end
+
+
+
+struct CircularPatch{M<:AbstractArray{Int8}} <: AbstractPatch
+    w::Float64  # half width of the rate weakening zone
+    l::Float64  # half length of the rate weakening zone
+    h::Float64  # Buffer between RW and RS
+
+    dRW::M # Mask indicating inside the rate weakening zone
+    dRS::M # Mask indicating inside the rate strengthening zone
+    dTR::M # Mask indicating the transition between RS and RW
+
+
+    function CircularPatch(input_dict::Dict, grid::AbstractGrid; gpu_id::Int=0)
+        w             = input_dict["w"]
+        l             = input_dict["l"]
+        h             = input_dict["h"]
+
+        @assert w == l "Width and length of patch are not the same!!"
+
+
+        x = grid.x
+        y = grid.y
+
+        dRW = @. Int8(sqrt(x^2+y^2) < w); #inside rate/velocity weakening area
+        dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
+        dTR = @. Int8( (sqrt(x^2+y^2) >= w) * (sqrt(x^2+y^2) < w+h)); #Transition zone between RS and RW
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            dRW = memcopy(dRW, gpu_id)
+            dRS = memcopy(dRS, gpu_id)
+            dTR = memcopy(dTR, gpu_id)
+
+        end
+
+        new{typeof(dRW)}(w, l, h, dRW, dRS, dTR)
+
+    end
+
+    function CircularPatch(input_dict::Dict, grid::AbstractGrid, ratio::Float64; gpu_id::Int=0)
+        w             = input_dict["Wf"] * ratio
+        l             = input_dict["Lf"] * ratio
+        h             = input_dict["h"]
+
+        @assert w == l "Width and length of patch are not the same!!"
+
+        input_dict["w"] = w
+        input_dict["l"] = l
+
+
+
+        x = grid.x
+        y = grid.y
+
+        dRW = @. Int8(sqrt(x^2+y^2) < w); #inside rate/velocity weakening area
+        dRS = @. Int8(dRW==0); #inside rate/velocity strengthening area
+        dTR = @. Int8( (sqrt(x^2+y^2) >= w) * (sqrt(x^2+y^2) < w+h)); #Transition zone between RS and RW
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            dRW = memcopy(dRW, gpu_id)
+            dRS = memcopy(dRS, gpu_id)
+            dTR = memcopy(dTR, gpu_id)
+
+        end
+
+        new{typeof(dRW)}(w, l, h, dRW, dRS, dTR)
+
+    end
+
+    function CircularPatch{M}(w, l, h, dRW::M, dRS::M, dTR::M) where M
         new{typeof(dRW)}(w, l, h, dRW, dRS, dTR)
     end
 
@@ -544,7 +783,7 @@ struct RectangleNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
         y_llim = yi-wi/2
 
 
-        dNU = @. Int8((x_llim < x < x_rlim)*(y_llim < y < y_ulim)) # To be exact it should be <= but I am debugging
+        dNU = @. Int8((x_llim <= x <= x_rlim)*(y_llim <= y <= y_ulim))
 
         dFD = @. Int8(dNU==0)
 
@@ -564,6 +803,87 @@ struct RectangleNucleation{M<:AbstractArray{Int8}} <: AbstractNucleation
 
 end
 
+
+
+
+struct FractalAsperity{M<:AbstractArray{Int8}} <:AbstractPatch
+
+    w::Float64  # half width of the rate weakening zone
+    l::Float64  # half length of the rate weakening zone
+    h::Float64  # Buffer between RW and RS
+
+
+    dRW::M # Mask indicating inside the rate weakening zone
+    dRS::M # Mask indicating inside the rate strengthening zone
+    dTR::M
+
+    n::Integer
+    H::Float64
+    seed::Integer
+
+    function FractalAsperity(input_dict::Dict, grid::AbstractGrid, ratio::Float64, H::Float64, seed::Integer; gpu_id::Int=0)
+
+        w             = input_dict["Wf"] * ratio
+        l             = input_dict["Lf"] * ratio
+
+        @assert w == l "Width and length of patch are not the same!!"
+
+        input_dict["w"] = w
+        input_dict["l"] = l
+
+
+
+        x = grid.x
+        y = grid.y
+
+        dRW_circle = @. Int8(sqrt(x^2+y^2) < w); #inside rate/velocity weakening area
+
+        n = grid.domain_powerx
+        dRW = fractalasperity(n, H, seed) .* dRW_circle
+        dRS = @. Int8(dRW==0)
+        dTR = zeros(Int8, grid.n_elementsx, grid.n_elementsy); #Transition zone between RS and RW
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            dRW = memcopy(dRW, gpu_id)
+            dRS = memcopy(dRS, gpu_id)
+            dTR = memcopy(dTR, gpu_id)
+
+        end
+
+        h = 0.0
+
+        new{typeof(dRW)}(w, l, h, dRW, dRS, dTR, n, H, seed)
+
+    end
+
+    function FractalAsperity(grid::AbstractGrid, H::Float64; gpu_id::Int=0)
+
+        seed = rand(Int16)
+        n = grid.domain_powerx
+        dRW = fractalasperity(n, H, seed)
+        dRS = @. Int8(dRW==0)
+        dTR = zeros(Int8, grid.n_elementsx, grid.n_elementsy); #Transition zone between RS and RW
+
+        if typeof(get_backend()) <: AbstractGPUBackend
+            dRW = memcopy(dRW, gpu_id)
+            dRS = memcopy(dRS, gpu_id)
+            dTR = memcopy(dTR, gpu_id)
+
+        end
+
+        h = 0.0
+
+        new{typeof(dRW)}(w, l, h, dRW, dRS, dTR, n, H, seed)
+    end
+
+
+    function FractalAsperity{M}(w::Float64, l::Float64, h::Float64, dRW::M, dRS::M, dTR::M, n::Integer, H::Float64, seed::Integer) where M
+        new{M}(w, l, h, dRW, dRS, dTR, n, H, seed)
+    end
+
+
+
+end
 
 """
 
