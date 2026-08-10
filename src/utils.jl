@@ -82,7 +82,7 @@ To use this function the input file must contain the following
 + Vr                               : Reference velocity [m/s]
 + Vnu                              : Nucleation velocity [m/s]
 + fr                               : Reference friction
-+ n_nodes/dp                       : Number of nodes along x and y. When using PowerGrid use dp (domainpower), i.e. 12 for 2^12 nodes. 
++ n_nodes/dp                       : Number of nodes along x and y. When using PowerGrid use dp (domainpower), i.e. 12 for 2^12 nodes.
 + W                                : Width of the simulation domain
 + L                                : Length of the simulation domain
 + Wf                               : Half-width of the fault
@@ -98,7 +98,7 @@ To use this function the input file must contain the following
 ```
 
 """
-function readSheet(path_file::String; factor::Int=1)
+function readSheet(path_file::String)
       input_dict = Dict{String, Any}()
       open(path_file) do f
             lines = readlines(f)
@@ -106,11 +106,11 @@ function readSheet(path_file::String; factor::Int=1)
             lines = lines[mask]
             for line in lines
                   key, value = split(line,':')
-                  if key in ["W","L","Wf","Lf","w","l","h","xi","yi","wi","li"]
-                    value = parse(Float64, value)/factor
-                  else
-                    value = parse(Float64, value)
-                  end
+                #   if key in ["W","L","Wf","Lf","w","l","h","xi","yi","wi","li"]
+                #     value = parse(Float64, value)/factor
+                #   else
+                  value = parse(Float64, value)
+                #   end
                   # display(key)
                   push!(input_dict,key=>value)
             end

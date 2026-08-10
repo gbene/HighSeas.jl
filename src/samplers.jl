@@ -24,7 +24,7 @@ Sample simulation at a given point
 ### Notes
 
 - When using GPUs, it is possible to decide where the mask reside using `gpu_id`
-- It is possible to use a sample point file structured as follows
+- It is possible to use a sample point file structured as follows (units are in meters!)
 
 ```
 n x y
@@ -70,8 +70,8 @@ struct PointSampler{B<:AbstractArray{Int8}} <: AbstractSampler
         sample_points = CSV.File(open(sample_points_paths))
 
         grid = experiment.domain.grid
-        sample_point_x = sample_points.x[sample_point_id]*1000
-        sample_point_y = sample_points.y[sample_point_id]*1000
+        sample_point_x = sample_points.x[sample_point_id]
+        sample_point_y = sample_points.y[sample_point_id]
 
         mask = @. Int8((grid.x == sample_point_x) * (grid.y == sample_point_y));
         # temp = zeros(grid.n_elementsy, grid.n_elementsx)
