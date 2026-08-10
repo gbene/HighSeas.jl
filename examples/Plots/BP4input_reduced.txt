@@ -16,8 +16,8 @@ Vi: 1.0e-9
 Vr: 1.0e-6
 Vnu: 1e-3
 fr: 0.6
-dpx: 12
-dpy: 12
+cellsizex: 1.5
+cellsizey: 1.5
 W: 9142.86
 L: 9142.86
 Wf: 2857.14
