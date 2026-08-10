@@ -188,9 +188,10 @@ parser = argparse.ArgumentParser(description="SCEC SEAS benchmarks download util
 
 parser.add_argument("--n", default=None, help="Name of the benchmark to download")
 parser.add_argument("--r", default=None, help="Name of the run to download")
-parser.add_argument("--d", '--names-list', nargs='+', default=[], help="Name of the data to download")
+parser.add_argument("--d", nargs='+', default=[], help="Name of the data to download")
 parser.add_argument("--a", action='store_true', help="Download all")
 parser.add_argument("--s", default=".", help="Directory to save")
+parser.add_argument("--up", nargs='+', default=[], help="scec username and password. If not provided env variables will be checked ('scec_user' and 'scec_pass'). If not present public area will be entered")
 
 
 
@@ -199,8 +200,14 @@ args = parser.parse_args()
 
 scraper = SCEC(headless=False)
 
-scraper.login(os.environ["scec_user"], os.environ["scec_pass"])
+if len(args.up) > 1:
+    scraper.login(args.up[0], args.up[1])
 
+else:
+    if "scec_user" in os.environ.keys() or "scec_pass" in os.environ.keys():
+        scraper.login(os.environ["scec_user"], os.environ["scec_pass"])
+    else:
+        scraper.login()
 if args.n: 
     scraper.select_benchmark(args.n)
 else:
