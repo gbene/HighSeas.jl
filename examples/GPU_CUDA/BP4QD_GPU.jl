@@ -99,8 +99,11 @@ tf = input_dict["tf"]*(365*24*60*60)
 # or add samplers
 solver = TimeSolver(tf, savers, detector, samplers)
 
+notifier = MailNotifier("protonmail_user", "protonmail_token", "smtp://smtp.protonmail.ch:587")
+
 
 # Solve
-HighSeas.solve(experiment, algorithm, solver)
+# HighSeas.solve(experiment, algorithm, solver)
+HighSeas.solve(experiment, algorithm, solver, notifier)
 
 # HighSeas.solve(experiment, algorithm, solver, plotter)

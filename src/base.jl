@@ -239,3 +239,113 @@ struct SimulationLog <: AbstractLog
 
 
 end
+
+
+"""
+MailNotifier
+
+Setup a mail notification system. 
+
+An email will be sent to the desired recipient(s) at the start and end of a simulation
+
+
+### Fields
+
+- `mailto::Vector{String}` -- Recipent(s) that will receive the email
+- `mailfrom::String` -- Sender of the email
+- `url::String` -- SMTP url
+- `send_opts::SendOptions` -- Send options struct
+
+
+### Notes
+
+For security reasons the sender email and password must be set as environment variables. When constructing the object, pass the names of the env variables for the email username and password. 
+
+
+### Examples
+
+- `MailNotifier(["mailto@example.com"], "name_of_env_variable_user", "name_of_env_variable_password", "smtps://smtp.gmail.com:465")` -- Mail notifier that uses gmail, sending the email to a receiver 
+- `MailNotifier("name_of_env_variable_user", "name_of_env_variable_password", "smtps://smtp.gmail.com:465")` -- Mail notifier that uses gmail, sending the email to yourself
+- `MailNotifier("name_of_env_variable_user", "name_of_env_variable_password", "smtps://smtp.gmail.com:465"; test=true)` -- Test the mail notifier by sending a test email (default is false)
+- `MailNotifier("name_of_env_variable_user", "name_of_env_variable_password", "smtps://smtp.gmail.com:465"; isSSL=false)` -- Don't use SSL certificates (default is true)
+
+"""
+struct MailNotifier
+
+    mailto::Vector{String}
+    mailfrom::String
+    url::String
+    
+    send_opts::SendOptions
+
+    function MailNotifier(mailto::Vector{String}, env_mail_user::String, env_mail_pass::String, url::String; test::Bool=false, isSSL=true)
+
+        mail_user=ENV[env_mail_user]
+        mail_pass=ENV[env_mail_pass]
+        opt = SendOptions(isSSL = isSSL, username = mail_user, passwd = mail_pass)
+
+        notifier = new(mailto, mail_user, url, opt)
+
+        if test 
+            send(notifier, "Test email", "This is a test email to check if the notifier works")
+        end
+
+        return notifier
+    end
+
+    function MailNotifier(env_mail_user::String, env_mail_pass::String, url::String; test::Bool=false, isSSL=true)
+
+        mail_user=ENV[env_mail_user]
+        mail_pass=ENV[env_mail_pass]
+        opt = SendOptions(isSSL = isSSL, username = mail_user, passwd = mail_pass)
+
+        mailto = [mail_user]
+
+        notifier = new(mailto, mail_user, url, opt)
+
+        if test 
+            send(notifier, "Test email", "This is a test email to check if the notifier works")
+        end
+        
+        return notifier
+    end
+
+end
+
+
+"""
+send(notifier, "This is the subject", "This is a message")
+send(notifier, "This is the subject", "This is a message", ["path/to/attachment1.png", "path/to/attachment2.txt"])
+
+Send an email using a MailNotifier object.
+
+This function sends an email using the options of a MailNotifier object. Attachments can be added when providing a vector of paths.
+
+### Arguments
+
+- `notifier::MailNotifier` -- MailNotifier object
+- `subject::String` -- Subject of the email
+- `message::String` -- Message of the email
+- `attachments::Vector{String}` -- Attachments of the email
+"""
+function send(notifier::MailNotifier, subject::String, message::String)
+
+    
+    body = get_body(notifier.mailto, notifier.mailfrom, subject, get_mime_msg(message))
+
+    resp = SMTPClient.send(notifier.url, notifier.mailto, notifier.mailfrom, body, notifier.send_opts)
+
+    return resp
+
+end
+
+function send(notifier::MailNotifier, subject::String, message::String, attachments::Vector{String})
+
+    
+    body = get_body(notifier.mailto, notifier.mailfrom, subject, get_mime_msg(message); attachments)
+
+    resp = SMTPClient.send(notifier.url, notifier.mailto, notifier.mailfrom, body, notifier.send_opts)
+
+    return resp
+
+end

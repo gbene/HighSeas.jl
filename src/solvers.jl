@@ -133,9 +133,12 @@ end
 
 """
     solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver)
-    solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver, plotter::LivePlotter)
+    solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver, notifier::MailNotifier)
+    solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver, plotter::LivePlotter, notifier::MailNotifier)
     solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver)
+    solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver, notifier::MailNotifier)
     solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver, plotter::LivePlotter)
+    solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver, plotter::LivePlotter, notifier::MailNotifier)
 
 
 Solve the problem controlling either the number of steps or time.
@@ -144,6 +147,7 @@ Solve the problem controlling either the number of steps or time.
 - `experiment::AbstractExperiment` -- Experimental setup to solve
 - `algorithm::AbstractAlgorithm` -- Which algorithm to use
 - `solver::AbstractSolver` -- Which solver to use
+- `notifier::MailNotifier` -- Send email at start and end of simulation using a MailNotifier object 
 - `plotter::LivePlotter` -- Live plot
 
 ### Notes
@@ -186,6 +190,41 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
 end
 
+function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver, notifier::MailNotifier)
+
+    state = experiment.state
+    dx = state.dx
+    V  = state.V
+    theta  = state.theta
+
+    NT = solver.NT
+
+    detector = solver.detector
+    savers = solver.savers
+    samplers = solver.samplers
+
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment started successfully", ["$(experiment.outpath)/simulation.log"])
+
+
+    for i in 1:NT
+
+        dx, V, theta = algorithm(dx, V, theta)
+
+        sample(samplers, stepper, state, detector.eventN)
+
+        if typeof(detector) != EmptyDetector
+            detect(detector, savers)
+        else
+            simsave(savers, stepper.step)
+        end
+        simsave(savers)
+
+
+    end
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
+
+end
+
 function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver, plotter::LivePlotter)
 
     state = experiment.state
@@ -216,6 +255,40 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
     end
 
 end
+
+function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractStepSolver, plotter::LivePlotter, notifier::MailNotifier)
+
+    state = experiment.state
+    dx = state.dx
+    V  = state.V
+    theta  = state.theta
+
+    NT = solver.NT
+
+    detector = solver.detector
+    savers = solver.savers
+    samplers = solver.samplers
+
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment started successfully", ["$(experiment.outpath)/simulation.log"])
+
+    for i in 1:NT
+
+        dx, V, theta = algorithm(dx, V, theta)
+
+        sample(samplers, stepper, state, detector.eventN)
+        if typeof(detector) != EmptyDetector
+            detect(detector, savers)
+        else
+            simsave(savers, stepper.step)
+        end
+        UpdatePlot(plotter)
+
+
+    end
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
+
+end
+
 
 function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver)
 
@@ -251,6 +324,42 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
 end
 
+function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver, notifier::MailNotifier)
+
+    state = experiment.state
+    stepper = algorithm.stepper
+    dx = state.dx
+    V  = state.V
+    theta  = state.theta
+
+    tf = solver.tf
+
+    detector = solver.detector
+    savers = solver.savers
+    samplers = solver.samplers
+
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment started successfully", ["$(experiment.outpath)/simulation.log"])
+
+
+    while stepper.time <= tf
+
+        dx, V, theta = algorithm(dx, V, theta)
+
+        sample(samplers, stepper, state, detector.eventN)
+        if typeof(detector) != EmptyDetector
+            detect(detector, savers)
+        else
+            simsave(savers, stepper.step)
+        end
+
+
+
+    end
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
+
+end
+
+
 function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver, plotter::LivePlotter)
 
     state = experiment.state
@@ -283,6 +392,41 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
     end
 end
 
+function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, solver::AbstractTimeSolver, plotter::LivePlotter, notifier::MailNotifier)
+
+    state = experiment.state
+    stepper = algorithm.stepper
+    dx = state.dx
+    V  = state.V
+    theta  = state.theta
+
+    tf = solver.tf
+
+    detector = solver.detector
+    savers = solver.savers
+    samplers = solver.samplers
+
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment started successfully", ["$(experiment.outpath)/simulation.log"])
+
+    while stepper.time <= tf
+
+        dx, V, theta = algorithm(dx, V, theta)
+
+        sample(samplers, stepper, state, detector.eventN)
+        if typeof(detector) != EmptyDetector
+            detect(detector, savers)
+        else
+            simsave(savers, stepper.step)
+        end
+
+        UpdatePlot(plotter)
+
+
+    end
+
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
+
+end
 
 
 function benchmarksolve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, steps, print_steps=false)

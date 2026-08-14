@@ -13,6 +13,7 @@ using CSV
 using Tables
 using Glob
 using SFTPClient
+using SMTPClient
 using PolygonInbounds
 using Fractalizer
 using Random
@@ -46,7 +47,7 @@ const global_settings = Dict{String, Any}("backend"=>CPUBackend())
 mycopy(x::T) where T = T([deepcopy(getfield(x, k)) for k ∈ fieldnames(T)]...)
 
 export global_settings
-export State, Catalog
+export State, Catalog, MailNotifier, send
 export SimpleMaterial
 export Grid, PowerGrid, RectangleFault, RectanglePatch, CustomPatch, RectangleNucleation, Domain
 export readSheet, RandomState, get_backend, get_available_platforms, get_available_GPUplatforms, set_CPUbackend, set_GPUbackend
