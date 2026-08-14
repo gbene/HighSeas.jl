@@ -31,6 +31,30 @@ function plot_experiment(experiment::AbstractExperiment, field::Symbol,  scale::
 end
 
 
+function write_logfile(outpath::String, lengthscales::NamedTuple, start_time::String, input_dict::Dict, grid::AbstractGrid)
+
+    open("$outpath/simulation.log","w") do file
+                write(file, "Experiment start time: $start_time \n")
+                write(file, "Backend: $(get_backend().device), $(get_backend().platform), $(typeof(get_backend()) <: HighSeas.AbstractGPUBackend ? get_backend().memtype : "")\n")
+                write(file, "================================================================\n")
+                for k in sort!(collect(keys(input_dict)))
+                    value = input_dict[k]
+                    value_string = "$value"
+                    if (k == "W") | (k=="L")
+                        grid_value = getproperty(grid, Symbol(k))
+                        if value != grid_value
+                            value_string = "$grid_value #target was $value"
+                        end
+                    end
+                    write(file, "$k: $value_string\n")
+                end
+                write(file, "================================================================\n")
+                write(file, "$(string(lengthscales))\n")
+            end
+
+
+end
+
 """
     BP4QDExp{AbstractArray{Float64}, AbstractMaterial, AbstractDomain, AbstractState, AbstractCatalog}
 
@@ -182,23 +206,25 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
         state_init = State(dx_init, V_init, theta_init, tau_init)
         catalog_init = Catalog(n_events)
 
-        open("$outpath/simulation.log","w") do file
-                write(file, "Experiment start time: $start_time \n")
-                write(file, "================================================================\n")
-                for k in sort!(collect(keys(input_dict)))
-                    value = input_dict[k]
-                    value_string = "$value"
-                    if (k == "W") | (k=="L")
-                        grid_value = getproperty(grid, Symbol(k))
-                        if value != grid_value
-                            value_string = "$grid_value #target was $value"
-                        end
-                    end
-                    write(file, "$k: $value_string\n")
-                end
-                write(file, "================================================================\n")
-                write(file, "$(string(lengthscales))\n")
-            end
+        write_logfile(outpath, lengthscales, start_time, input_dict, grid)
+
+        # open("$outpath/simulation.log","w") do file
+        #         write(file, "Experiment start time: $start_time \n")
+        #         write(file, "================================================================\n")
+        #         for k in sort!(collect(keys(input_dict)))
+        #             value = input_dict[k]
+        #             value_string = "$value"
+        #             if (k == "W") | (k=="L")
+        #                 grid_value = getproperty(grid, Symbol(k))
+        #                 if value != grid_value
+        #                     value_string = "$grid_value #target was $value"
+        #                 end
+        #             end
+        #             write(file, "$k: $value_string\n")
+        #         end
+        #         write(file, "================================================================\n")
+        #         write(file, "$(string(lengthscales))\n")
+        #     end
 
 
         new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time, outpath,
@@ -284,15 +310,16 @@ struct BP4QDExp{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDomai
 
         catalog_init = Catalog(n_events)
 
-        open("$outpath/simulation.log","w") do file
-            write(file, "Experiment start time: $start_time \n")
-            write(file, "================================================================\n")
-            for k in sort!(collect(keys(input_dict)))
-                    write(file, "$k: $(input_dict[k])\n")
-            end
-            write(file, "================================================================\n")
-            write(file, "$(string(lengthscales))\n")
-        end
+        # open("$outpath/simulation.log","w") do file
+        #     write(file, "Experiment start time: $start_time \n")
+        #     write(file, "================================================================\n")
+        #     for k in sort!(collect(keys(input_dict)))
+        #             write(file, "$k: $(input_dict[k])\n")
+        #     end
+        #     write(file, "================================================================\n")
+        #     write(file, "$(string(lengthscales))\n")
+        # end
+        write_logfile(outpath, lengthscales, start_time, input_dict, grid)
 
 
         new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time, outpath,
@@ -406,23 +433,25 @@ struct Experiment{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDom
         state_init = State(dx_init, V_init, theta_init, tau_init)
         catalog_init = Catalog(n_events)
 
-        open("$outpath/simulation.log","w") do file
-                write(file, "Experiment start time: $start_time \n")
-                write(file, "================================================================\n")
-                for k in sort!(collect(keys(input_dict)))
-                    value = input_dict[k]
-                    value_string = "$value"
-                    if (k == "W") | (k=="L")
-                        grid_value = getproperty(grid, Symbol(k))
-                        if value != grid_value
-                            value_string = "$grid_value #target was $value"
-                        end
-                    end
-                    write(file, "$k: $value_string\n")
-                end
-                write(file, "================================================================\n")
-                write(file, "$(string(lengthscales))\n")
-            end
+        # open("$outpath/simulation.log","w") do file
+        #         write(file, "Experiment start time: $start_time \n")
+        #         write(file, "================================================================\n")
+        #         for k in sort!(collect(keys(input_dict)))
+        #             value = input_dict[k]
+        #             value_string = "$value"
+        #             if (k == "W") | (k=="L")
+        #                 grid_value = getproperty(grid, Symbol(k))
+        #                 if value != grid_value
+        #                     value_string = "$grid_value #target was $value"
+        #                 end
+        #             end
+        #             write(file, "$k: $value_string\n")
+        #         end
+        #         write(file, "================================================================\n")
+        #         write(file, "$(string(lengthscales))\n")
+        #     end
+        write_logfile(outpath, lengthscales, start_time, input_dict, grid)
+
 
 
         new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time, outpath,
@@ -493,15 +522,16 @@ struct Experiment{F<:AbstractArray{Float64}, M<:AbstractMaterial, D<:AbstractDom
 
         catalog_init = Catalog(n_events)
 
-        open("$outpath/simulation.log","w") do file
-            write(file, "Experiment start time: $start_time \n")
-            write(file, "================================================================\n")
-            for k in sort!(collect(keys(input_dict)))
-                    write(file, "$k: $(input_dict[k])\n")
-            end
-            write(file, "================================================================\n")
-            write(file, "$(string(lengthscales))\n")
-        end
+        # open("$outpath/simulation.log","w") do file
+        #     write(file, "Experiment start time: $start_time \n")
+        #     write(file, "================================================================\n")
+        #     for k in sort!(collect(keys(input_dict)))
+        #             write(file, "$k: $(input_dict[k])\n")
+        #     end
+        #     write(file, "================================================================\n")
+        #     write(file, "$(string(lengthscales))\n")
+        # end
+        write_logfile(outpath, lengthscales, start_time, input_dict, grid)
 
 
         new{typeof(a), typeof(material), typeof(domain), typeof(state_init), typeof(catalog_init)}(material, domain, start_time, outpath,
