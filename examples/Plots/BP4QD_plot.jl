@@ -10,6 +10,7 @@ using Statistics
 using StatsBase
 using EasyFit
 using CUDA
+using Format
 
 """
 
@@ -48,13 +49,16 @@ function plotInterEventTime(pointSampler, ref_path::String, quantity::String, sa
     pointy = pointSampler.sample_point_y
 
 
-    paths = glob("**/$point.csv", ref_path)
+    strk = format(pointx, width=4, zeropadding=true, signed=true, precision=0)
+    dp = format(pointy, width=4, zeropadding=true, signed=true, precision=0)
+
+    paths = glob("**/*strk$(strk)dp$(dp).csv", ref_path)
     data = Array{CSV.File, 1}(undef, length(paths))
     label = Array{String, 1}(undef, length(paths))
     fig = Figure(size=(1920,1080), figure_padding=30)
 
 
-    ax = Axis(fig[1,1], title="Interevent time for point $point (x:$pointx, y:$pointy)", xlabel="Event n", ylabel="Interevent time [yr]")
+    ax = Axis(fig[1,1], title="Interevent time for point $point (x:$strk, y:$dp)", xlabel="Event n", ylabel="Interevent time [yr]")
 
 
     for i in eachindex(paths)
@@ -70,8 +74,8 @@ function plotInterEventTime(pointSampler, ref_path::String, quantity::String, sa
 
     property = scale.(getproperty(pointSampler, Symbol(sampler_quantity)))
     interevent = calcInter(property, pointSampler.times)
-    lines!(ax, interevent, label="Ours", color=:black, linewidth=5)
-    scatter!(ax, interevent, label="Ours",color=:black, markersize=15)
+    lines!(ax, interevent, label="highseas", color=:black, linewidth=5)
+    scatter!(ax, interevent, label="highseas",color=:black, markersize=15)
 
     ax.titlesize=40
     ax.xlabelsize = 40
@@ -103,13 +107,16 @@ function plotEventComparison(pointSampler, ref_path::String, quantity::String, s
     pointy = pointSampler.sample_point_y
 
 
-    paths = glob("**/$point.csv", ref_path)
+    strk = format(pointx, width=4, zeropadding=true, signed=true, precision=0)
+    dp = format(pointy, width=4, zeropadding=true, signed=true, precision=0)
+
+    paths = glob("**/*strk$(strk)dp$(dp).csv", ref_path)
     data = Array{CSV.File, 1}(undef, length(paths))
     label = Array{String, 1}(undef, length(paths))
     fig = Figure(size=(1920,1080), figure_padding=30)
 
 
-    ax = Axis(fig[1,1], title="Peak time difference for point $point (x:$pointx, y:$pointy)", xlabel="Event n", ylabel="Peak time difference [yr]")
+    ax = Axis(fig[1,1], title="Peak time difference for point $point (x:$strk, y:$dp)", xlabel="Event n", ylabel="Peak time difference [yr]")
 
     peaktimes = zeros(length(paths)+1, 10)
     diff_mat = zeros(length(paths)+1, 10)
@@ -131,8 +138,8 @@ function plotEventComparison(pointSampler, ref_path::String, quantity::String, s
         row = peaktimes[i, :]
         # println(i)
         if i == 5
-            lines!(ax, row-ref, linewidth=5, label="Ours", color=:black)
-            scatter!(ax, row-ref, markersize=15, label="Ours", color=:black)
+            lines!(ax, row-ref, linewidth=5, label="highseas", color=:black)
+            scatter!(ax, row-ref, markersize=15, label="highseas", color=:black)
 
 
         else
@@ -189,8 +196,8 @@ function plotContour(contourSampler, ref_path::String)
 
     property = scale.(getproperty(pointSampler, Symbol(sampler_quantity)))
     interevent = calcInter(property, pointSampler.times)
-    lines!(ax, interevent, label="Ours", color=:black, linewidth=5)
-    scatter!(ax, interevent, label="Ours",color=:black, markersize=15)
+    lines!(ax, interevent, label="highseas", color=:black, linewidth=5)
+    scatter!(ax, interevent, label="highseas",color=:black, markersize=15)
 
     ax.titlesize=40
     ax.xlabelsize = 40
@@ -299,11 +306,11 @@ real_idx = [1, 4, 2, 5, 3, 6, 7]
 
 min_mag = zeros(6)
 
-barbot_data = CSV.File(open("../resources/scec/bp4-qd/barbot.6/b6_rupture.csv"))
-cheng_data = CSV.File(open("../resources/scec/bp4-qd/cheng/contour.csv"))
+barbot_data = CSV.File(open("../resources/scec/bp4-qd/barbot.6/rupture.csv"))
+cheng_data = CSV.File(open("../resources/scec/bp4-qd/cheng/rupture.csv"))
 
-lambert_data = CSV.File(open("../resources/scec/bp4-qd/lambert/contour.csv"))
-ozawa_data = CSV.File(open("../resources/scec/bp4-qd/ozawa/contour.csv"))
+lambert_data = CSV.File(open("../resources/scec/bp4-qd/lambert/rupture.csv"))
+ozawa_data = CSV.File(open("../resources/scec/bp4-qd/ozawa/rupture.csv"))
 
 
 barbot_data.t[barbot_data.t .== 0.] .= 1e9
@@ -359,7 +366,6 @@ for i in eachindex(k)
         total_area = (sum(localpatch.dRW))*localgrid.cell_area
         # println("Area: $total_area")
         areas = b.Area/total_area
-        display(total_area)
         times = b.t/(365*24*60*60)
         timemask = 158 .< times .< 652.0
         nanmask = .!isnan.(b.mag)
@@ -547,7 +553,7 @@ for i in eachindex(k)
         if i == 6
             boxplot!(bench12boxax, fill(3, length(partialevents)), partialevents, color=Makie.wong_colors()[i])
         end
-        println(i)
+        # println(i)
         ylims!(ax, 4, nothing)
         xlims!(ax, 150, 660.0)
         xlims!(axslip, 150, 660.0)
@@ -568,7 +574,6 @@ for i in eachindex(k)
 
     end
 end
-println("asdasd")
 axislegend(grax)
 xlims!(grax, high=7.5)
 

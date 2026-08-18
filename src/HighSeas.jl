@@ -19,6 +19,7 @@ using Fractalizer
 using Random
 using Statistics
 using Polyester
+using Format
 
 include("abstracttypes.jl")
 include("macros.jl")

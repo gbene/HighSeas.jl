@@ -193,14 +193,16 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     pointx = pointSampler.sample_point_x
     pointy = pointSampler.sample_point_y
 
+    strk = format(pointx, width=4, zeropadding=true, signed=true, precision=0)
+    dp = format(pointy, width=4, zeropadding=true, signed=true, precision=0)
 
-    paths = glob("**/$point.csv", ref_path)
+    paths = glob("**/*strk$(strk)dp$(dp).csv", ref_path)
     data = Array{CSV.File, 1}(undef, length(paths))
     label = Array{String, 1}(undef, length(paths))
     fig = Figure(size=(1920,1080), figure_padding=30)
 
 
-    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$sampler_quantity")
+    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$strk, y:$dp)", xlabel="Time [yr]", ylabel="$sampler_quantity")
 
 
     for i in eachindex(paths)
@@ -210,7 +212,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
         lines!(ax, data.t/(365*24*60*60), getproperty(data, Symbol(quantity)), label=label, linewidth=5)
     end
 
-    lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, Symbol(sampler_quantity)), label="Ours", color=:black, linewidth=5)
+    lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, Symbol(sampler_quantity)), label="highseas", color=:black, linewidth=5)
 
     ax.titlesize=40
     ax.xlabelsize = 40
@@ -233,13 +235,16 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     pointy = pointSampler.sample_point_y
 
 
-    paths = glob("**/$point.csv", ref_path)
+    strk = format(pointx, width=4, zeropadding=true, signed=true, precision=0)
+    dp = format(pointy, width=4, zeropadding=true, signed=true, precision=0)
+
+    paths = glob("**/*strk$(strk)dp$(dp).csv", ref_path)
     data = Array{CSV.File, 1}(undef, length(paths))
     label = Array{String, 1}(undef, length(paths))
     fig = Figure(size=(1920,1080), figure_padding=30)
 
 
-    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$(string(scale))($sampler_quantity)")
+    ax = Axis(fig[1,1], title="Sample point $point comparison (x:$strk, y:$dp)", xlabel="Time [yr]", ylabel="$(string(scale))($sampler_quantity)")
 
 
     for i in eachindex(paths)
@@ -249,7 +254,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
         lines!(ax, data.t/(365*24*60*60), getproperty(data, Symbol(quantity)), label=label, linewidth=5)
     end
 
-    lines!(ax, pointSampler.times/(365*24*60*60), scale.(getproperty(pointSampler, Symbol(sampler_quantity))), label="Ours", color=:black, linewidth=5)
+    lines!(ax, pointSampler.times/(365*24*60*60), scale.(getproperty(pointSampler, Symbol(sampler_quantity))), label="highseas", color=:black, linewidth=5)
 
     ax.titlesize=40
     ax.xlabelsize = 40

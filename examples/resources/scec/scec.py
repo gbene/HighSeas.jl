@@ -198,7 +198,7 @@ parser.add_argument("--up", nargs='+', default=[], help="scec username and passw
 args = parser.parse_args()
 
 
-scraper = SCEC(headless=False)
+scraper = SCEC(headless=True)
 
 if len(args.up) > 1:
     scraper.login(args.up[0], args.up[1])
