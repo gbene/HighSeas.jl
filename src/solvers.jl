@@ -147,7 +147,7 @@ Solve the problem controlling either the number of steps or time.
 - `experiment::AbstractExperiment` -- Experimental setup to solve
 - `algorithm::AbstractAlgorithm` -- Which algorithm to use
 - `solver::AbstractSolver` -- Which solver to use
-- `notifier::MailNotifier` -- Send email at start and end of simulation using a MailNotifier object 
+- `notifier::MailNotifier` -- Send email at start and end of simulation using a MailNotifier object
 - `plotter::LivePlotter` -- Live plot
 
 ### Notes
@@ -269,7 +269,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
     savers = solver.savers
     samplers = solver.samplers
 
-    send(notifier, "Simulation $(experiment.start_time)", "Experiment started successfully", ["$(experiment.outpath)/simulation.log"])
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment $(String(typeof(experiment).name.name)) started successfully", ["$(experiment.outpath)/simulation.log"])
 
     for i in 1:NT
 
@@ -285,7 +285,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
 
     end
-    send(notifier, "Simulation $(experiment.start_time)", "Experiment ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment $(String(typeof(experiment).name.name)) ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
 
 end
 
@@ -338,7 +338,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
     savers = solver.savers
     samplers = solver.samplers
 
-    send(notifier, "Simulation $(experiment.start_time)", "Experiment started successfully", ["$(experiment.outpath)/simulation.log"])
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment $(String(typeof(experiment).name.name)) started successfully", ["$(experiment.outpath)/simulation.log"])
 
 
     while stepper.time <= tf
@@ -355,7 +355,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
 
     end
-    send(notifier, "Simulation $(experiment.start_time)", "Experiment ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment $(String(typeof(experiment).name.name)) ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
 
 end
 
@@ -406,7 +406,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
     savers = solver.savers
     samplers = solver.samplers
 
-    send(notifier, "Simulation $(experiment.start_time)", "Experiment started successfully", ["$(experiment.outpath)/simulation.log"])
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment $(String(typeof(experiment).name.name)) started successfully", ["$(experiment.outpath)/simulation.log"])
 
     while stepper.time <= tf
 
@@ -424,7 +424,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
     end
 
-    send(notifier, "Simulation $(experiment.start_time)", "Experiment ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
+    send(notifier, "Simulation $(experiment.start_time)", "Experiment $(String(typeof(experiment).name.name)) ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
 
 end
 
