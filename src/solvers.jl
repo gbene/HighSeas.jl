@@ -77,7 +77,7 @@ Solve up to the specified time (in seconds).
 
 ### Fields
 
-+ `tf::Int` -- Number of steps
++ `tf::Int` -- Time in seconds
 + `savers::Vector{<:AbstractSavers}` -- List of AbstractSavers
 + `detector::AbstractDetector` -- Which detector to use
 + `samplers::Vector{<:AbstractSampler}` -- List of AbstractSamplers
@@ -355,6 +355,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
 
 
     end
+    simsave(savers)
     send(notifier, "Simulation $(experiment.start_time)", "Experiment $(String(typeof(experiment).name.name)) ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])
 
 end
@@ -387,8 +388,10 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
         end
 
         UpdatePlot(plotter)
+    end
 
-
+    if plotter.save_movie
+        save("$(plotter.outpath)movie.mp4", plotter.io)
     end
 end
 
@@ -422,6 +425,10 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
         UpdatePlot(plotter)
 
 
+    end
+
+    if plotter.save_movie
+        save("$(plotter.outpath)movie.mp4", plotter.io)
     end
 
     send(notifier, "Simulation $(experiment.start_time)", "Experiment $(String(typeof(experiment).name.name)) ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])

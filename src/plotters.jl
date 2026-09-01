@@ -12,20 +12,22 @@ mutable struct RSPlotter <: LivePlotter
     obs::Vector{Observable}
     label::Label
     outpath::String
-    save_fig::Bool
+    save_movie::Bool
+    io::VideoStream
 
-    function RSPlotter(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, plot_every::Int, save_fig::Bool=false)
-        fig = Figure(size=(1080,1080),fontsize = 24)
+    function RSPlotter(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, plot_every::Int; save_movie::Bool=false, show_figure::Bool=true)
+        fig = Figure(size=(1920,1080),fontsize = 20)
         ax1  = Axis(fig[1,1], title="Slip", aspect=DataAspect())
         ax2  = Axis(fig[1,3], title="Log10(τ)", aspect=DataAspect())
         ax3  = Axis(fig[2,1], title="Log10(V)", aspect=DataAspect())
         ax4  = Axis(fig[2,3], title="Log10(θ)", aspect=DataAspect())
         ax5  = Axis(fig[3,:], title="Catalog", xlabel = "Time [yrs]", ylabel="Magnitude")
 
+        io = VideoStream(fig, visible=show_figure, framerate=60, compression=5)
 
-        outpath = "$(experiment.outpath)/movie_figures/"
+        outpath = "$(experiment.outpath)/movie/"
 
-        if save_fig && ~isdir(outpath)
+        if save_movie && ~isdir(outpath)
             mkpath(outpath)
         end
 
@@ -79,11 +81,13 @@ mutable struct RSPlotter <: LivePlotter
         colsize!(fig.layout, 1, Aspect(1, 1.0))
         colsize!(fig.layout, 3, Aspect(1, 1.0))
 
-        resize_to_layout!(fig)
-        display(fig)
+        # resize_to_layout!(fig)
 
+        if show_figure
+            display(fig)
+        end
 
-        new(state, catalog, stepper, plot_every, 0, fig, axs, obs, L, outpath, save_fig)
+        new(state, catalog, stepper, plot_every, 0, fig, axs, obs, L, outpath, save_movie, io)
     end
 
 
@@ -119,10 +123,11 @@ function UpdatePlot(rsPlotter)
         stepper_time = round(rsPlotter.stepper.time, digits=2)/(365*24*60*60)
         rsPlotter.label.text = "Simulation time: $stepper_time years\n Step: $step"
 
-        if rsPlotter.save_fig
-            start_time = string(now())
-            start_time = replace(start_time, ":"=>"_", "-"=>"_")
-            save("$(rsPlotter.outpath)/$start_time.png", rsPlotter.fig)
+        if rsPlotter.save_movie
+            recordframe!(rsPlotter.io)
+            # start_time = string(now())
+            # start_time = replace(start_time, ":"=>"_", "-"=>"_")
+            # save("$(rsPlotter.outpath)/$start_time.png", rsPlotter.fig)
         end
 
         yield()
@@ -143,14 +148,14 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, f
     ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$sampler_quantity")
 
 
-    lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, Symbol(sampler_quantity)), label="Ours", color=:black)
+    lines!(ax, pointSampler.times/(365*24*60*60), getproperty(pointSampler, Symbol(sampler_quantity)), label="highseas", color=:black, linewidth=5)
 
-    ax.titlesize=30
-    ax.xlabelsize = 25
-    ax.ylabelsize = 25
-    ax.xticklabelsize = 25
-    ax.yticklabelsize = 25
-    axislegend()
+    ax.titlesize=40
+    ax.xlabelsize = 40
+    ax.ylabelsize = 40
+    ax.xticklabelsize = 40
+    ax.yticklabelsize = 40
+    axislegend(labelsize=40)
 
     if figdisplay
         display(fig)
@@ -171,14 +176,14 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, s
     ax = Axis(fig[1,1], title="Sample point $point comparison (x:$pointx, y:$pointy)", xlabel="Time [yr]", ylabel="$(string(scale))($sampler_quantity)")
 
 
-    lines!(ax, pointSampler.times/(365*24*60*60), scale.(getproperty(pointSampler, Symbol(sampler_quantity))), label="Ours", color=:black)
+    lines!(ax, pointSampler.times/(365*24*60*60), scale.(getproperty(pointSampler, Symbol(sampler_quantity))), label="highseas", color=:black, linewidth=5)
 
-    ax.titlesize=30
-    ax.xlabelsize = 25
-    ax.ylabelsize = 25
-    ax.xticklabelsize = 25
-    ax.yticklabelsize = 25
-    axislegend()
+    ax.titlesize=40
+    ax.xlabelsize = 40
+    ax.ylabelsize = 40
+    ax.xticklabelsize = 40
+    ax.yticklabelsize = 40
+    axislegend(labelsize=40)
 
     if figdisplay
         display(fig)

@@ -602,7 +602,7 @@ axislegend(fitax)
 contourfig, contourax = HighSeas.plotDomain(domain)
 contour_data = Matrix(samplers.samplers[16].contour)
 contour_data[isnan.(contour_data)] .= 1e9
-contour!(contourax, grid.X, grid.Y, contour_data', labels=false,levels=30:10:60, color=:black, label="Ours")
+contour!(contourax, grid.X, grid.Y, contour_data', labels=false,levels=30:10:60, color=:black, label="highseas")
 contour!(contourax, barbot_data.x2, (barbot_data.x3.*-1), barbot_data.t, labels=false, levels=30:10:60, label="barbot.6", color=colorant"#0072b2ff")
 contour!(contourax, cheng_data.x2, (cheng_data.x3.*-1), cheng_data.t, labels=false, levels=10:10:30, label="cheng", color=colorant"#e69f00ff")
 contour!(contourax, lambert_data.x2, (lambert_data.x3.*-1).-500, lambert_data.t, labels=false, levels=30:10:60, label="lambert", color=colorant"#009e73ff" )

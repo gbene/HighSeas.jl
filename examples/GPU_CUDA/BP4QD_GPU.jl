@@ -58,7 +58,7 @@ detector = CatalogDetector(1e-3, 1e-2, experiment, algorithm)
 
 # Additional live plotting. This works only with CUDA.UnifiedMemory
 
-# plotter = RSPlotter(experiment, algorithm, 10)
+# plotter = RSPlotter(experiment, algorithm, 1, save_movie=true)
 
 # Additional samplers
 
