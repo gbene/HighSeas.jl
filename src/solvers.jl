@@ -387,7 +387,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
             simsave(savers, stepper.step)
         end
 
-        UpdatePlot(plotter)
+        plotter()
     end
 
     if plotter.save_movie
@@ -422,7 +422,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
             simsave(savers, stepper.step)
         end
 
-        UpdatePlot(plotter)
+        plotter()
 
 
     end

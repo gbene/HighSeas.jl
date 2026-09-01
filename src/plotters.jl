@@ -94,7 +94,7 @@ mutable struct RSPlotter <: LivePlotter
 end
 
 
-function UpdatePlot(rsPlotter)
+function (rsPlotter::RSPlotter)()
     step = rsPlotter.stepper.step
 
     dx = rsPlotter.state.dx
