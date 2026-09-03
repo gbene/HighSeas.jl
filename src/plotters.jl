@@ -13,9 +13,15 @@ mutable struct RSPlotter <: LivePlotter
     label::Label
     outpath::String
     save_movie::Bool
+    save_figure::Bool
+    save_when::Vector
     io::VideoStream
 
-    function RSPlotter(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, plot_every::Int; save_movie::Bool=false, show_figure::Bool=true)
+    function RSPlotter(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, plot_every::Int;
+                       save_movie::Bool=false, show_figure::Bool=true, save_figure::Bool=false, save_when::Vector=[])
+
+
+
         fig = Figure(size=(1920,1080),fontsize = 20)
         ax1  = Axis(fig[1,1], title="Slip", aspect=DataAspect())
         ax2  = Axis(fig[1,3], title="Log10(τ)", aspect=DataAspect())
@@ -25,9 +31,9 @@ mutable struct RSPlotter <: LivePlotter
 
         io = VideoStream(fig, visible=show_figure, framerate=60, compression=5)
 
-        outpath = "$(experiment.outpath)/movie/"
+        outpath = "$(experiment.outpath)/movie_and_figures"
 
-        if save_movie && ~isdir(outpath)
+        if (save_movie || save_figure) && ~isdir(outpath)
             mkpath(outpath)
         end
 
@@ -51,13 +57,13 @@ mutable struct RSPlotter <: LivePlotter
         # Moreover when we update the observable it does not care if it is a matrix or adjoint it just considers them as martrices thus if
         # we don't do the following the plotting will not work
 
-        obs1 = Observable(dx)
+        obs1 = Observable(Matrix(dx)) # We use matrix so that we can save pdfs using CairoMakie
         obs1[] = dx'
-        obs2 = Observable(tau)
+        obs2 = Observable(Matrix(tau))
         obs2[] = log10.(tau')
-        obs3 = Observable(V)
+        obs3 = Observable(Matrix(V))
         obs3[] = log10.(V')
-        obs4 = Observable(theta)
+        obs4 = Observable(Matrix(theta))
         obs4[] = log10.(theta')
         obs5 = Observable([NaN])
         obs6 = Observable([NaN])
@@ -87,7 +93,7 @@ mutable struct RSPlotter <: LivePlotter
             display(fig)
         end
 
-        new(state, catalog, stepper, plot_every, 0, fig, axs, obs, L, outpath, save_movie, io)
+        new(state, catalog, stepper, plot_every, 0, fig, axs, obs, L, outpath, save_movie, save_figure, save_when, io)
     end
 
 
@@ -125,10 +131,23 @@ function (rsPlotter::RSPlotter)()
 
         if rsPlotter.save_movie
             recordframe!(rsPlotter.io)
-            # start_time = string(now())
-            # start_time = replace(start_time, ":"=>"_", "-"=>"_")
-            # save("$(rsPlotter.outpath)/$start_time.png", rsPlotter.fig)
         end
+
+        if rsPlotter.save_figure
+            if !isempty(rsPlotter.save_when)
+                if step in rsPlotter.save_when
+                    start_time = string(now())
+                    start_time = replace(start_time, ":"=>"_", "-"=>"_")
+                    save("$(rsPlotter.outpath)/$start_time.pdf", rsPlotter.fig, backend=CairoMakie)
+                end
+            else
+                start_time = string(now())
+                start_time = replace(start_time, ":"=>"_", "-"=>"_")
+                save("$(rsPlotter.outpath)/$start_time.pdf", rsPlotter.fig, backend=CairoMakie)
+            end
+
+        end
+
 
         yield()
     end

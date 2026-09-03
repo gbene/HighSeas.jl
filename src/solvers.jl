@@ -391,7 +391,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
     end
 
     if plotter.save_movie
-        save("$(plotter.outpath)movie.mp4", plotter.io)
+        save("$(plotter.outpath)/movie.mp4", plotter.io)
     end
 end
 
@@ -428,7 +428,7 @@ function solve(experiment::AbstractExperiment, algorithm::AbstractAlgorithm, sol
     end
 
     if plotter.save_movie
-        save("$(plotter.outpath)movie.mp4", plotter.io)
+        save("$(plotter.outpath)/movie.mp4", plotter.io)
     end
 
     send(notifier, "Simulation $(experiment.start_time)", "Experiment $(String(typeof(experiment).name.name)) ended at: $(string(now()))", ["$(experiment.outpath)/simulation.log"])

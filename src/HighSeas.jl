@@ -1,6 +1,7 @@
 module HighSeas
 
 using Makie
+using CairoMakie
 using AbstractFFTs
 using LinearAlgebra
 using FFTW
