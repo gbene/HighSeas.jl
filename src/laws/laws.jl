@@ -3,8 +3,21 @@ include("state.jl")
 include("stress.jl")
 include("errors.jl")
 
-#Don't know if this struct is necessary or not.
-# It can be handy and makes things more organized but at the same time it is an additional layer.
+"""
+    AbstractHybridLaw
+
+Abstract type for hybrid laws that combine different laws based on some criterion.
+
+"""
+abstract type AbstractHybridLaw end
+
+"""
+    AbstractHybridRateLaw <: AbstractHybridLaw
+
+Abstract type for hybrid rate laws that use different rate laws depending on a slip rate threshold.
+
+"""
+abstract type AbstractHybridRateLaw <: AbstractHybridLaw end
 
 """
     GoverningEquations <: AbstractGoverningEquation
@@ -16,8 +29,6 @@ Commodity object used to group the governing equations of the simulation
 + ratelaw::AbstractRateLaw -- Rate law
 + stresslaw::AbstractStressLaw -- Stress law
 + statelaw::AbstractStateLaw -- State law
-
-
 
 """
 struct GoverningEquations{RL<:AbstractRateLaw, TL<:AbstractStressLaw, SL<:AbstractStateLaw} <: AbstractGoverningEquations
