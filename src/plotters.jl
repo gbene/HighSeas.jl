@@ -155,7 +155,7 @@ function (rsPlotter::RSPlotter)()
 end
 
 
-function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, figdisplay=false)
+function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, figdisplay=false; show_legend::Bool=true)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -174,7 +174,9 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, f
     ax.ylabelsize = 40
     ax.xticklabelsize = 40
     ax.yticklabelsize = 40
-    axislegend(labelsize=40)
+    if show_legend
+        axislegend(labelsize=40)
+    end
 
     if figdisplay
         display(fig)
@@ -183,7 +185,7 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, f
     return fig, ax
 
 end
-function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, scale::Function, figdisplay=false)
+function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, scale::Function, figdisplay=false; show_legend::Bool=true)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -202,7 +204,9 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, s
     ax.ylabelsize = 40
     ax.xticklabelsize = 40
     ax.yticklabelsize = 40
-    axislegend(labelsize=40)
+    if show_legend
+        axislegend(labelsize=40)
+    end
 
     if figdisplay
         display(fig)
@@ -211,7 +215,7 @@ function plotPointSample(pointSampler::PointSampler, sampler_quantity::String, s
     return fig, ax
 
 end
-function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::String, sampler_quantity::String, figdisplay=false)
+function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::String, sampler_quantity::String, figdisplay=false; show_legend::Bool=true)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -243,7 +247,10 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     ax.ylabelsize = 40
     ax.xticklabelsize = 40
     ax.yticklabelsize = 40
-    axislegend(labelsize=40)
+
+    if show_legend
+        axislegend(labelsize=40)
+    end
 
 
     if figdisplay
@@ -252,7 +259,7 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     return fig, ax
 
 end
-function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::String, sampler_quantity::String, scale::Function, figdisplay=false)
+function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity::String, sampler_quantity::String, scale::Function, figdisplay=false; show_legend::Bool=true)
 
     point = pointSampler.sample_point_id
     pointx = pointSampler.sample_point_x
@@ -285,7 +292,10 @@ function plotPointSample(pointSampler::PointSampler, ref_path::String, quantity:
     ax.ylabelsize = 40
     ax.xticklabelsize = 40
     ax.yticklabelsize = 40
-    axislegend(labelsize=40)
+
+    if show_legend
+        axislegend(labelsize=40)
+    end
 
 
     if figdisplay
