@@ -15,7 +15,7 @@ Create a simple material
 + `aRs::Float64` -- a value of the rate strengthening part
 + `b::Float64` -- b value of rate and state
 + `fr::Float64` -- Reference friction coefficient
-+ `G::Float64` -- Youngs modulus
++ `G::Float64` -- Shear modulus
 + `eta::Float64` -- Radiation damping coefficient
 + `Dc::Float64` -- Characteristic state evolution distance
 
